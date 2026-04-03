@@ -138,6 +138,18 @@ textarea{resize:vertical;min-height:90px;line-height:1.6;}
 .step-panel{display:none;}
 .step-panel.active{display:block;}
 
+/* SHARE BAR */
+.share-bar{background:var(--surface);border-bottom:1px solid var(--border-2);padding:10px 48px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.share-bar-label{font-size:12px;color:var(--ink-3);display:flex;align-items:center;gap:7px;}
+.share-bar-label svg{width:14px;height:14px;stroke:var(--accent);fill:none;}
+.share-bar-label strong{color:var(--ink-2);}
+.share-bar-right{display:flex;align-items:center;gap:8px;}
+.share-url{font-size:12px;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--border);border-radius:7px;padding:6px 12px;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:0.01em;}
+.share-copy-btn{padding:6px 14px;background:var(--accent-dim);color:var(--accent);border:1px solid #ff6b3530;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:background .15s;white-space:nowrap;display:flex;align-items:center;gap:6px;}
+.share-copy-btn:hover{background:#ff6b3530;}
+.share-copy-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;}
+.share-copy-btn.copied{color:var(--green);border-color:#00d68f30;background:#00d68f15;}
+
 footer{padding:24px 48px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:40px;}
 .foot-logo{font-size:14px;font-weight:800;color:var(--ink);}
 .foot-logo span{color:var(--accent);}
@@ -150,6 +162,8 @@ footer{padding:24px 48px;border-top:1px solid var(--border);display:flex;align-i
   .field-row{grid-template-columns:1fr;}
   .type-grid{grid-template-columns:repeat(2,1fr);}
   .progress-label{font-size:9px;}
+  .share-bar{padding:10px 20px;}
+  .share-url{display:none;}
   footer{padding:16px 20px;flex-direction:column;text-align:center;}
 }
 </style>
@@ -168,6 +182,21 @@ footer{padding:24px 48px;border-top:1px solid var(--border);display:flex;align-i
     For venues
   </a>
 </nav>
+
+<!-- AMBASSADOR SHARE BAR -->
+<div class="share-bar" id="share-bar">
+  <div class="share-bar-label">
+    <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51 15.42 17.49M15.41 6.51 8.59 10.49"/></svg>
+    <span><strong>Ambassadors:</strong> share this link directly with venues to register</span>
+  </div>
+  <div class="share-bar-right">
+    <span class="share-url">loopref.com/register</span>
+    <button class="share-copy-btn" id="copy-btn" onclick="copyRegisterLink()">
+      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      Copy link
+    </button>
+  </div>
+</div>
 
 <div class="page">
 
@@ -712,28 +741,84 @@ function show(id, visible) {
   if (el) el.style.display = visible ? 'flex' : 'none';
 }
 
+// Replace YOUR_FORM_ID with your Formspree form ID (formspree.io/f/YOUR_FORM_ID)
+// Get a free ID at formspree.io — it handles email notifications and auto-replies
+var FORMSPREE_ID = 'YOUR_FORM_ID';
+
 function submitForm() {
   var btn = document.getElementById('submit-btn');
   btn.classList.add('loading');
-  btn.textContent = 'Submitting…';
+  btn.innerHTML = 'Submitting&hellip;';
 
-  // TODO: replace with your form endpoint (Formspree, custom API, etc.)
-  // fetch('https://formspree.io/f/YOUR_FORM_ID', { method: 'POST', ... })
-  setTimeout(function() {
-    goTo(6);
-  }, 1000);
+  var typeChecked = document.querySelector('input[name="venue-type"]:checked');
+  var plats = Array.from(document.querySelectorAll('input[type=checkbox][id^=plat-]:checked')).map(function(c){ return c.value; });
+
+  var data = {
+    venue_name: val('venue-name'),
+    venue_type: typeChecked ? typeChecked.value : '',
+    maps_url: val('maps-url'),
+    first_name: val('fname'),
+    last_name: val('lname'),
+    role: val('role'),
+    email: val('email'),
+    phone: val('phone'),
+    city: val('city'),
+    country: val('country'),
+    min_spend: val('min-spend'),
+    discount: val('discount'),
+    platforms: plats.join(', '),
+    tagline: val('tagline'),
+    terms_note: val('terms-note'),
+    website: val('website'),
+    instagram: val('instagram'),
+    tiktok: val('tiktok'),
+    referral: val('referral'),
+    rep_code: val('rep-code'),
+    _subject: 'New venue registration: ' + val('venue-name'),
+    _replyto: val('email')
+  };
+
+  if (FORMSPREE_ID === 'YOUR_FORM_ID') {
+    // No endpoint set yet — just show confirmation
+    setTimeout(function(){ goTo(6); }, 800);
+    return;
+  }
+
+  fetch('https://formspree.io/f/' + FORMSPREE_ID, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+    body: JSON.stringify(data)
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(){ goTo(6); })
+  .catch(function(){
+    btn.classList.remove('loading');
+    btn.innerHTML = 'Submit registration <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+    alert('Something went wrong — please email hello@loopref.com directly and we will get you set up.');
+  });
+}
+
+function copyRegisterLink() {
+  var url = 'https://loopref.com/register';
+  var btn = document.getElementById('copy-btn');
+  navigator.clipboard.writeText(url).then(function() {
+    btn.classList.add('copied');
+    btn.innerHTML = '<svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;stroke:currentColor;fill:none;"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+    setTimeout(function(){
+      btn.classList.remove('copied');
+      btn.innerHTML = '<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;stroke:currentColor;fill:none;"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy link';
+    }, 2500);
+  }).catch(function(){
+    prompt('Copy this link:', url);
+  });
 }
 
 function shareLink() {
-  var url = window.location.origin + '/register';
+  var url = 'https://loopref.com/register';
   if (navigator.share) {
     navigator.share({ title: 'Register your venue on LoopRef', url: url });
-  } else if (navigator.clipboard) {
-    navigator.clipboard.writeText(url).then(function() {
-      alert('Link copied: ' + url);
-    });
   } else {
-    prompt('Copy this link:', url);
+    copyRegisterLink();
   }
 }
 </script>
