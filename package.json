@@ -1,20 +1,10 @@
 {
-  "name": "@aifredo/sdk",
-  "version": "0.1.0",
-  "description": "Official SDK for the AiFredo AI agent platform",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
-  "files": ["dist", "README.md"],
+  "name": "loopref-web",
+  "version": "1.0.0",
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts",
-    "dev": "tsup src/index.ts --format cjs,esm --dts --watch"
+    "start": "serve . -p ${PORT:-3000}"
   },
-  "keywords": ["ai", "agents", "aifredo", "chatbot", "sdk"],
-  "author": "Pipe Labs LLC",
-  "license": "MIT",
-  "devDependencies": {
-    "tsup": "^8.0.0",
-    "typescript": "^5.0.0"
+  "dependencies": {
+    "serve": "^14.2.0"
   }
 }
