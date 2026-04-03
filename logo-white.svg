@@ -1,0 +1,8 @@
+<svg width="200" height="44" viewBox="0 0 200 44" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0" y="4" width="36" height="36" rx="8" fill="#ff6b35"/>
+  <path d="M10 22 C10 16.5 14.5 12 20 12 C25.5 12 30 16.5 30 22" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M30 22 C30 27.5 25.5 32 20 32 C14.5 32 10 27.5 10 22" stroke="rgba(255,255,255,0.4)" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <polyline points="26,19 30,22 26,25" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="50" y="27" font-family="Georgia,serif" font-weight="700" font-size="22" fill="#fff9f0">loop</text>
+  <text x="96" y="27" font-family="Georgia,serif" font-weight="700" font-size="22" fill="#ff6b35">ref</text>
+</svg>
