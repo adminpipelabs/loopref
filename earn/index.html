@@ -485,15 +485,12 @@ function calcEarn(){
   document.getElementById('biz-val').textContent=biz;
   document.getElementById('red-val').textContent=red;
   document.getElementById('team-val').textContent=team;
-  var avgSpend=45;
-  var discountPct=0.10;
-  var looprefPct=0.03;
+  var looprefFee=1.50;
   var repPct=0.30;
+  var teamPct=0.10;
   var totalRedemptions=biz*red;
-  var discountVal=totalRedemptions*avgSpend*discountPct;
-  var looprefEarns=discountVal*looprefPct;
-  var repEarns=Math.round(looprefEarns*repPct);
-  var teamEarns=Math.round(repEarns*team*0.10);
+  var repEarns=Math.round(totalRedemptions*looprefFee*repPct);
+  var teamEarns=Math.round(repEarns*team*teamPct);
   var total=repEarns+teamEarns;
   var annual=total*12;
   document.getElementById('monthly-res').textContent='$'+repEarns.toLocaleString();
@@ -501,6 +498,7 @@ function calcEarn(){
   document.getElementById('total-monthly').textContent='$'+total.toLocaleString();
   document.getElementById('annual-earn').textContent='$'+annual.toLocaleString();
 }
+calcEarn();
 </script>
 </body>
 </html>
