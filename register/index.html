@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register your venue — LoopRef</title>
+<meta name="description" content="List your restaurant, store or venue on LoopRef. Free to register. Live within 24 hours.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0d0805;--surface:#1a1008;--surface-2:#251808;--surface-3:#332208;
+  --ink:#fff9f0;--ink-2:#c4a882;--ink-3:#7a6040;
+  --accent:#ff6b35;--accent-dim:#ff6b3520;--accent-mid:#e55a24;
+  --green:#00d68f;--green-dim:#00d68f15;
+  --border:#ffffff10;--border-2:#ffffff1a;--border-3:#ffffff28;
+  --red:#ff4444;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;min-height:100vh;overflow-x:hidden;}
+
+/* NAV */
+nav{padding:0 48px;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(13,8,5,0.95);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;backdrop-filter:blur(16px);}
+.nav-tag{font-size:10px;padding:3px 10px;background:var(--accent-dim);color:var(--accent);border-radius:10px;font-weight:700;letter-spacing:0.06em;border:1px solid #ff6b3530;}
+.nav-back{font-size:13px;color:var(--ink-3);text-decoration:none;display:flex;align-items:center;gap:6px;transition:color .15s;}
+.nav-back:hover{color:var(--ink);}
+.nav-back svg{width:15px;height:15px;}
+
+/* WRAPPER */
+.page{max-width:600px;margin:0 auto;padding:52px 24px 80px;}
+
+/* PROGRESS */
+.progress-wrap{margin-bottom:44px;}
+.progress-steps{display:flex;align-items:center;gap:0;margin-bottom:12px;}
+.step-node{display:flex;align-items:center;gap:0;flex:1;}
+.step-node:last-child{flex:none;}
+.step-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;transition:background .3s,border-color .3s,color .3s;}
+.step-dot.done{background:var(--accent);border:2px solid var(--accent);color:#fff;}
+.step-dot.active{background:var(--surface-2);border:2px solid var(--accent);color:var(--accent);}
+.step-dot.pending{background:var(--surface);border:2px solid var(--border-2);color:var(--ink-3);}
+.step-line{flex:1;height:2px;background:var(--border);margin:0 4px;transition:background .3s;}
+.step-line.done{background:var(--accent);}
+.progress-labels{display:flex;justify-content:space-between;}
+.progress-label{font-size:10px;color:var(--ink-3);font-weight:500;text-align:center;width:28px;white-space:nowrap;transform:translateX(-50%);margin-left:14px;}
+.progress-label:first-child{margin-left:0;transform:none;}
+.progress-label:last-child{transform:translateX(-100%);margin-left:28px;}
+.progress-label.active{color:var(--accent);}
+.progress-label.done{color:var(--ink-2);}
+
+/* FORM CARD */
+.form-card{background:var(--surface);border:1px solid var(--border-2);border-radius:16px;padding:36px 32px;}
+.step-eyebrow{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:10px;}
+.step-heading{font-family:'Fraunces',serif;font-size:30px;letter-spacing:-0.5px;line-height:1.15;margin-bottom:6px;}
+.step-heading em{font-style:italic;}
+.step-sub{font-size:14px;color:var(--ink-2);margin-bottom:28px;line-height:1.7;}
+
+/* FIELDS */
+.field{margin-bottom:20px;}
+.field:last-child{margin-bottom:0;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.field-row .field{margin-bottom:0;}
+label{font-size:12px;color:var(--ink-3);margin-bottom:6px;display:block;font-weight:500;letter-spacing:0.02em;}
+label .req{color:var(--accent);margin-left:2px;}
+label .opt{color:var(--ink-3);font-weight:400;font-size:10px;margin-left:4px;letter-spacing:0;}
+input[type=text],input[type=email],input[type=tel],input[type=url],select,textarea{
+  width:100%;padding:11px 14px;background:var(--surface-2);border:1.5px solid var(--border);
+  border-radius:9px;font-size:14px;color:var(--ink);font-family:'Plus Jakarta Sans',sans-serif;
+  outline:none;transition:border-color .2s;
+}
+input::placeholder,textarea::placeholder{color:var(--ink-3);}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);}
+input.error,select.error,textarea.error{border-color:var(--red);}
+.field-error{font-size:11px;color:var(--red);margin-top:5px;display:none;}
+.field-error.show{display:block;}
+select option{background:var(--surface-2);color:var(--ink);}
+textarea{resize:vertical;min-height:90px;line-height:1.6;}
+.field-hint{font-size:11px;color:var(--ink-3);margin-top:5px;line-height:1.5;}
+
+/* TYPE GRID */
+.type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.type-option{position:relative;}
+.type-option input[type=radio]{position:absolute;opacity:0;width:0;height:0;}
+.type-label{display:flex;flex-direction:column;align-items:center;gap:7px;padding:14px 10px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:border-color .2s,background .2s;text-align:center;}
+.type-label:hover{border-color:var(--border-3);}
+.type-option input:checked + .type-label{border-color:var(--accent);background:var(--accent-dim);}
+.type-icon{font-size:22px;line-height:1;}
+.type-name{font-size:11px;font-weight:600;color:var(--ink-2);}
+.type-option input:checked + .type-label .type-name{color:var(--accent);}
+
+/* NAV BUTTONS */
+.btn-row{display:flex;justify-content:space-between;align-items:center;margin-top:28px;}
+.btn-back{padding:11px 22px;background:transparent;color:var(--ink-2);border:1.5px solid var(--border-2);border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:border-color .15s,color .15s;}
+.btn-back:hover{border-color:var(--border-3);color:var(--ink);}
+.btn-next{padding:11px 28px;background:var(--accent);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:background .15s;display:flex;align-items:center;gap:8px;}
+.btn-next:hover{background:var(--accent-mid);}
+.btn-next svg{width:15px;height:15px;}
+.btn-submit{padding:13px 32px;background:var(--accent);color:#fff;border:none;border-radius:9px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:background .15s;display:flex;align-items:center;gap:8px;}
+.btn-submit:hover{background:var(--accent-mid);}
+.btn-submit.loading{opacity:0.7;pointer-events:none;}
+
+/* REVIEW */
+.review-section{margin-bottom:24px;}
+.review-section-title{font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.review-row{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:6px 0;}
+.review-key{font-size:12px;color:var(--ink-3);flex-shrink:0;}
+.review-val{font-size:13px;color:var(--ink);text-align:right;word-break:break-word;}
+.review-val a{color:var(--accent);text-decoration:none;}
+.review-val.accent{color:var(--accent);font-weight:700;}
+.review-edit{font-size:11px;color:var(--accent);cursor:pointer;text-decoration:none;margin-left:8px;}
+.review-edit:hover{text-decoration:underline;}
+.review-note{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-top:16px;font-size:13px;color:var(--ink-2);line-height:1.7;}
+
+/* CONFIRMATION */
+.confirm-wrap{text-align:center;padding:20px 0;}
+.confirm-icon{width:64px;height:64px;background:var(--green-dim);border:1.5px solid #00d68f30;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;}
+.confirm-icon svg{width:28px;height:28px;stroke:var(--green);stroke-width:2.5;fill:none;}
+.confirm-h{font-family:'Fraunces',serif;font-size:32px;letter-spacing:-0.5px;margin-bottom:10px;}
+.confirm-h em{font-style:italic;color:var(--accent);}
+.confirm-p{font-size:15px;color:var(--ink-2);line-height:1.75;max-width:420px;margin:0 auto 28px;}
+.confirm-steps{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:20px 22px;text-align:left;margin-bottom:24px;}
+.confirm-step-row{display:flex;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);}
+.confirm-step-row:last-child{border-bottom:none;padding-bottom:0;}
+.confirm-step-row:first-child{padding-top:0;}
+.confirm-step-num{width:22px;height:22px;border-radius:50%;background:var(--accent-dim);border:1px solid #ff6b3530;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--accent);flex-shrink:0;margin-top:1px;}
+.confirm-step-text{font-size:13px;color:var(--ink-2);line-height:1.6;}
+.confirm-step-text strong{color:var(--ink);}
+.confirm-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.btn-home{padding:12px 24px;background:transparent;color:var(--ink-2);border:1.5px solid var(--border-2);border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;text-decoration:none;display:inline-block;transition:border-color .15s;}
+.btn-home:hover{border-color:var(--border-3);color:var(--ink);}
+.btn-share{padding:12px 24px;background:var(--surface-2);color:var(--ink);border:1.5px solid var(--border-2);border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:border-color .15s;display:flex;align-items:center;gap:7px;}
+.btn-share:hover{border-color:var(--border-3);}
+.btn-share svg{width:14px;height:14px;}
+
+/* HIDDEN */
+.step-panel{display:none;}
+.step-panel.active{display:block;}
+
+footer{padding:24px 48px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:40px;}
+.foot-logo{font-size:14px;font-weight:800;color:var(--ink);}
+.foot-logo span{color:var(--accent);}
+.foot-note{font-size:12px;color:var(--ink-3);}
+
+@media(max-width:640px){
+  nav{padding:0 20px;}
+  .page{padding:36px 16px 60px;}
+  .form-card{padding:24px 20px;}
+  .field-row{grid-template-columns:1fr;}
+  .type-grid{grid-template-columns:repeat(2,1fr);}
+  .progress-label{font-size:9px;}
+  footer{padding:16px 20px;flex-direction:column;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <a href="/" style="text-decoration:none;">
+      <img src="/logo-white.svg" alt="LoopRef" height="36">
+    </a>
+    <div class="nav-tag">Register your venue</div>
+  </div>
+  <a href="/venues" class="nav-back">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    For venues
+  </a>
+</nav>
+
+<div class="page">
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap" id="progress-wrap">
+    <div class="progress-steps">
+      <div class="step-node">
+        <div class="step-dot active" id="dot-1">1</div>
+        <div class="step-line" id="line-1"></div>
+      </div>
+      <div class="step-node">
+        <div class="step-dot pending" id="dot-2">2</div>
+        <div class="step-line" id="line-2"></div>
+      </div>
+      <div class="step-node">
+        <div class="step-dot pending" id="dot-3">3</div>
+        <div class="step-line" id="line-3"></div>
+      </div>
+      <div class="step-node">
+        <div class="step-dot pending" id="dot-4">4</div>
+        <div class="step-line" id="line-4"></div>
+      </div>
+      <div class="step-node">
+        <div class="step-dot pending" id="dot-5">5</div>
+      </div>
+    </div>
+    <div class="progress-labels">
+      <span class="progress-label active" id="lbl-1">Venue</span>
+      <span class="progress-label" id="lbl-2">Contact</span>
+      <span class="progress-label" id="lbl-3">Campaign</span>
+      <span class="progress-label" id="lbl-4">Socials</span>
+      <span class="progress-label" id="lbl-5">Review</span>
+    </div>
+  </div>
+
+  <!-- STEP 1 — VENUE BASICS -->
+  <div class="step-panel active" id="step-1">
+    <div class="form-card">
+      <div class="step-eyebrow">Step 1 of 5</div>
+      <h2 class="step-heading">About your <em>venue</em></h2>
+      <p class="step-sub">Tell us what you run. This is what customers will see in the LoopRef directory.</p>
+
+      <div class="field">
+        <label>Venue name <span class="req">*</span></label>
+        <input type="text" id="venue-name" placeholder="e.g. Malibu Poke &amp; Bowls" autocomplete="organization">
+        <div class="field-error" id="err-venue-name">Please enter your venue name</div>
+      </div>
+
+      <div class="field">
+        <label>Venue type <span class="req">*</span></label>
+        <div class="type-grid" id="type-grid">
+          <div class="type-option">
+            <input type="radio" name="venue-type" id="type-restaurant" value="Restaurant / Cafe">
+            <label class="type-label" for="type-restaurant"><span class="type-icon">&#127869;</span><span class="type-name">Restaurant &amp; Cafe</span></label>
+          </div>
+          <div class="type-option">
+            <input type="radio" name="venue-type" id="type-retail" value="Retail store">
+            <label class="type-label" for="type-retail"><span class="type-icon">&#127981;</span><span class="type-name">Retail store</span></label>
+          </div>
+          <div class="type-option">
+            <input type="radio" name="venue-type" id="type-gym" value="Gym / Fitness">
+            <label class="type-label" for="type-gym"><span class="type-icon">&#127947;</span><span class="type-name">Gym &amp; Fitness</span></label>
+          </div>
+          <div class="type-option">
+            <input type="radio" name="venue-type" id="type-salon" value="Salon / Spa">
+            <label class="type-label" for="type-salon"><span class="type-icon">&#128133;</span><span class="type-name">Salon &amp; Spa</span></label>
+          </div>
+          <div class="type-option">
+            <input type="radio" name="venue-type" id="type-activity" value="Activity / Experience">
+            <label class="type-label" for="type-activity"><span class="type-icon">&#127918;</span><span class="type-name">Activity &amp; Experience</span></label>
+          </div>
+          <div class="type-option">
+            <input type="radio" name="venue-type" id="type-other" value="Other">
+            <label class="type-label" for="type-other"><span class="type-icon">&#127760;</span><span class="type-name">Other</span></label>
+          </div>
+        </div>
+        <div class="field-error" id="err-venue-type">Please select a venue type</div>
+      </div>
+
+      <div class="field">
+        <label>Google Maps URL <span class="req">*</span></label>
+        <input type="url" id="maps-url" placeholder="https://maps.google.com/?q=...">
+        <div class="field-hint">Search your venue on Google Maps, click Share &rarr; Copy link, paste here.</div>
+        <div class="field-error" id="err-maps-url">Please enter your Google Maps URL</div>
+      </div>
+
+      <div class="btn-row">
+        <span></span>
+        <button class="btn-next" onclick="goNext(1)">
+          Contact details
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2 — CONTACT -->
+  <div class="step-panel" id="step-2">
+    <div class="form-card">
+      <div class="step-eyebrow">Step 2 of 5</div>
+      <h2 class="step-heading">Your <em>contact</em> details</h2>
+      <p class="step-sub">We use these to activate your campaign and send your QR code. Never shared publicly.</p>
+
+      <div class="field-row">
+        <div class="field">
+          <label>First name <span class="req">*</span></label>
+          <input type="text" id="fname" placeholder="Mikael" autocomplete="given-name">
+          <div class="field-error" id="err-fname">Required</div>
+        </div>
+        <div class="field">
+          <label>Last name <span class="req">*</span></label>
+          <input type="text" id="lname" placeholder="Olofsson" autocomplete="family-name">
+          <div class="field-error" id="err-lname">Required</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Your role <span class="opt">(optional)</span></label>
+        <select id="role">
+          <option value="">Select your role</option>
+          <option>Owner</option>
+          <option>Manager</option>
+          <option>Marketing</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Business email <span class="req">*</span></label>
+        <input type="email" id="email" placeholder="you@yourbusiness.com" autocomplete="email">
+        <div class="field-error" id="err-email">Please enter a valid email address</div>
+      </div>
+
+      <div class="field">
+        <label>Phone / WhatsApp <span class="opt">(optional)</span></label>
+        <input type="tel" id="phone" placeholder="+1 555 000 0000" autocomplete="tel">
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>City <span class="req">*</span></label>
+          <input type="text" id="city" placeholder="Los Angeles" autocomplete="address-level2">
+          <div class="field-error" id="err-city">Required</div>
+        </div>
+        <div class="field">
+          <label>Country <span class="req">*</span></label>
+          <select id="country">
+            <option value="">Select country</option>
+            <option selected>United States</option>
+            <option>United Kingdom</option>
+            <option>Australia</option>
+            <option>Canada</option>
+            <option>UAE</option>
+            <option>Singapore</option>
+            <option>Other</option>
+          </select>
+          <div class="field-error" id="err-country">Required</div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-back" onclick="goBack(2)">&#8592; Back</button>
+        <button class="btn-next" onclick="goNext(2)">
+          Your campaign
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 — CAMPAIGN -->
+  <div class="step-panel" id="step-3">
+    <div class="form-card">
+      <div class="step-eyebrow">Step 3 of 5</div>
+      <h2 class="step-heading">Your <em>campaign</em></h2>
+      <p class="step-sub">Set the terms of your LoopRef offer. You can change these at any time from your dashboard.</p>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Minimum spend to qualify <span class="req">*</span></label>
+          <select id="min-spend">
+            <option value="">Select</option>
+            <option>No minimum</option>
+            <option>$20 or more</option>
+            <option selected>$50 or more</option>
+            <option>$75 or more</option>
+            <option>$100 or more</option>
+            <option>Custom — I'll specify below</option>
+          </select>
+          <div class="field-error" id="err-min-spend">Please select a minimum spend</div>
+        </div>
+        <div class="field">
+          <label>Discount you will offer <span class="req">*</span></label>
+          <select id="discount">
+            <option value="">Select</option>
+            <option>10% off</option>
+            <option>15% off</option>
+            <option selected>20% off</option>
+            <option>25% off</option>
+            <option>Free item (specify below)</option>
+            <option>Custom — I'll specify below</option>
+          </select>
+          <div class="field-error" id="err-discount">Please select a discount</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Platforms customers should post on <span class="req">*</span></label>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:2px;" id="platforms-wrap">
+          <label style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-2);cursor:pointer;letter-spacing:0;margin:0;">
+            <input type="checkbox" id="plat-tiktok" value="TikTok" style="width:16px;height:16px;accent-color:var(--accent);flex-shrink:0;"> TikTok
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-2);cursor:pointer;letter-spacing:0;margin:0;">
+            <input type="checkbox" id="plat-instagram" value="Instagram" style="width:16px;height:16px;accent-color:var(--accent);flex-shrink:0;" checked> Instagram
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-2);cursor:pointer;letter-spacing:0;margin:0;">
+            <input type="checkbox" id="plat-x" value="X" style="width:16px;height:16px;accent-color:var(--accent);flex-shrink:0;"> X (Twitter)
+          </label>
+        </div>
+        <div class="field-error" id="err-platforms">Select at least one platform</div>
+      </div>
+
+      <div class="field">
+        <label>Campaign tagline <span class="opt">(optional)</span></label>
+        <input type="text" id="tagline" placeholder='e.g. "Best poke bowl in WeHo — share it and get 20% off"' maxlength="120">
+        <div class="field-hint">Shown to customers browsing your campaign. Keep it punchy.</div>
+      </div>
+
+      <div class="field">
+        <label>Any additional terms or notes <span class="opt">(optional)</span></label>
+        <textarea id="terms-note" placeholder="e.g. Valid Mon–Fri only. Not combinable with other offers. Dine-in only."></textarea>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-back" onclick="goBack(3)">&#8592; Back</button>
+        <button class="btn-next" onclick="goNext(3)">
+          Online presence
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4 — SOCIALS -->
+  <div class="step-panel" id="step-4">
+    <div class="form-card">
+      <div class="step-eyebrow">Step 4 of 5</div>
+      <h2 class="step-heading">Your online <em>presence</em></h2>
+      <p class="step-sub">All optional — but helps us set up your campaign page and lets customers find you.</p>
+
+      <div class="field">
+        <label>Website <span class="opt">(optional)</span></label>
+        <input type="url" id="website" placeholder="https://yourrestaurant.com" autocomplete="url">
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Instagram handle <span class="opt">(optional)</span></label>
+          <input type="text" id="instagram" placeholder="@yourrestaurant">
+        </div>
+        <div class="field">
+          <label>TikTok handle <span class="opt">(optional)</span></label>
+          <input type="text" id="tiktok" placeholder="@yourrestaurant">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>How did you hear about LoopRef? <span class="opt">(optional)</span></label>
+        <select id="referral">
+          <option value="">Select</option>
+          <option>A LoopRef rep visited me</option>
+          <option>Friend or colleague</option>
+          <option>Instagram</option>
+          <option>TikTok</option>
+          <option>X (Twitter)</option>
+          <option>Google search</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Rep referral code <span class="opt">(optional)</span></label>
+        <input type="text" id="rep-code" placeholder="e.g. MARCUS-LA" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
+        <div class="field-hint">If a LoopRef rep helped you register, enter their code here so they get credited.</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-back" onclick="goBack(4)">&#8592; Back</button>
+        <button class="btn-next" onclick="goNext(4)">
+          Review &amp; submit
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 5 — REVIEW -->
+  <div class="step-panel" id="step-5">
+    <div class="form-card">
+      <div class="step-eyebrow">Step 5 of 5</div>
+      <h2 class="step-heading">Review &amp; <em>submit</em></h2>
+      <p class="step-sub">Everything look right? Hit submit and we will activate your campaign within 24 hours.</p>
+
+      <div class="review-section">
+        <div class="review-section-title">Venue <a class="review-edit" onclick="goTo(1)">Edit</a></div>
+        <div class="review-row"><span class="review-key">Name</span><span class="review-val" id="rv-name">—</span></div>
+        <div class="review-row"><span class="review-key">Type</span><span class="review-val" id="rv-type">—</span></div>
+        <div class="review-row"><span class="review-key">Google Maps</span><span class="review-val" id="rv-maps">—</span></div>
+      </div>
+
+      <div class="review-section">
+        <div class="review-section-title">Contact <a class="review-edit" onclick="goTo(2)">Edit</a></div>
+        <div class="review-row"><span class="review-key">Name</span><span class="review-val" id="rv-contact-name">—</span></div>
+        <div class="review-row"><span class="review-key">Email</span><span class="review-val" id="rv-email">—</span></div>
+        <div class="review-row"><span class="review-key">Location</span><span class="review-val" id="rv-location">—</span></div>
+      </div>
+
+      <div class="review-section">
+        <div class="review-section-title">Campaign <a class="review-edit" onclick="goTo(3)">Edit</a></div>
+        <div class="review-row"><span class="review-key">Min spend</span><span class="review-val accent" id="rv-spend">—</span></div>
+        <div class="review-row"><span class="review-key">Discount</span><span class="review-val accent" id="rv-discount">—</span></div>
+        <div class="review-row"><span class="review-key">Platforms</span><span class="review-val" id="rv-platforms">—</span></div>
+        <div class="review-row" id="rv-tagline-row" style="display:none;"><span class="review-key">Tagline</span><span class="review-val" id="rv-tagline">—</span></div>
+      </div>
+
+      <div class="review-section" id="rv-socials-section">
+        <div class="review-section-title">Online presence <a class="review-edit" onclick="goTo(4)">Edit</a></div>
+        <div class="review-row" id="rv-website-row" style="display:none;"><span class="review-key">Website</span><span class="review-val" id="rv-website">—</span></div>
+        <div class="review-row" id="rv-instagram-row" style="display:none;"><span class="review-key">Instagram</span><span class="review-val" id="rv-instagram">—</span></div>
+        <div class="review-row" id="rv-tiktok-row" style="display:none;"><span class="review-key">TikTok</span><span class="review-val" id="rv-tiktok">—</span></div>
+        <div class="review-row" id="rv-rep-row" style="display:none;"><span class="review-key">Rep code</span><span class="review-val" id="rv-rep">—</span></div>
+        <div class="review-row" id="rv-socials-empty"><span class="review-key" style="color:var(--ink-3);font-style:italic;">No social profiles added</span></div>
+      </div>
+
+      <div class="review-note">
+        By submitting you agree to LoopRef&rsquo;s terms. Registration is free. You will only be charged <strong>$1.50&ndash;$2.00 per verified customer post</strong> once your campaign is live and customers start posting.
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-back" onclick="goBack(5)">&#8592; Back</button>
+        <button class="btn-submit" id="submit-btn" onclick="submitForm()">
+          Submit registration
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIRMATION -->
+  <div class="step-panel" id="step-confirm">
+    <div class="form-card confirm-wrap">
+      <div class="confirm-icon">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h2 class="confirm-h">You&rsquo;re <em>registered.</em></h2>
+      <p class="confirm-p">Your registration has been received. We will review your venue and activate your campaign within 24 hours.</p>
+
+      <div class="confirm-steps">
+        <div class="confirm-step-row">
+          <div class="confirm-step-num">1</div>
+          <div class="confirm-step-text"><strong>Check your inbox</strong> — a confirmation email is on its way to the address you provided.</div>
+        </div>
+        <div class="confirm-step-row">
+          <div class="confirm-step-num">2</div>
+          <div class="confirm-step-text"><strong>We review your listing</strong> — usually within a few hours. We may reach out if we have questions.</div>
+        </div>
+        <div class="confirm-step-row">
+          <div class="confirm-step-num">3</div>
+          <div class="confirm-step-text"><strong>Your campaign goes live</strong> — you receive your unique QR code, Customer ID, and dashboard link by email.</div>
+        </div>
+        <div class="confirm-step-row">
+          <div class="confirm-step-num">4</div>
+          <div class="confirm-step-text"><strong>Customers start posting</strong> — place your QR at the till and watch the social reach build.</div>
+        </div>
+      </div>
+
+      <div class="confirm-actions">
+        <a href="/" class="btn-home">Back to LoopRef</a>
+        <button class="btn-share" onclick="shareLink()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51 15.42 17.49M15.41 6.51 8.59 10.49"/></svg>
+          Share registration link
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<footer>
+  <div class="foot-logo">loop<span>ref</span></div>
+  <div class="foot-note">&copy; 2026 Pipe Labs LLC &middot; Minneapolis, Minnesota</div>
+</footer>
+
+<script>
+var currentStep = 1;
+
+function goNext(from) {
+  if (!validateStep(from)) return;
+  if (from === 4) buildReview();
+  goTo(from + 1);
+}
+
+function goBack(from) {
+  goTo(from - 1);
+}
+
+function goTo(step) {
+  document.getElementById('step-' + currentStep).classList.remove('active');
+  currentStep = step;
+  var target = document.getElementById('step-' + (step === 6 ? 'confirm' : step));
+  target.classList.add('active');
+  updateProgress(step);
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function updateProgress(step) {
+  for (var i = 1; i <= 5; i++) {
+    var dot = document.getElementById('dot-' + i);
+    var lbl = document.getElementById('lbl-' + i);
+    if (i < step) {
+      dot.className = 'step-dot done';
+      dot.innerHTML = '&#10003;';
+      lbl.className = 'progress-label done';
+    } else if (i === step) {
+      dot.className = 'step-dot active';
+      dot.textContent = i;
+      lbl.className = 'progress-label active';
+    } else {
+      dot.className = 'step-dot pending';
+      dot.textContent = i;
+      lbl.className = 'progress-label';
+    }
+    if (i < 5) {
+      document.getElementById('line-' + i).className = 'step-line' + (i < step ? ' done' : '');
+    }
+  }
+  if (step > 5) {
+    document.getElementById('progress-wrap').style.display = 'none';
+  }
+}
+
+function validateStep(step) {
+  var ok = true;
+
+  function err(id, show) {
+    var el = document.getElementById(id);
+    if (el) { el.className = 'field-error' + (show ? ' show' : ''); }
+  }
+  function setErr(inputId, errId, condition) {
+    var inp = document.getElementById(inputId);
+    if (inp) {
+      if (condition) { inp.classList.add('error'); err(errId, true); ok = false; }
+      else { inp.classList.remove('error'); err(errId, false); }
+    }
+  }
+
+  if (step === 1) {
+    setErr('venue-name', 'err-venue-name', !val('venue-name'));
+    var typeChecked = document.querySelector('input[name="venue-type"]:checked');
+    if (!typeChecked) { err('err-venue-type', true); ok = false; }
+    else { err('err-venue-type', false); }
+    setErr('maps-url', 'err-maps-url', !val('maps-url'));
+  }
+
+  if (step === 2) {
+    setErr('fname', 'err-fname', !val('fname'));
+    setErr('lname', 'err-lname', !val('lname'));
+    var emailVal = val('email');
+    var emailOk = emailVal && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal);
+    setErr('email', 'err-email', !emailOk);
+    setErr('city', 'err-city', !val('city'));
+    var country = document.getElementById('country');
+    if (!country.value) { country.classList.add('error'); err('err-country', true); ok = false; }
+    else { country.classList.remove('error'); err('err-country', false); }
+  }
+
+  if (step === 3) {
+    var spend = document.getElementById('min-spend');
+    if (!spend.value) { spend.classList.add('error'); err('err-min-spend', true); ok = false; }
+    else { spend.classList.remove('error'); err('err-min-spend', false); }
+    var disc = document.getElementById('discount');
+    if (!disc.value) { disc.classList.add('error'); err('err-discount', true); ok = false; }
+    else { disc.classList.remove('error'); err('err-discount', false); }
+    var plats = document.querySelectorAll('input[type=checkbox][id^=plat-]:checked');
+    if (!plats.length) { err('err-platforms', true); ok = false; }
+    else { err('err-platforms', false); }
+  }
+
+  return ok;
+}
+
+function val(id) {
+  var el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+
+function buildReview() {
+  var typeChecked = document.querySelector('input[name="venue-type"]:checked');
+  setText('rv-name', val('venue-name'));
+  setText('rv-type', typeChecked ? typeChecked.value : '—');
+
+  var mapsUrl = val('maps-url');
+  var mapsEl = document.getElementById('rv-maps');
+  mapsEl.innerHTML = mapsUrl ? '<a href="' + mapsUrl + '" target="_blank" rel="noopener">View on Maps &#8599;</a>' : '—';
+
+  setText('rv-contact-name', val('fname') + ' ' + val('lname'));
+  setText('rv-email', val('email'));
+  var loc = [val('city'), val('country') !== 'Select country' ? val('country') : ''].filter(Boolean).join(', ');
+  setText('rv-location', loc || '—');
+
+  setText('rv-spend', val('min-spend') || '—');
+  setText('rv-discount', val('discount') || '—');
+
+  var plats = Array.from(document.querySelectorAll('input[type=checkbox][id^=plat-]:checked')).map(function(c){ return c.value; });
+  setText('rv-platforms', plats.join(', ') || '—');
+
+  var tagline = val('tagline');
+  var tagRow = document.getElementById('rv-tagline-row');
+  tagRow.style.display = tagline ? 'flex' : 'none';
+  if (tagline) setText('rv-tagline', tagline);
+
+  var website = val('website');
+  var instagram = val('instagram');
+  var tiktok = val('tiktok');
+  var repCode = val('rep-code');
+  var hasSocials = website || instagram || tiktok || repCode;
+
+  show('rv-website-row', !!website); if (website) setText('rv-website', website);
+  show('rv-instagram-row', !!instagram); if (instagram) setText('rv-instagram', instagram);
+  show('rv-tiktok-row', !!tiktok); if (tiktok) setText('rv-tiktok', tiktok);
+  show('rv-rep-row', !!repCode); if (repCode) setText('rv-rep', repCode);
+  show('rv-socials-empty', !hasSocials);
+}
+
+function setText(id, text) {
+  var el = document.getElementById(id);
+  if (el) el.textContent = text;
+}
+
+function show(id, visible) {
+  var el = document.getElementById(id);
+  if (el) el.style.display = visible ? 'flex' : 'none';
+}
+
+function submitForm() {
+  var btn = document.getElementById('submit-btn');
+  btn.classList.add('loading');
+  btn.textContent = 'Submitting…';
+
+  // TODO: replace with your form endpoint (Formspree, custom API, etc.)
+  // fetch('https://formspree.io/f/YOUR_FORM_ID', { method: 'POST', ... })
+  setTimeout(function() {
+    goTo(6);
+  }, 1000);
+}
+
+function shareLink() {
+  var url = window.location.origin + '/register';
+  if (navigator.share) {
+    navigator.share({ title: 'Register your venue on LoopRef', url: url });
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(function() {
+      alert('Link copied: ' + url);
+    });
+  } else {
+    prompt('Copy this link:', url);
+  }
+}
+</script>
+</body>
+</html>
