@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LoopRef — Get rewarded at your favourite restaurants and stores</title>
+<meta name="description" content="Discover venues near you offering rewards. Visit, spend, share your experience on social media, and unlock your discount instantly.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='32' height='32' rx='8' fill='%23ff6b35'/%3E%3Cpath d='M8 16 C8 11.6 11.6 8 16 8 C20.4 8 24 11.6 24 16' stroke='%23fff' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3Cpath d='M24 16 C24 20.4 20.4 24 16 24 C11.6 24 8 20.4 8 16' stroke='rgba(255,255,255,0.4)' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3Cpolyline points='21,13 24,16 21,19' stroke='%23fff' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#fffdf9;--surface:#fff;--surface-2:#f5f0e8;--surface-3:#ede5d8;
+  --ink:#1a1208;--ink-2:#5a4f40;--ink-3:#9a8a78;
+  --accent:#ff6b35;--accent-mid:#e55a24;--accent-dim:#ff6b3512;
+  --green:#00875a;--green-dim:#00875a12;
+  --border:#e8e0d0;--border-2:#d0c4b0;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;overflow-x:hidden;}
+
+/* NAV */
+nav{padding:0 56px;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(255,253,249,0.96);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);}
+.logo{display:flex;align-items:center;gap:9px;text-decoration:none;}
+.logo-text{font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-0.5px;}
+.logo-text span{color:var(--accent);}
+.nav-links{display:flex;gap:28px;align-items:center;}
+.nav-links a{font-size:13px;color:var(--ink-2);text-decoration:none;font-weight:500;transition:color .15s;}
+.nav-links a:hover{color:var(--ink);}
+.nav-cta{padding:9px 20px;background:var(--accent);color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;text-decoration:none;display:inline-block;transition:background .15s;}
+.nav-cta:hover{background:var(--accent-mid);}
+
+/* HERO */
+.hero{display:grid;grid-template-columns:1fr 1fr;min-height:580px;}
+.hero-left{padding:72px 56px;display:flex;flex-direction:column;justify-content:center;background:var(--bg);}
+.hero-tag{display:inline-flex;align-items:center;gap:7px;background:var(--accent-dim);border:1px solid #ff6b3525;border-radius:20px;padding:5px 13px;margin-bottom:22px;width:fit-content;}
+.hero-tag-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);}
+.hero-tag-text{font-size:11px;color:var(--accent);font-weight:700;letter-spacing:0.06em;}
+.hero h1{font-family:'Fraunces',serif;font-size:52px;line-height:1.06;letter-spacing:-1.5px;margin-bottom:18px;font-weight:700;}
+.hero h1 em{font-style:italic;color:var(--accent);}
+.hero-p{font-size:16px;color:var(--ink-2);line-height:1.82;margin-bottom:30px;max-width:420px;}
+.hero-btns{display:flex;gap:10px;align-items:center;margin-bottom:36px;}
+.btn-main{padding:13px 26px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:background .15s;}
+.btn-main:hover{background:var(--accent-mid);}
+.btn-ghost{padding:13px 22px;background:transparent;color:var(--ink);border:1.5px solid var(--border-2);border-radius:8px;font-size:13px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;text-decoration:none;display:inline-flex;align-items:center;transition:border-color .15s;}
+.btn-ghost:hover{border-color:var(--ink-3);}
+.hero-cities{font-size:12px;color:var(--ink-3);}
+.hero-cities strong{color:var(--ink-2);font-weight:600;}
+.hero-right{position:relative;overflow:hidden;min-height:580px;}
+.hero-photo{width:100%;height:100%;object-fit:cover;display:block;}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(to right,var(--bg) 0%,rgba(255,253,249,0) 18%),linear-gradient(to top,var(--bg) 0%,rgba(255,253,249,0) 12%);}
+
+/* STATS STRIP */
+.strip{background:var(--ink);padding:16px 56px;display:flex;align-items:center;gap:0;overflow-x:auto;}
+.strip-item{display:flex;align-items:baseline;gap:8px;padding:0 40px 0 0;white-space:nowrap;}
+.strip-item:first-child{padding-left:0;}
+.strip-sep{width:1px;height:24px;background:rgba(255,255,255,0.1);margin:0 40px 0 0;flex-shrink:0;}
+.strip-val{font-family:'Fraunces',serif;font-size:20px;color:#fff;font-style:italic;}
+.strip-label{font-size:11px;color:rgba(255,255,255,0.45);font-weight:400;}
+
+/* HOW IT WORKS */
+.how{padding:72px 56px;max-width:1140px;margin:0 auto;}
+.section-label{font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:10px;}
+.section-h2{font-family:'Fraunces',serif;font-size:40px;letter-spacing:-0.5px;margin-bottom:10px;line-height:1.15;color:var(--ink);}
+.section-h2 em{font-style:italic;}
+.section-sub{font-size:15px;color:var(--ink-2);margin-bottom:44px;line-height:1.8;max-width:480px;}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.step{padding:30px 24px;border-right:1px solid var(--border);background:var(--surface);}
+.step:last-child{border-right:none;}
+.step-num{font-size:10px;font-weight:600;color:var(--ink-3);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:18px;}
+.step-icon{width:38px;height:38px;border-radius:9px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+.step-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:7px;line-height:1.3;}
+.step-desc{font-size:12px;color:var(--ink-2);line-height:1.7;}
+
+/* VENUES SECTION */
+.venues-section{background:var(--surface-2);padding:72px 56px;}
+.venues-inner{max-width:1140px;margin:0 auto;}
+.venue-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:36px;}
+.venue-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .2s;}
+.venue-card:hover{border-color:var(--border-2);}
+.venue-photo-wrap{position:relative;height:180px;overflow:hidden;}
+.venue-photo{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;}
+.venue-card:hover .venue-photo{transform:scale(1.03);}
+.venue-badge{position:absolute;top:12px;left:12px;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;backdrop-filter:blur(8px);}
+.venue-body{padding:18px;}
+.venue-name{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:3px;}
+.venue-location{font-size:11px;color:var(--ink-3);margin-bottom:10px;display:flex;align-items:center;gap:4px;}
+.venue-terms{font-size:12px;color:var(--ink-2);line-height:1.6;margin-bottom:14px;padding:10px 12px;background:var(--surface-2);border-radius:7px;}
+.venue-terms strong{color:var(--ink);}
+.venue-btn{width:100%;padding:9px;background:var(--ink);border:none;border-radius:7px;font-size:12px;font-weight:700;color:#fff;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:background .15s;}
+.venue-btn:hover{background:#2a1f10;}
+.venues-more{text-align:center;margin-top:24px;font-size:13px;color:var(--ink-3);}
+.venues-more a{color:var(--accent);font-weight:600;text-decoration:none;}
+.venues-more a:hover{text-decoration:underline;}
+
+/* EARN STRIP */
+.earn-strip{background:var(--ink);padding:64px 56px;}
+.earn-strip-inner{max-width:1140px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:40px;align-items:center;}
+.earn-strip h3{font-family:'Fraunces',serif;font-size:36px;color:#fff;letter-spacing:-0.5px;margin-bottom:10px;line-height:1.15;}
+.earn-strip h3 em{font-style:italic;color:var(--accent);}
+.earn-strip p{font-size:15px;color:rgba(255,255,255,0.5);line-height:1.75;max-width:520px;}
+.earn-strip-btn{padding:14px 28px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap;text-decoration:none;display:inline-block;transition:background .15s;}
+.earn-strip-btn:hover{background:var(--accent-mid);}
+
+/* FOOTER */
+footer{padding:24px 56px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;background:var(--bg);}
+.foot-logo{font-size:15px;font-weight:800;color:var(--ink);}
+.foot-logo span{color:var(--accent);}
+.foot-note{font-size:12px;color:var(--ink-3);}
+.foot-links{display:flex;gap:20px;flex-wrap:wrap;}
+.foot-links a{font-size:12px;color:var(--ink-3);text-decoration:none;transition:color .15s;}
+.foot-links a:hover{color:var(--ink);}
+
+/* SVG ICONS */
+.icon{width:18px;height:18px;stroke:var(--accent);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+
+@media(max-width:900px){
+  nav{padding:0 20px;}
+  .nav-links{display:none;}
+  .hero{grid-template-columns:1fr;}
+  .hero-left{padding:48px 20px;}
+  .hero h1{font-size:36px;}
+  .hero-right{min-height:280px;}
+  .strip{padding:16px 20px;}
+  .how,.venues-section,.earn-strip{padding-left:20px;padding-right:20px;}
+  .steps{grid-template-columns:1fr 1fr;}
+  .step{border-bottom:1px solid var(--border);}
+  .step:nth-child(2){border-right:none;}
+  .step:nth-child(3),.step:nth-child(4){border-bottom:none;}
+  .step:nth-child(3){border-right:1px solid var(--border);}
+  .venue-grid{grid-template-columns:1fr;}
+  .earn-strip-inner{grid-template-columns:1fr;}
+  footer{padding:20px;flex-direction:column;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">
+    <svg width="28" height="28" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#ff6b35"/><path d="M8 16 C8 11.6 11.6 8 16 8 C20.4 8 24 11.6 24 16" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M24 16 C24 20.4 20.4 24 16 24 C11.6 24 8 20.4 8 16" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" fill="none" stroke-linecap="round"/><polyline points="21,13 24,16 21,19" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div class="logo-text">loop<span>ref</span></div>
+  </a>
+  <div class="nav-links">
+    <a href="#how">How it works</a>
+    <a href="#venues">Find venues</a>
+  </div>
+  <a href="#venues" class="nav-cta">Find venues near me</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-tag"><div class="hero-tag-dot"></div><div class="hero-tag-text">Free to use &mdash; real rewards</div></div>
+    <h1>Get rewarded at your <em>favourite</em> restaurants and stores</h1>
+    <p class="hero-p">Find venues near you offering real discounts. Visit, spend the required amount, share your experience with friends on social media &mdash; and your reward unlocks instantly. No loyalty card. No app.</p>
+    <div class="hero-btns">
+      <button class="btn-main" onclick="document.getElementById('venues').scrollIntoView({behavior:'smooth'})">Find venues near me</button>
+      <a href="#how" class="btn-ghost">How it works</a>
+    </div>
+    <div class="hero-cities">Live in <strong>Los Angeles &middot; San Francisco &middot; New York</strong> &mdash; more cities coming</div>
+  </div>
+  <div class="hero-right">
+    <img class="hero-photo" src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=900&q=85" alt="People dining at a restaurant" onerror="this.style.background='#ede5d8'">
+    <div class="hero-overlay"></div>
+  </div>
+</section>
+
+<!-- STATS STRIP -->
+<div class="strip">
+  <div class="strip-item"><div class="strip-val">500+</div><div class="strip-label">venues listed</div></div>
+  <div class="strip-sep"></div>
+  <div class="strip-item"><div class="strip-val">$0</div><div class="strip-label">cost to customers &mdash; always free</div></div>
+  <div class="strip-sep"></div>
+  <div class="strip-item"><div class="strip-val">10&ndash;25%</div><div class="strip-label">typical discount unlocked</div></div>
+  <div class="strip-sep"></div>
+  <div class="strip-item"><div class="strip-val">LA &middot; SF &middot; NYC</div><div class="strip-label">cities live now</div></div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="section-label">How it works</div>
+  <h2 class="section-h2">Four steps to <em>your reward</em></h2>
+  <p class="section-sub">No loyalty card. No points. No waiting. Just visit, spend, share, and your discount is yours.</p>
+  <div class="steps">
+
+    <div class="step">
+      <div class="step-num">Step 01 &mdash; Find</div>
+      <div class="step-icon">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+      </div>
+      <div class="step-title">Find a venue near you</div>
+      <div class="step-desc">Browse restaurants, cafes, retail stores, gyms, and more on LoopRef. Every listed venue has a live campaign with a real discount waiting for you.</div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">Step 02 &mdash; Visit</div>
+      <div class="step-icon">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      </div>
+      <div class="step-title">Visit and spend the required amount</div>
+      <div class="step-desc">Each campaign has a minimum spend &mdash; for example &ldquo;spend $50 or more.&rdquo; Enjoy your meal, your workout, or your shopping trip. That is it for this step.</div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">Step 03 &mdash; Share</div>
+      <div class="step-icon">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51 15.42 17.49M15.41 6.51 8.59 10.49"/></svg>
+      </div>
+      <div class="step-title">Share your experience on social media</div>
+      <div class="step-desc">Open LoopRef, add your photo or review, and share to TikTok, Instagram, and X in one tap. Your post is your proof &mdash; LoopRef verifies it instantly.</div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">Step 04 &mdash; Earn</div>
+      <div class="step-icon">
+        <svg class="icon" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      </div>
+      <div class="step-title">Your discount unlocks instantly</div>
+      <div class="step-desc">The moment you share, your discount QR code appears on screen. Show it at the till and get your money off. Then share with your friends so they can get rewarded too.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- VENUE DIRECTORY -->
+<section class="venues-section" id="venues">
+  <div class="venues-inner">
+    <div class="section-label">Venues near you</div>
+    <h2 class="section-h2">Real discounts. <em>Real places.</em></h2>
+    <p class="section-sub" style="margin-bottom:0;">Every venue below is running a live LoopRef campaign. Visit, spend the required amount, share your experience, and the discount is yours.</p>
+
+    <div class="venue-grid">
+
+      <div class="venue-card">
+        <div class="venue-photo-wrap">
+          <img class="venue-photo" src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=700&q=85" alt="Poke bowl" onerror="this.style.background='#ede5d8'">
+          <div class="venue-badge" style="background:rgba(255,107,53,0.9);color:#fff;">20% off when you post</div>
+        </div>
+        <div class="venue-body">
+          <div class="venue-name">Malibu Poke &amp; Bowls</div>
+          <div class="venue-location">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            West Hollywood, Los Angeles CA
+          </div>
+          <div class="venue-terms">Spend <strong>$50 or more</strong> &middot; Post on TikTok, Instagram, or X &middot; Discount unlocks instantly at the till</div>
+          <button class="venue-btn">View campaign &amp; claim &rarr;</button>
+        </div>
+      </div>
+
+      <div class="venue-card">
+        <div class="venue-photo-wrap">
+          <img class="venue-photo" src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=700&q=85" alt="Gym fitness class" onerror="this.style.background='#ede5d8'">
+          <div class="venue-badge" style="background:rgba(124,58,237,0.9);color:#fff;">15% off when you post</div>
+        </div>
+        <div class="venue-body">
+          <div class="venue-name">SoulCycle West Hollywood</div>
+          <div class="venue-location">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            West Hollywood, Los Angeles CA
+          </div>
+          <div class="venue-terms">Attend <strong>any class</strong> &middot; Post your workout on social &middot; Discount applied on your next class</div>
+          <button class="venue-btn">View campaign &amp; claim &rarr;</button>
+        </div>
+      </div>
+
+      <div class="venue-card">
+        <div class="venue-photo-wrap">
+          <img class="venue-photo" src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=700&q=85" alt="Fresh market grocery" onerror="this.style.background='#ede5d8'">
+          <div class="venue-badge" style="background:rgba(0,135,90,0.9);color:#fff;">25% off when you post</div>
+        </div>
+        <div class="venue-body">
+          <div class="venue-name">Erewhon Market</div>
+          <div class="venue-location">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Los Angeles, CA
+          </div>
+          <div class="venue-terms">Spend <strong>$80 or more</strong> &middot; Post your haul on social &middot; Discount on your next visit</div>
+          <button class="venue-btn">View campaign &amp; claim &rarr;</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="venues-more">More venues added every week &nbsp;&middot;&nbsp; <a href="/venues">Are you a venue? List your campaign &rarr;</a></div>
+  </div>
+</section>
+
+<!-- EARN STRIP -->
+<section class="earn-strip">
+  <div class="earn-strip-inner">
+    <div>
+      <h3>Love LoopRef? <em>Earn money</em> recommending it.</h3>
+      <p>Sign up local restaurants and stores to LoopRef and earn a commission every time their customers post. Build a passive income from businesses you already know and love.</p>
+    </div>
+    <a href="/earn" class="earn-strip-btn">See how to earn &rarr;</a>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-logo">loop<span>ref</span></div>
+  <div class="foot-note">&copy; 2026 Pipe Labs LLC &middot; Minneapolis, Minnesota</div>
+  <div class="foot-links">
+    <a href="/venues">For restaurants &amp; stores</a>
+    <a href="/earn">Earn commission</a>
+    <a href="https://mygeoscores.com">MyGeoScores</a>
+    <a href="https://aifredo.chat">AiFredo</a>
+  </div>
+</footer>
+
+</body>
+</html>

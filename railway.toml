@@ -1,0 +1,10 @@
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "python dashboard.py"
+
+[variables]
+PAPER_MODE = "true"
+DB_PATH = "vig.db"
+PORT = "8080"
