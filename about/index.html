@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About LoopRef — Performance marketing for local venues</title>
+<meta name="description" content="LoopRef turns every customer visit into a verified social media post. Venues pay only from the new revenue we generate. Customers earn real discounts. Reps earn residual income.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://loopref.com/about">
+<meta property="og:title" content="About LoopRef — Performance marketing for local venues">
+<meta property="og:description" content="LoopRef connects local venues with customers who post about them on social media. Venues pay only from the new revenue we generate — nothing upfront, ever.">
+<meta property="og:image" content="https://loopref.com/og-image.svg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@loopref">
+<meta name="twitter:title" content="About LoopRef — Performance marketing for local venues">
+<meta name="twitter:description" content="Venues pay only from revenue we generate. Customers earn real discounts. Reps earn residual income.">
+<meta name="twitter:image" content="https://loopref.com/og-image.svg">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0d0805;--surface:#1a1008;--surface-2:#251808;--surface-3:#332208;
+  --ink:#fff9f0;--ink-2:#c4a882;--ink-3:#7a6040;
+  --accent:#ff6b35;--accent-dim:#ff6b3520;--accent-mid:#e55a24;
+  --green:#00d68f;--green-dim:#00d68f15;
+  --border:#ffffff10;--border-2:#ffffff18;--border-3:#ffffff28;
+}
+html{background:var(--bg);}
+body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);background:var(--bg);min-height:100vh;}
+
+/* NAV */
+nav{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;border-bottom:1px solid var(--border-2);position:sticky;top:0;z-index:100;background:var(--bg);}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.nav-logo img{height:32px;}
+.nav-links{display:flex;align-items:center;gap:28px;list-style:none;}
+.nav-links a{font-size:14px;font-weight:500;color:var(--ink-2);text-decoration:none;transition:color .15s;}
+.nav-links a:hover{color:var(--ink);}
+.nav-cta{font-size:13px;font-weight:600;color:var(--accent);text-decoration:none;border:1px solid var(--accent);padding:7px 16px;border-radius:8px;transition:background .15s;}
+.nav-cta:hover{background:var(--accent-dim);}
+
+/* PAGE */
+.page{max-width:800px;margin:0 auto;padding:80px 24px 100px;}
+
+/* HERO */
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:20px;}
+.page-h1{font-family:'Fraunces',serif;font-size:clamp(40px,6vw,64px);font-weight:700;line-height:1.08;color:var(--ink);margin-bottom:20px;}
+.page-h1 em{color:var(--accent);font-style:normal;}
+.lead{font-size:19px;color:var(--ink-2);line-height:1.7;margin-bottom:52px;max-width:640px;}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--border-2);margin:52px 0;}
+
+/* SECTION */
+.section-label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-bottom:24px;}
+.section-h2{font-family:'Fraunces',serif;font-size:28px;font-weight:700;color:var(--ink);margin-bottom:16px;}
+.body-p{font-size:16px;color:var(--ink-2);line-height:1.75;margin-bottom:16px;}
+.body-p:last-child{margin-bottom:0;}
+
+/* MODEL CARDS */
+.model-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:32px 0;}
+.model-card{background:var(--surface);border:1px solid var(--border-2);border-radius:16px;padding:24px 20px;}
+.model-icon{width:40px;height:40px;border-radius:10px;background:var(--accent-dim);border:1px solid #ff6b3530;display:flex;align-items:center;justify-content:center;margin-bottom:16px;}
+.model-icon svg{width:20px;height:20px;stroke:var(--accent);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.model-card h3{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;}
+.model-card p{font-size:13px;color:var(--ink-3);line-height:1.6;}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border-2);border:1px solid var(--border-2);border-radius:14px;overflow:hidden;margin:32px 0;}
+.stat{background:var(--surface);padding:28px 24px;text-align:center;}
+.stat-val{font-family:'Fraunces',serif;font-size:36px;font-weight:700;color:var(--accent);line-height:1;margin-bottom:6px;}
+.stat-label{font-size:12px;color:var(--ink-3);font-weight:500;}
+
+/* PRESS KIT */
+.asset-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:24px 0;}
+.asset-card{background:var(--surface);border:1px solid var(--border-2);border-radius:14px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.asset-info{display:flex;align-items:center;gap:14px;}
+.asset-thumb{width:44px;height:44px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border-3);display:flex;align-items:center;justify-content:center;}
+.asset-thumb svg{width:24px;height:24px;}
+.asset-name{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:2px;}
+.asset-meta{font-size:12px;color:var(--ink-3);}
+.asset-dl{font-size:12px;font-weight:600;color:var(--accent);text-decoration:none;border:1px solid #ff6b3530;padding:6px 14px;border-radius:8px;white-space:nowrap;transition:background .15s;}
+.asset-dl:hover{background:var(--accent-dim);}
+
+/* PRESS CONTACT */
+.press-box{background:var(--surface);border:1px solid var(--border-3);border-radius:16px;padding:32px 36px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.press-box-text h3{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:6px;}
+.press-box-text p{font-size:14px;color:var(--ink-2);line-height:1.6;}
+.press-email{font-size:15px;font-weight:600;color:var(--accent);text-decoration:none;border:1px solid var(--accent);padding:10px 22px;border-radius:10px;white-space:nowrap;transition:background .15s;}
+.press-email:hover{background:var(--accent-dim);}
+
+/* PRINCIPLES */
+.principles{display:flex;flex-direction:column;gap:0;}
+.principle{display:grid;grid-template-columns:20px 1fr;gap:16px;padding:20px 0;border-bottom:1px solid var(--border);}
+.principle:last-child{border-bottom:none;}
+.principle-num{font-size:13px;font-weight:700;color:var(--ink-3);padding-top:2px;}
+.principle-body h4{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:5px;}
+.principle-body p{font-size:14px;color:var(--ink-3);line-height:1.6;}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:20px 48px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+.foot-logo{font-family:'Fraunces',serif;font-weight:700;font-size:16px;color:var(--ink-2);text-decoration:none;}
+.foot-logo span{color:var(--accent);}
+.foot-note{font-size:12px;color:var(--ink-3);}
+.foot-links{display:flex;gap:20px;}
+.foot-links a{font-size:12px;color:var(--ink-3);text-decoration:none;}
+.foot-links a:hover{color:var(--ink-2);}
+
+@media(max-width:700px){
+  nav{padding:0 20px;}
+  .nav-links{display:none;}
+  .page{padding:52px 20px 80px;}
+  .model-grid{grid-template-columns:1fr;}
+  .stats-row{grid-template-columns:1fr;}
+  .asset-grid{grid-template-columns:1fr;}
+  .press-box{flex-direction:column;align-items:flex-start;}
+  footer{padding:16px 20px;flex-direction:column;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">
+    <img src="/logo-white.svg" alt="LoopRef" height="32">
+  </a>
+  <ul class="nav-links">
+    <li><a href="/venues">For venues</a></li>
+    <li><a href="/earn">Earn with us</a></li>
+  </ul>
+  <a class="nav-cta" href="/register">List your venue</a>
+</nav>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="eyebrow">About LoopRef</div>
+  <h1 class="page-h1">Performance marketing<br>for <em>local venues.</em></h1>
+  <p class="lead">LoopRef connects restaurants, retailers, and local venues with new customers — and charges nothing until that new business is already in the till. Customers earn real discounts by posting about their visit. Venues pay only from the revenue LoopRef generates. No subscription. No setup fee. No risk.</p>
+
+  <div class="divider"></div>
+
+  <!-- WHAT WE DO -->
+  <div class="section-label">What we do</div>
+  <h2 class="section-h2">The model</h2>
+  <p class="body-p">Traditional marketing asks businesses to pay upfront — for ads that may or may not work, to audiences they may or may not reach. LoopRef flips this entirely. We only get paid when a new customer walks through your door, spends money, and posts about it on social media.</p>
+  <p class="body-p">Every post verified through LoopRef is a traceable piece of social content — tied to a specific venue, a specific visit, and a specific spend. That data is what makes the model honest: no fabricated metrics, no pay-for-exposure, no guesswork.</p>
+
+  <div class="model-grid">
+    <div class="model-card">
+      <div class="model-icon">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      </div>
+      <h3>Customers</h3>
+      <p>Visit a venue, meet the minimum spend, post on TikTok, Instagram, or X — and unlock a real discount at the till. No app download required.</p>
+    </div>
+    <div class="model-card">
+      <div class="model-icon">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
+      <h3>Venues</h3>
+      <p>List for free. Go live within 24 hours. Pay a 10% performance fee only on the new business LoopRef generates — nothing if no customers come through.</p>
+    </div>
+    <div class="model-card">
+      <div class="model-icon">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      </div>
+      <h3>Reps</h3>
+      <p>Sign local venues and earn 30% of LoopRef's fee on every verified post — from every venue you signed, for as long as they're live.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- PRINCIPLES -->
+  <div class="section-label">How we operate</div>
+  <h2 class="section-h2">What we believe</h2>
+
+  <div class="principles">
+    <div class="principle">
+      <div class="principle-num">01</div>
+      <div class="principle-body">
+        <h4>You earn first, always</h4>
+        <p>Every venue that signs up pays nothing until a new customer has already visited and spent money. The fee comes from revenue we generated, not from their existing business.</p>
+      </div>
+    </div>
+    <div class="principle">
+      <div class="principle-num">02</div>
+      <div class="principle-body">
+        <h4>Real posts, real people, real reach</h4>
+        <p>Every post is verified before a discount is issued. We don't pay for impressions or engagement — we pay for a verified customer who showed up, spent money, and posted publicly.</p>
+      </div>
+    </div>
+    <div class="principle">
+      <div class="principle-num">03</div>
+      <div class="principle-body">
+        <h4>Word of mouth is the best marketing</h4>
+        <p>A post from someone's actual friend — eating at an actual restaurant — reaches people who trust the person posting. That trust is more valuable than a paid ad to a cold audience.</p>
+      </div>
+    </div>
+    <div class="principle">
+      <div class="principle-num">04</div>
+      <div class="principle-body">
+        <h4>Aligned incentives, not subscriptions</h4>
+        <p>We succeed only when venues succeed. That means our entire operation is structured around generating new business, not billing for time, attention, or potential.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- PRESS KIT -->
+  <div class="section-label">Press kit</div>
+  <h2 class="section-h2">Brand assets</h2>
+  <p class="body-p">For editorial use. Please do not alter the logo or use the LoopRef name or mark in a way that implies endorsement or partnership without written permission.</p>
+
+  <div class="asset-grid">
+    <div class="asset-card">
+      <div class="asset-info">
+        <div class="asset-thumb">
+          <svg width="24" height="24" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+            <rect width="32" height="32" rx="8" fill="#ff6b35"/>
+            <path d="M8 16 C8 11.6 11.6 8 16 8 C20.4 8 24 11.6 24 16" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <path d="M24 16 C24 20.4 20.4 24 16 24 C11.6 24 8 20.4 8 16" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <polyline points="21,13 24,16 21,19" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="asset-name">Logo — dark background</div>
+          <div class="asset-meta">SVG · white text</div>
+        </div>
+      </div>
+      <a class="asset-dl" href="/logo-white.svg" download="loopref-logo-white.svg">Download</a>
+    </div>
+    <div class="asset-card">
+      <div class="asset-info">
+        <div class="asset-thumb" style="background:var(--surface-3);">
+          <svg width="24" height="24" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+            <rect width="32" height="32" rx="8" fill="#ff6b35"/>
+            <path d="M8 16 C8 11.6 11.6 8 16 8 C20.4 8 24 11.6 24 16" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <path d="M24 16 C24 20.4 20.4 24 16 24 C11.6 24 8 20.4 8 16" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <polyline points="21,13 24,16 21,19" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="asset-name">Logo — light background</div>
+          <div class="asset-meta">SVG · dark text</div>
+        </div>
+      </div>
+      <a class="asset-dl" href="/logo.svg" download="loopref-logo.svg">Download</a>
+    </div>
+    <div class="asset-card">
+      <div class="asset-info">
+        <div class="asset-thumb">
+          <svg width="24" height="24" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+            <rect width="32" height="32" rx="8" fill="#ff6b35"/>
+            <path d="M8 16 C8 11.6 11.6 8 16 8 C20.4 8 24 11.6 24 16" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <path d="M24 16 C24 20.4 20.4 24 16 24 C11.6 24 8 20.4 8 16" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <polyline points="21,13 24,16 21,19" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="asset-name">Favicon / icon mark</div>
+          <div class="asset-meta">SVG · 32×32</div>
+        </div>
+      </div>
+      <a class="asset-dl" href="/favicon.svg" download="loopref-icon.svg">Download</a>
+    </div>
+    <div class="asset-card">
+      <div class="asset-info">
+        <div class="asset-thumb">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink-2)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        </div>
+        <div>
+          <div class="asset-name">Social preview image</div>
+          <div class="asset-meta">SVG · 1200×630</div>
+        </div>
+      </div>
+      <a class="asset-dl" href="/og-image.svg" download="loopref-og-image.svg">Download</a>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- BRAND COLOURS -->
+  <div class="section-label">Brand colours</div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:36px;height:36px;border-radius:8px;background:#ff6b35;"></div>
+      <div><div style="font-size:13px;font-weight:600;color:var(--ink);">Coral</div><div style="font-size:12px;color:var(--ink-3);">#ff6b35</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:36px;height:36px;border-radius:8px;background:#1a1208;border:1px solid var(--border-3);"></div>
+      <div><div style="font-size:13px;font-weight:600;color:var(--ink);">Deep brown</div><div style="font-size:12px;color:var(--ink-3);">#1a1208</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:36px;height:36px;border-radius:8px;background:#fff9f0;border:1px solid var(--border-3);"></div>
+      <div><div style="font-size:13px;font-weight:600;color:var(--ink);">Cream</div><div style="font-size:12px;color:var(--ink-3);">#fff9f0</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:36px;height:36px;border-radius:8px;background:#00d68f;"></div>
+      <div><div style="font-size:13px;font-weight:600;color:var(--ink);">Green</div><div style="font-size:12px;color:var(--ink-3);">#00d68f</div></div>
+    </div>
+  </div>
+  <p style="font-size:13px;color:var(--ink-3);margin-top:16px;">Primary typefaces: <strong style="color:var(--ink-2);">Fraunces</strong> (headings, serif) &middot; <strong style="color:var(--ink-2);">Plus Jakarta Sans</strong> (body, sans-serif)</p>
+
+  <div class="divider"></div>
+
+  <!-- PRESS CONTACT -->
+  <div class="section-label">Press enquiries</div>
+  <div class="press-box">
+    <div class="press-box-text">
+      <h3>Get in touch</h3>
+      <p>For media enquiries, interview requests, or coverage questions — email us directly. We respond within one business day.</p>
+    </div>
+    <a class="press-email" href="mailto:hello@loopref.com">hello@loopref.com</a>
+  </div>
+
+</div>
+
+<footer>
+  <a class="foot-logo" href="/">loop<span>ref</span></a>
+  <div class="foot-links">
+    <a href="/">Home</a>
+    <a href="/venues">Venues</a>
+    <a href="/earn">Earn</a>
+    <a href="/register">Register</a>
+    <a href="/about">About</a>
+  </div>
+  <span class="foot-note">&copy; 2025 LoopRef</span>
+</footer>
+
+</body>
+</html>
