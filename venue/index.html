@@ -67,22 +67,28 @@ nav{height:64px;display:flex;align-items:center;justify-content:space-between;pa
 /* SOCIAL SHARE */
 .share-wrap{max-width:560px;margin:0 auto 20px;padding:0 24px;}
 .share-title{font-size:14px;font-weight:600;color:var(--ink-2);text-align:center;margin-bottom:16px;}
-.share-buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.share-buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
 .share-btn{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 10px;border-radius:14px;border:1px solid var(--border-2);background:var(--surface);text-decoration:none;cursor:pointer;transition:border-color .15s,background .15s;}
 .share-btn:hover{border-color:var(--border-3);background:var(--surface-2);}
 .share-btn svg{width:28px;height:28px;}
 .share-btn span{font-size:12px;font-weight:600;color:var(--ink-2);}
 
-/* CLAIM CTA */
-.claim-wrap{max-width:560px;margin:0 auto 60px;padding:0 24px;text-align:center;}
-.claim-note{font-size:13px;color:var(--ink-3);margin-bottom:16px;}
-.claim-code-block{background:var(--surface);border:1px solid var(--border-3);border-radius:14px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:10px;}
-.claim-code-label{font-size:12px;color:var(--ink-3);margin-bottom:4px;}
-.claim-code{font-family:monospace;font-size:22px;font-weight:700;color:var(--green);letter-spacing:.06em;}
-.copy-btn{font-size:13px;font-weight:600;color:var(--accent);background:var(--accent-dim);border:none;border-radius:8px;padding:8px 16px;cursor:pointer;white-space:nowrap;transition:background .15s;}
-.copy-btn:hover{background:#ff6b3530;}
-.copy-btn.copied{color:var(--green);background:var(--green-dim);}
-.claim-hint{font-size:12px;color:var(--ink-3);}
+/* QR CLAIM SECTION */
+.qr-section{max-width:680px;margin:0 auto 60px;padding:0 24px;}
+.qr-section-label{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);text-align:center;margin-bottom:20px;}
+.qr-card{background:var(--surface);border:1px solid var(--border-3);border-radius:20px;padding:32px;display:flex;align-items:center;gap:32px;position:relative;overflow:hidden;}
+.qr-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%, #25d36614 0%, transparent 60%);pointer-events:none;}
+.qr-img-wrap{flex-shrink:0;background:#fff;border-radius:14px;padding:10px;box-shadow:0 0 0 1px #ffffff20;}
+.qr-img-wrap img{width:148px;height:148px;display:block;border-radius:4px;}
+.qr-text{flex:1;}
+.qr-text h3{font-size:19px;font-weight:700;color:var(--ink);margin-bottom:8px;}
+.qr-text p{font-size:14px;color:var(--ink-2);line-height:1.65;margin-bottom:20px;}
+.qr-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.qr-wa-btn{display:inline-flex;align-items:center;gap:8px;background:#25d366;color:#fff;font-size:14px;font-weight:700;padding:11px 22px;border-radius:10px;text-decoration:none;transition:background .15s;}
+.qr-wa-btn:hover{background:#1fba59;}
+.qr-wa-btn svg{width:18px;height:18px;fill:#fff;flex-shrink:0;}
+.qr-dl-btn{font-size:13px;font-weight:600;color:var(--ink-3);text-decoration:none;border:1px solid var(--border-2);padding:10px 16px;border-radius:10px;transition:color .15s,border-color .15s;}
+.qr-dl-btn:hover{color:var(--ink);border-color:var(--border-3);}
 
 /* NOT FOUND */
 .notfound{max-width:480px;margin:120px auto;padding:0 24px;text-align:center;}
@@ -163,26 +169,27 @@ footer{border-top:1px solid var(--border);padding:20px 48px;display:flex;justify
       </div>
       <div class="step">
         <div class="step-num">3</div>
-        <h3>Show &amp; save</h3>
-        <p>Show your live post to the staff at the till and your <strong id="offer-pct-step">20%</strong> discount is applied.</p>
+        <h3>Scan &amp; claim</h3>
+        <p>Scan the QR below — WhatsApp opens with Kazi. Send your post link and Kazi confirms your <strong id="offer-pct-step">20%</strong> discount instantly.</p>
       </div>
     </div>
   </div>
 
   <div class="share-wrap">
-    <div class="share-title">Ready to post? Choose your platform:</div>
+    <div class="share-title">Step 2 — Post on social first:</div>
     <div class="share-buttons">
-      <!-- TikTok -->
       <a class="share-btn" id="tiktok-btn" href="https://www.tiktok.com" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="var(--ink)"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.73a4.84 4.84 0 01-1.01-.04z"/></svg>
         <span>TikTok</span>
       </a>
-      <!-- Instagram -->
       <a class="share-btn" id="instagram-btn" href="https://www.instagram.com" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4.5"/><circle cx="17.5" cy="6.5" r="0.5" fill="var(--ink)" stroke="none"/></svg>
         <span>Instagram</span>
       </a>
-      <!-- X / Twitter -->
+      <a class="share-btn" id="snap-btn" href="https://www.snapchat.com" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="var(--ink)"><path d="M12.017 2C9.31 2 7.05 4.047 7.05 6.555c0 .21.013.418.038.622l-.565.028c-.51 0-.974.257-.974.686 0 .368.3.686.796.686h.16c-.08.283-.122.58-.122.886 0 2.044 1.65 4.2 3.902 5.02-.052.118-.16.225-.332.3-.41.178-1.174.296-2.15.494-.448.09-.73.51-.64.957C7.28 16.77 8.7 17.5 12.017 17.5c3.317 0 4.737-.73 4.854-1.266.09-.447-.192-.867-.64-.957-.976-.198-1.74-.316-2.15-.495-.172-.074-.28-.181-.332-.3 2.252-.82 3.902-2.976 3.902-5.02 0-.305-.042-.603-.122-.886h.16c.497 0 .796-.318.796-.686 0-.43-.463-.686-.974-.686l-.565-.028c.025-.204.038-.412.038-.622C16.984 4.047 14.724 2 12.017 2z"/></svg>
+        <span>Snapchat</span>
+      </a>
       <a class="share-btn" id="x-btn" href="https://x.com" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="var(--ink)"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.741l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.912-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
         <span>X</span>
@@ -190,16 +197,25 @@ footer{border-top:1px solid var(--border);padding:20px 48px;display:flex;justify
     </div>
   </div>
 
-  <div class="claim-wrap">
-    <p class="claim-note">Save this link to come back to it:</p>
-    <div class="claim-code-block">
-      <div>
-        <div class="claim-code-label">Your venue offer link</div>
-        <div class="claim-code" id="page-url-display">loopref.com/venue/</div>
+  <!-- QR / WHATSAPP CLAIM -->
+  <div class="qr-section">
+    <div class="qr-section-label">Step 3 — Scan to claim your discount via WhatsApp</div>
+    <div class="qr-card">
+      <div class="qr-img-wrap">
+        <img id="qr-img" src="" alt="Scan to claim on WhatsApp" width="148" height="148">
       </div>
-      <button class="copy-btn" id="copy-url-btn" onclick="copyPageUrl()">Copy</button>
+      <div class="qr-text">
+        <h3>Scan with your camera</h3>
+        <p>WhatsApp opens with Kazi. Paste your post link — Kazi verifies it's live in seconds and sends your discount confirmation to show at the till. No app needed.</p>
+        <div class="qr-actions">
+          <a class="qr-wa-btn" id="qr-wa-btn" href="#" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2 22l5.112-1.328C8.44 21.516 10.185 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z" fill-rule="evenodd" clip-rule="evenodd"/></svg>
+            Open WhatsApp
+          </a>
+          <a class="qr-dl-btn" id="qr-dl-btn" href="#" download>Print QR</a>
+        </div>
+      </div>
     </div>
-    <p class="claim-hint">Share this link with friends visiting <span id="venue-name-hint">the venue</span> — they can claim the same deal.</p>
   </div>
 
 </div>
@@ -298,11 +314,25 @@ footer{border-top:1px solid var(--border);padding:20px 48px;display:flex;justify
     'https://x.com/intent/tweet?text=' + caption +
     (tag ? '&via=' + tag : '');
 
-  // Page URL display
-  var fullUrl = window.location.href;
-  var shortUrl = 'loopref.com/venue/?' + window.location.search.replace('?','');
-  setText('page-url-display', shortUrl.length > 54 ? shortUrl.substring(0, 52) + '…' : shortUrl);
-  setText('venue-name-hint', name);
+  // Build WhatsApp / Kazi deep link
+  var waText = 'Hi Kazi! I just visited ' + name +
+    (city ? ' in ' + city : '') +
+    ' and want to claim my LoopRef discount' +
+    (offStr ? ' (' + offStr + ' off)' : '') +
+    '. Here is my post: ';
+  var waUrl = 'https://wa.me/15734125273?text=' + encodeURIComponent(waText);
+
+  // QR code via free API (white background so it prints cleanly)
+  var qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=296x296&margin=10&data=' +
+    encodeURIComponent(waUrl);
+  document.getElementById('qr-img').src = qrApiUrl;
+  document.getElementById('qr-wa-btn').href = waUrl;
+  // High-res download for printing
+  document.getElementById('qr-dl-btn').href =
+    'https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=20&data=' +
+    encodeURIComponent(waUrl);
+  document.getElementById('qr-dl-btn').setAttribute('download',
+    'loopref-' + name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-qr.png');
 
   // Rep attribution
   if (ref) {
@@ -312,9 +342,6 @@ footer{border-top:1px solid var(--border);padding:20px 48px;display:flex;justify
 
   // Show content
   document.getElementById('venue-content').style.display = 'block';
-
-  // Copy URL
-  window._pageUrl = fullUrl;
 })();
 
 function setText(id, val) {
@@ -322,15 +349,6 @@ function setText(id, val) {
   if (el) el.textContent = val;
 }
 
-function copyPageUrl() {
-  var url = window._pageUrl || window.location.href;
-  navigator.clipboard.writeText(url).then(function(){
-    var btn = document.getElementById('copy-url-btn');
-    btn.textContent = 'Copied!';
-    btn.classList.add('copied');
-    setTimeout(function(){ btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2500);
-  });
-}
 </script>
 </body>
 </html>
