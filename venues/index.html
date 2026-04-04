@@ -51,7 +51,7 @@ h1 em{font-style:italic;color:var(--accent);}
 .btn-sec{padding:13px 24px;background:transparent;color:var(--ink);border:1px solid var(--border-2);border-radius:8px;font-size:14px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
 
 /* STATS ROW */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--border-2);border-radius:12px;overflow:hidden;max-width:860px;}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--border-2);border-radius:12px;overflow:hidden;max-width:660px;}
 .stat{padding:22px 18px;text-align:center;background:var(--surface);}
 .stat:not(:last-child){border-right:1px solid var(--border);}
 .stat-val{font-family:'Fraunces',serif;font-size:30px;color:var(--ink);margin-bottom:4px;letter-spacing:-0.5px;}
@@ -151,9 +151,9 @@ footer{padding:20px 48px;border-top:1px solid var(--border);display:flex;align-i
   .nav-links,.nav-socials{display:none;}
   .hero,.how-inner,.dash,.who-inner,.pricing,.register{padding-left:20px;padding-right:20px;}
   h1{font-size:36px;}
-  .stats{grid-template-columns:1fr 1fr;}
-  .stat:nth-child(2){border-right:none;}
-  .stat:nth-child(1),.stat:nth-child(2){border-bottom:1px solid var(--border);}
+  .stats{grid-template-columns:1fr;}
+  .stat{border-right:none;border-bottom:1px solid var(--border);}
+  .stat:last-child{border-bottom:none;}
   .steps,.who-grid{grid-template-columns:1fr 1fr;}
   .price-tiers{grid-template-columns:1fr;}
   .dash-grid{grid-template-columns:1fr 1fr;}
@@ -204,7 +204,6 @@ footer{padding:20px 48px;border-top:1px solid var(--border);display:flex;align-i
   <div class="stats">
     <div class="stat"><div class="stat-val"><em>$0</em></div><div class="stat-label">to list &mdash; no setup fee, no monthly fee</div></div>
     <div class="stat"><div class="stat-val"><em>10%</em></div><div class="stat-label">of revenue we bring you &mdash; paid after you earn it</div></div>
-    <div class="stat"><div class="stat-val"><em>$10</em></div><div class="stat-label">maximum per customer &mdash; no matter their spend</div></div>
     <div class="stat"><div class="stat-val"><em>$0</em></div><div class="stat-label">if no customers come through &mdash; zero risk, always</div></div>
   </div>
 </section>
