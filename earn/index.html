@@ -245,26 +245,20 @@ footer{background:#080503;padding:24px 48px;display:flex;align-items:center;just
 <!-- HOW YOU EARN -->
 <section class="earn" id="how">
   <div class="section-eyebrow">How you earn</div>
-  <h2 class="section-h2">Three ways to <em>make money</em></h2>
-  <p class="section-p">Every business you sign generates passive income. Build a team and earn on theirs too.</p>
-  <div class="earn-grid">
+  <h2 class="section-h2">Two ways to <em>make money</em></h2>
+  <p class="section-p">Every business you sign generates passive income from day one. Sign once, earn forever.</p>
+  <div class="earn-grid" style="grid-template-columns:repeat(2,1fr);">
     <div class="earn-card">
       <div class="earn-card-top"><div class="earn-icon">&#128184;</div><span class="earn-tag tag-passive">Passive</span></div>
       <div class="earn-amount">30%</div>
       <div class="earn-title">Residual on every verified post</div>
-      <div class="earn-desc">Every time a customer posts and redeems at a venue you signed, LoopRef charges the venue 10% of their minimum spend (max $10). You earn 30% of that &mdash; automatically, forever.</div>
+      <div class="earn-desc">Every time a customer posts and redeems at a venue you signed, LoopRef charges the venue 10% of their minimum spend. You earn 30% of that &mdash; automatically, forever, while you sleep.</div>
     </div>
     <div class="earn-card">
       <div class="earn-card-top"><div class="earn-icon">&#127942;</div><span class="earn-tag tag-bonus">Bonus</span></div>
       <div class="earn-amount">+$50</div>
       <div class="earn-title">Signing bonus per business</div>
-      <div class="earn-desc">Earn a $50 bonus the moment a business you signed generates their first 10 referral redemptions. Fast movers earn this within the first week.</div>
-    </div>
-    <div class="earn-card">
-      <div class="earn-card-top"><div class="earn-icon">&#128101;</div><span class="earn-tag tag-team">Team</span></div>
-      <div class="earn-amount">10%</div>
-      <div class="earn-title">Override on your team</div>
-      <div class="earn-desc">Recruit other sales reps under you and earn 10% of their commissions &mdash; on top of your own. Build a team of 5 active reps and your income multiplies.</div>
+      <div class="earn-desc">Earn a $50 bonus the moment a business you signed generates their first 10 customer redemptions. Fast movers earn this within the first week of signing.</div>
     </div>
   </div>
 </section>
@@ -288,31 +282,15 @@ footer{background:#080503;padding:24px 48px;display:flex;align-items:center;just
           <div class="calc-label">Avg redemptions per business/month <span id="red-val">40</span></div>
           <input type="range" min="5" max="200" value="40" id="red-slider" oninput="calcEarn()">
         </div>
-        <div class="calc-row">
+        <div class="calc-row" style="margin-bottom:0;">
           <div class="calc-label">Avg minimum spend at your venues <span id="spend-val">$50</span></div>
           <input type="range" min="20" max="100" value="50" step="10" id="spend-slider" oninput="calcEarn()">
         </div>
-        <div class="calc-row" style="margin-bottom:0;">
-          <div class="calc-label">Team reps you have recruited <span id="team-val">3</span></div>
-          <input type="range" min="0" max="20" value="3" id="team-slider" oninput="calcEarn()">
-        </div>
       </div>
       <div class="results" style="margin-top:16px;">
-        <div class="result-row">
-          <div class="result-card">
-            <div class="result-label">Monthly residual</div>
-            <div class="result-val orange" id="monthly-res">$270</div>
-            <div class="result-sub">from your businesses</div>
-          </div>
-          <div class="result-card">
-            <div class="result-label">Team override</div>
-            <div class="result-val green" id="team-override">$81</div>
-            <div class="result-sub">from your reps</div>
-          </div>
-        </div>
         <div class="result-card highlight">
           <div class="result-label">Total monthly earnings</div>
-          <div class="result-val orange" id="total-monthly">$351</div>
+          <div class="result-val orange" id="total-monthly">$1,500</div>
           <div class="result-sub">passive &mdash; no extra work required</div>
         </div>
         <div class="result-annual">
@@ -349,7 +327,7 @@ footer{background:#080503;padding:24px 48px;display:flex;align-items:center;just
     <div class="who-card">
       <div class="who-icon">&#127758;</div>
       <div class="who-title">Anyone, anywhere</div>
-      <div class="who-desc">LoopRef works in any city, any country. Sign businesses in your neighbourhood or build a global team.</div>
+      <div class="who-desc">LoopRef works in any city, any country. Sign businesses in your neighbourhood or expand into new cities as you grow.</div>
     </div>
   </div>
 </section>
@@ -501,21 +479,13 @@ function calcEarn(){
   var biz=parseInt(document.getElementById('biz-slider').value);
   var red=parseInt(document.getElementById('red-slider').value);
   var spend=parseInt(document.getElementById('spend-slider').value);
-  var team=parseInt(document.getElementById('team-slider').value);
   document.getElementById('biz-val').textContent=biz;
   document.getElementById('red-val').textContent=red;
   document.getElementById('spend-val').textContent='$'+spend;
-  document.getElementById('team-val').textContent=team;
-  var looprefFee=Math.min(spend*0.10,10);
-  var repPct=0.30;
-  var teamPct=0.10;
+  var looprefFee=spend*0.10;
   var totalRedemptions=biz*red;
-  var repEarns=Math.round(totalRedemptions*looprefFee*repPct);
-  var teamEarns=Math.round(repEarns*team*teamPct);
-  var total=repEarns+teamEarns;
+  var total=Math.round(totalRedemptions*looprefFee*0.30);
   var annual=total*12;
-  document.getElementById('monthly-res').textContent='$'+repEarns.toLocaleString();
-  document.getElementById('team-override').textContent='$'+teamEarns.toLocaleString();
   document.getElementById('total-monthly').textContent='$'+total.toLocaleString();
   document.getElementById('annual-earn').textContent='$'+annual.toLocaleString();
 }
