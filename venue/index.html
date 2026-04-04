@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Claim your discount — LoopRef</title>
+<meta id="page-desc" name="description" content="Visit, post on social, unlock your discount.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<!-- Open Graph (populated by JS after load for dynamic pages) -->
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://loopref.com/og-image.svg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@loopref">
+<meta name="twitter:image" content="https://loopref.com/og-image.svg">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0d0805;--surface:#1a1008;--surface-2:#251808;--surface-3:#332208;
+  --ink:#fff9f0;--ink-2:#c4a882;--ink-3:#7a6040;
+  --accent:#ff6b35;--accent-dim:#ff6b3520;--accent-mid:#e55a24;
+  --green:#00d68f;--green-dim:#00d68f15;
+  --border:#ffffff10;--border-2:#ffffff18;--border-3:#ffffff28;
+}
+html{background:var(--bg);}
+body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);background:var(--bg);min-height:100vh;}
+
+/* NAV */
+nav{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;border-bottom:1px solid var(--border-2);position:sticky;top:0;z-index:100;background:var(--bg);}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.nav-logo img{height:32px;}
+.nav-cta{font-size:13px;font-weight:600;color:var(--accent);text-decoration:none;border:1px solid var(--accent);padding:7px 16px;border-radius:8px;transition:background .15s;}
+.nav-cta:hover{background:var(--accent-dim);}
+
+/* HERO */
+.hero{max-width:760px;margin:0 auto;padding:72px 24px 0;text-align:center;}
+.venue-badge{display:inline-flex;align-items:center;gap:8px;background:var(--surface-2);border:1px solid var(--border-3);border-radius:100px;padding:6px 16px;font-size:13px;color:var(--ink-2);font-weight:500;margin-bottom:28px;}
+.venue-badge svg{width:14px;height:14px;stroke:var(--accent);fill:none;flex-shrink:0;}
+.hero h1{font-family:'Fraunces',serif;font-weight:700;font-size:clamp(38px,7vw,68px);line-height:1.08;color:var(--ink);margin-bottom:12px;}
+.hero h1 em{color:var(--accent);font-style:normal;}
+.hero-sub{font-size:18px;color:var(--ink-2);line-height:1.6;max-width:520px;margin:0 auto 40px;}
+
+/* OFFER CARD */
+.offer-wrap{max-width:760px;margin:0 auto;padding:0 24px;}
+.offer-card{background:var(--surface);border:1px solid var(--border-3);border-radius:20px;padding:36px 40px;display:grid;grid-template-columns:1fr 1px 1fr;gap:0;margin-bottom:12px;position:relative;overflow:hidden;}
+.offer-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% -30%, #ff6b3514 0%, transparent 70%);pointer-events:none;}
+.offer-divider{background:var(--border-2);margin:0 32px;}
+.offer-item{text-align:center;padding:8px 0;}
+.offer-val{font-family:'Fraunces',serif;font-size:52px;font-weight:700;color:var(--ink);line-height:1;}
+.offer-val em{color:var(--accent);font-style:normal;}
+.offer-label{font-size:13px;color:var(--ink-3);margin-top:6px;font-weight:500;}
+.offer-note{text-align:center;font-size:12px;color:var(--ink-3);margin-bottom:40px;padding:0 24px;}
+
+/* HOW IT WORKS */
+.how{max-width:760px;margin:0 auto 48px;padding:0 24px;}
+.how-title{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);text-align:center;margin-bottom:28px;}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.step{background:var(--surface);border:1px solid var(--border-2);border-radius:16px;padding:24px 20px;text-align:center;}
+.step-num{width:32px;height:32px;border-radius:50%;background:var(--accent-dim);border:1px solid #ff6b3540;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--accent);margin:0 auto 14px;}
+.step h3{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:6px;}
+.step p{font-size:13px;color:var(--ink-3);line-height:1.5;}
+
+/* SOCIAL SHARE */
+.share-wrap{max-width:560px;margin:0 auto 20px;padding:0 24px;}
+.share-title{font-size:14px;font-weight:600;color:var(--ink-2);text-align:center;margin-bottom:16px;}
+.share-buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.share-btn{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 10px;border-radius:14px;border:1px solid var(--border-2);background:var(--surface);text-decoration:none;cursor:pointer;transition:border-color .15s,background .15s;}
+.share-btn:hover{border-color:var(--border-3);background:var(--surface-2);}
+.share-btn svg{width:28px;height:28px;}
+.share-btn span{font-size:12px;font-weight:600;color:var(--ink-2);}
+
+/* CLAIM CTA */
+.claim-wrap{max-width:560px;margin:0 auto 60px;padding:0 24px;text-align:center;}
+.claim-note{font-size:13px;color:var(--ink-3);margin-bottom:16px;}
+.claim-code-block{background:var(--surface);border:1px solid var(--border-3);border-radius:14px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:10px;}
+.claim-code-label{font-size:12px;color:var(--ink-3);margin-bottom:4px;}
+.claim-code{font-family:monospace;font-size:22px;font-weight:700;color:var(--green);letter-spacing:.06em;}
+.copy-btn{font-size:13px;font-weight:600;color:var(--accent);background:var(--accent-dim);border:none;border-radius:8px;padding:8px 16px;cursor:pointer;white-space:nowrap;transition:background .15s;}
+.copy-btn:hover{background:#ff6b3530;}
+.copy-btn.copied{color:var(--green);background:var(--green-dim);}
+.claim-hint{font-size:12px;color:var(--ink-3);}
+
+/* NOT FOUND */
+.notfound{max-width:480px;margin:120px auto;padding:0 24px;text-align:center;}
+.notfound h2{font-family:'Fraunces',serif;font-size:32px;color:var(--ink);margin-bottom:12px;}
+.notfound p{font-size:15px;color:var(--ink-3);line-height:1.6;margin-bottom:28px;}
+.notfound a{color:var(--accent);text-decoration:none;font-weight:600;}
+
+/* REP ATTRIBUTION */
+.rep-bar{background:var(--surface-2);border-top:1px solid var(--border);padding:14px 48px;text-align:center;font-size:13px;color:var(--ink-3);}
+.rep-bar strong{color:var(--ink-2);}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:20px 48px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+.foot-logo{font-family:'Fraunces',serif;font-weight:700;font-size:16px;color:var(--ink-2);text-decoration:none;}
+.foot-logo span{color:var(--accent);}
+.foot-note{font-size:12px;color:var(--ink-3);}
+
+@media(max-width:640px){
+  nav{padding:0 20px;}
+  .hero{padding:48px 20px 0;}
+  .offer-card{grid-template-columns:1fr;padding:28px 24px;}
+  .offer-divider{height:1px;width:100%;margin:24px 0;}
+  .steps{grid-template-columns:1fr;}
+  .share-buttons{grid-template-columns:repeat(3,1fr);}
+  .rep-bar,.footer{padding-left:20px;padding-right:20px;}
+  footer{padding:16px 20px;flex-direction:column;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">
+    <img src="/logo-white.svg" alt="LoopRef" height="32">
+  </a>
+  <a class="nav-cta" href="/register">List your venue</a>
+</nav>
+
+<!-- Page content injected by JS -->
+<div id="venue-content" style="display:none;">
+
+  <div class="hero">
+    <div class="venue-badge">
+      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <span id="venue-city">Local venue</span>
+    </div>
+    <h1>Get <em id="offer-pct">20%</em> off at<br><span id="venue-name-h1">this venue</span></h1>
+    <p class="hero-sub">Spend <strong id="min-spend-hero">$50+</strong>, post about your visit on social media, and show your post at the till to unlock your discount.</p>
+  </div>
+
+  <div class="offer-wrap">
+    <div class="offer-card">
+      <div class="offer-item">
+        <div class="offer-val"><em id="offer-pct-2">20%</em><br><small style="font-size:22px;color:var(--ink-2);">off</small></div>
+        <div class="offer-label">your bill — claimed at the till</div>
+      </div>
+      <div class="offer-divider"></div>
+      <div class="offer-item">
+        <div class="offer-val">$<span id="min-spend-num">50</span></div>
+        <div class="offer-label">minimum spend to qualify</div>
+      </div>
+    </div>
+    <p class="offer-note">Discount applied by the venue when you show your live post. One per visit.</p>
+  </div>
+
+  <div class="how">
+    <div class="how-title">How to claim</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Visit &amp; spend</h3>
+        <p>Visit <strong id="venue-name-step">the venue</strong> and spend at least <strong id="min-spend-step">$50</strong>.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>Post on social</h3>
+        <p>Share your visit on TikTok, Instagram, or X. Tag the venue and make it public.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Show &amp; save</h3>
+        <p>Show your live post to the staff at the till and your <strong id="offer-pct-step">20%</strong> discount is applied.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="share-wrap">
+    <div class="share-title">Ready to post? Choose your platform:</div>
+    <div class="share-buttons">
+      <!-- TikTok -->
+      <a class="share-btn" id="tiktok-btn" href="https://www.tiktok.com" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="var(--ink)"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.73a4.84 4.84 0 01-1.01-.04z"/></svg>
+        <span>TikTok</span>
+      </a>
+      <!-- Instagram -->
+      <a class="share-btn" id="instagram-btn" href="https://www.instagram.com" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4.5"/><circle cx="17.5" cy="6.5" r="0.5" fill="var(--ink)" stroke="none"/></svg>
+        <span>Instagram</span>
+      </a>
+      <!-- X / Twitter -->
+      <a class="share-btn" id="x-btn" href="https://x.com" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="var(--ink)"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.741l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.912-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        <span>X</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="claim-wrap">
+    <p class="claim-note">Save this link to come back to it:</p>
+    <div class="claim-code-block">
+      <div>
+        <div class="claim-code-label">Your venue offer link</div>
+        <div class="claim-code" id="page-url-display">loopref.com/venue/</div>
+      </div>
+      <button class="copy-btn" id="copy-url-btn" onclick="copyPageUrl()">Copy</button>
+    </div>
+    <p class="claim-hint">Share this link with friends visiting <span id="venue-name-hint">the venue</span> — they can claim the same deal.</p>
+  </div>
+
+</div>
+
+<!-- Not found state -->
+<div id="notfound-content" style="display:none;">
+  <div class="notfound">
+    <h2>Venue not found</h2>
+    <p>This link may be invalid or the venue may no longer be active on LoopRef. Ask the rep or venue for the correct link.</p>
+    <a href="/">Back to LoopRef &rarr;</a>
+  </div>
+</div>
+
+<!-- Rep attribution bar (shown if ref= present) -->
+<div class="rep-bar" id="rep-bar" style="display:none;">
+  Referred by rep <strong id="rep-name-bar"></strong> &mdash; <a href="/earn" style="color:var(--accent);text-decoration:none;">become a rep yourself &rarr;</a>
+</div>
+
+<footer>
+  <a class="foot-logo" href="/">loop<span>ref</span></a>
+  <span class="foot-note">&copy; 2025 LoopRef &middot; <a href="/venues" style="color:var(--ink-3);text-decoration:none;">For venues</a> &middot; <a href="/earn" style="color:var(--ink-3);text-decoration:none;">Earn with us</a></span>
+</footer>
+
+<script>
+(function(){
+  var p = new URLSearchParams(window.location.search);
+
+  var name    = p.get('n') || p.get('name') || '';
+  var city    = p.get('city') || '';
+  var minRaw  = parseInt(p.get('min') || '0', 10);
+  var offRaw  = p.get('off') || p.get('offer') || '';
+  var tag     = p.get('tag') || '';   // social handle of venue
+  var ref     = (p.get('ref') || '').toUpperCase();
+
+  // Require at least a name to show the venue page
+  if (!name) {
+    document.getElementById('notfound-content').style.display = 'block';
+    return;
+  }
+
+  // Format values
+  var minStr  = minRaw ? '$' + minRaw : '';
+  var offStr  = offRaw ? (offRaw.toString().replace('%','') + '%') : '';
+
+  // Populate page title
+  document.getElementById('page-title').textContent =
+    (offStr ? offStr + ' off at ' : 'Discount at ') + name + ' — LoopRef';
+  document.getElementById('page-desc').setAttribute('content',
+    'Visit ' + name + (city ? ' in ' + city : '') +
+    (minStr ? ', spend ' + minStr + '+' : '') +
+    ', post on social, and unlock ' + (offStr || 'your discount') + '.');
+
+  // Populate hero
+  setText('venue-city', city || 'Local venue');
+  setText('venue-name-h1', name);
+  setText('offer-pct', offStr || 'your discount');
+  setText('offer-pct-2', offStr || 'your deal');
+  setText('min-spend-hero', minStr ? minStr + '+' : 'qualifying');
+  setText('min-spend-num', minRaw || '—');
+
+  // Steps
+  setText('venue-name-step', name);
+  setText('min-spend-step', minStr || 'the qualifying amount');
+  setText('offer-pct-step', offStr || 'your discount');
+
+  // Offer card label fallback
+  if (!offRaw) {
+    document.querySelector('.offer-item:first-child .offer-val').innerHTML =
+      '<em style="font-size:36px">Your<br>deal</em>';
+  }
+  if (!minRaw) {
+    document.querySelector('.offer-item:last-child').innerHTML =
+      '<div class="offer-val" style="font-size:28px;color:var(--ink-2)">Ask venue</div>' +
+      '<div class="offer-label">for minimum spend</div>';
+  }
+
+  // Social share buttons — deep link with caption pre-filled where possible
+  var caption = encodeURIComponent(
+    'Just had an amazing time at ' + name +
+    (city ? ' in ' + city : '') + '! ' +
+    (tag ? '@' + tag + ' ' : '') +
+    '#LoopRef #' + name.replace(/\s+/g,'') +
+    ' — get ' + (offStr || 'a discount') + ' off your next visit 👇'
+  );
+
+  // TikTok — opens app; caption can't be pre-filled via URL but tag can
+  var ttHandle = tag ? 'https://www.tiktok.com/@' + tag : 'https://www.tiktok.com';
+  document.getElementById('tiktok-btn').href = ttHandle;
+
+  // Instagram — opens profile if handle known
+  var igHandle = tag ? 'https://www.instagram.com/' + tag : 'https://www.instagram.com';
+  document.getElementById('instagram-btn').href = igHandle;
+
+  // X / Twitter — can pre-fill tweet text
+  document.getElementById('x-btn').href =
+    'https://x.com/intent/tweet?text=' + caption +
+    (tag ? '&via=' + tag : '');
+
+  // Page URL display
+  var fullUrl = window.location.href;
+  var shortUrl = 'loopref.com/venue/?' + window.location.search.replace('?','');
+  setText('page-url-display', shortUrl.length > 54 ? shortUrl.substring(0, 52) + '…' : shortUrl);
+  setText('venue-name-hint', name);
+
+  // Rep attribution
+  if (ref) {
+    setText('rep-name-bar', ref);
+    document.getElementById('rep-bar').style.display = 'block';
+  }
+
+  // Show content
+  document.getElementById('venue-content').style.display = 'block';
+
+  // Copy URL
+  window._pageUrl = fullUrl;
+})();
+
+function setText(id, val) {
+  var el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+function copyPageUrl() {
+  var url = window._pageUrl || window.location.href;
+  navigator.clipboard.writeText(url).then(function(){
+    var btn = document.getElementById('copy-url-btn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(function(){ btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2500);
+  });
+}
+</script>
+</body>
+</html>
