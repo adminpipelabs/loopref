@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LoopRef Invoice — Sample</title>
+<meta name="description" content="Sample LoopRef performance invoice for venues.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Fraunces:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --ink:#111827;--ink-2:#374151;--ink-3:#6b7280;--ink-4:#9ca3af;
+  --bg:#f9fafb;--surface:#ffffff;--surface-2:#f3f4f6;
+  --border:#e5e7eb;--border-2:#d1d5db;
+  --accent:#ff6b35;--accent-dim:#fff4ef;--accent-mid:#e55a24;
+  --green:#059669;--green-dim:#ecfdf5;--green-border:#a7f3d0;
+  --red:#dc2626;--red-dim:#fef2f2;
+}
+html,body{background:var(--bg);font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);font-size:14px;}
+
+/* SCREEN CHROME (hidden on print) */
+.screen-bar{background:var(--ink);color:#fff;padding:12px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.screen-bar-left{display:flex;align-items:center;gap:12px;font-size:13px;}
+.screen-badge{background:#ffffff20;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;letter-spacing:.05em;color:#ffd;}
+.screen-bar-right{display:flex;gap:10px;}
+.btn-print{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;padding:8px 18px;border-radius:8px;border:none;cursor:pointer;text-decoration:none;}
+.btn-print-outline{background:transparent;color:#fff;border:1px solid #ffffff40;}
+.btn-print-outline:hover{background:#ffffff15;}
+.btn-print-primary{background:var(--accent);color:#fff;}
+.btn-print-primary:hover{background:var(--accent-mid);}
+.btn-print svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+
+/* INVOICE WRAPPER */
+.invoice-wrap{max-width:820px;margin:32px auto 64px;padding:0 20px;}
+.invoice{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+
+/* HEADER */
+.inv-header{padding:40px 48px 32px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;gap:24px;}
+.inv-logo{display:flex;align-items:center;gap:10px;}
+.inv-logo-mark{width:40px;height:40px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.inv-logo-mark svg{width:22px;height:22px;}
+.inv-wordmark{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--ink);}
+.inv-wordmark span{color:var(--accent);}
+.inv-title-block{text-align:right;}
+.inv-title{font-size:28px;font-weight:700;color:var(--ink);margin-bottom:6px;}
+.inv-num{font-size:13px;color:var(--ink-3);margin-bottom:2px;}
+.inv-status{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:100px;font-size:12px;font-weight:700;margin-top:8px;}
+.inv-status.unpaid{background:var(--accent-dim);color:var(--accent);}
+.inv-status.paid{background:var(--green-dim);color:var(--green);}
+.inv-status::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;}
+
+/* FROM / TO */
+.inv-parties{display:grid;grid-template-columns:1fr 1fr;gap:0;border-bottom:1px solid var(--border);}
+.inv-party{padding:28px 48px;}
+.inv-party:first-child{border-right:1px solid var(--border);}
+.inv-party-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-4);margin-bottom:12px;}
+.inv-party-name{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.inv-party p{font-size:13px;color:var(--ink-3);line-height:1.6;}
+.inv-party a{color:var(--accent);text-decoration:none;}
+
+/* META ROW */
+.inv-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-bottom:1px solid var(--border);}
+.inv-meta-item{padding:20px 24px;border-right:1px solid var(--border);}
+.inv-meta-item:first-child{padding-left:48px;}
+.inv-meta-item:last-child{border-right:none;padding-right:48px;}
+.inv-meta-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-4);margin-bottom:5px;}
+.inv-meta-val{font-size:14px;font-weight:600;color:var(--ink);}
+
+/* CAMPAIGN SUMMARY */
+.inv-summary{padding:28px 48px;border-bottom:1px solid var(--border);background:var(--surface-2);}
+.inv-summary-title{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:16px;}
+.summary-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.summary-stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;}
+.summary-stat-val{font-size:22px;font-weight:700;color:var(--ink);margin-bottom:3px;}
+.summary-stat-label{font-size:11px;color:var(--ink-3);}
+
+/* LINE ITEMS */
+.inv-items{padding:32px 48px;border-bottom:1px solid var(--border);}
+.inv-items-title{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:20px;}
+table{width:100%;border-collapse:collapse;}
+thead th{font-size:11px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;padding:0 12px 10px;text-align:left;border-bottom:1px solid var(--border);}
+thead th:last-child{text-align:right;}
+tbody tr{border-bottom:1px solid var(--border);}
+tbody tr:last-child{border-bottom:none;}
+tbody td{padding:12px;font-size:13px;color:var(--ink-2);vertical-align:middle;}
+tbody td:first-child{padding-left:0;}
+tbody td:last-child{padding-right:0;text-align:right;font-weight:600;color:var(--ink);}
+.post-handle{font-weight:600;color:var(--ink);}
+.post-handle a{color:var(--ink);text-decoration:none;}
+.post-handle a:hover{color:var(--accent);}
+.platform-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px;background:var(--surface-2);color:var(--ink-3);}
+.platform-badge svg{width:11px;height:11px;}
+.status-dot{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;}
+.status-dot::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;}
+.calc-breakdown{font-size:11px;color:var(--ink-4);margin-top:2px;}
+
+/* TOTALS */
+.inv-totals{padding:28px 48px;border-bottom:1px solid var(--border);}
+.totals-table{max-width:320px;margin-left:auto;}
+.totals-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:13px;color:var(--ink-2);}
+.totals-row.divider-row{border-top:1px solid var(--border);margin-top:4px;padding-top:12px;}
+.totals-row.total-row{font-size:17px;font-weight:700;color:var(--ink);border-top:2px solid var(--ink);margin-top:4px;padding-top:12px;}
+.totals-row-label{color:var(--ink-3);}
+.totals-row.total-row .totals-row-label{color:var(--ink);}
+
+/* PAYMENT */
+.inv-payment{padding:28px 48px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.inv-payment-text h3{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.inv-payment-text p{font-size:13px;color:var(--ink-3);line-height:1.5;}
+.pay-btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;font-size:14px;font-weight:700;padding:12px 24px;border-radius:10px;text-decoration:none;border:none;cursor:pointer;white-space:nowrap;}
+.pay-btn:hover{background:var(--accent-mid);}
+.pay-btn svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+
+/* FOOTER */
+.inv-footer{padding:24px 48px;background:var(--surface-2);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;}
+.inv-footer-left{font-size:12px;color:var(--ink-3);line-height:1.6;}
+.inv-footer-right{font-size:12px;color:var(--ink-3);text-align:right;}
+.inv-footer-right a{color:var(--accent);text-decoration:none;}
+
+/* PRINT STYLES */
+@media print{
+  .screen-bar{display:none;}
+  body{background:#fff;}
+  .invoice-wrap{margin:0;padding:0;max-width:100%;}
+  .invoice{border:none;border-radius:0;}
+  .inv-header,.inv-parties,.inv-party,.inv-meta-item:first-child,.inv-meta-item:last-child,.inv-items,.inv-summary,.inv-totals,.inv-payment,.inv-footer{padding-left:32px;padding-right:32px;}
+  .pay-btn{display:none;}
+  .inv-payment-text p::after{content:' Pay at: loopref.com/pay';}
+}
+
+@media(max-width:680px){
+  .inv-header{flex-direction:column;}
+  .inv-title-block{text-align:left;}
+  .inv-parties{grid-template-columns:1fr;}
+  .inv-party:first-child{border-right:none;border-bottom:1px solid var(--border);}
+  .inv-meta{grid-template-columns:repeat(2,1fr);}
+  .inv-meta-item{padding:14px 16px;}
+  .inv-meta-item:first-child{padding-left:16px;}
+  .inv-meta-item:last-child{padding-right:16px;}
+  .inv-meta-item:nth-child(2){border-right:none;}
+  .summary-stats{grid-template-columns:repeat(2,1fr);}
+  .inv-header,.inv-party,.inv-items,.inv-summary,.inv-totals,.inv-payment,.inv-footer{padding-left:24px;padding-right:24px;}
+  .screen-bar{padding:10px 20px;}
+  .btn-print span{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- Screen chrome bar (hidden on print) -->
+<div class="screen-bar">
+  <div class="screen-bar-left">
+    <strong>LoopRef</strong>
+    <span class="screen-badge">SAMPLE INVOICE</span>
+    <span style="color:#ffffff80;font-size:12px;">This is a preview of what venues receive each billing period</span>
+  </div>
+  <div class="screen-bar-right">
+    <button class="btn-print btn-print-outline" onclick="window.print()">
+      <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      <span>Print / Save PDF</span>
+    </button>
+    <a class="btn-print btn-print-primary" href="/register">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span>List your venue</span>
+    </a>
+  </div>
+</div>
+
+<div class="invoice-wrap">
+<div class="invoice">
+
+  <!-- HEADER -->
+  <div class="inv-header">
+    <div class="inv-logo">
+      <div class="inv-logo-mark">
+        <svg width="22" height="22" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 16 C8 11.6 11.6 8 16 8 C20.4 8 24 11.6 24 16" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M24 16 C24 20.4 20.4 24 16 24 C11.6 24 8 20.4 8 16" stroke="rgba(255,255,255,0.45)" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <polyline points="21,13 24,16 21,19" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="inv-wordmark">loop<span>ref</span></div>
+        <div style="font-size:11px;color:var(--ink-3);margin-top:1px;">Performance Marketing</div>
+      </div>
+    </div>
+    <div class="inv-title-block">
+      <div class="inv-title">Invoice</div>
+      <div class="inv-num">#LR-2025-04-001</div>
+      <div class="inv-status unpaid">Unpaid</div>
+    </div>
+  </div>
+
+  <!-- FROM / TO -->
+  <div class="inv-parties">
+    <div class="inv-party">
+      <div class="inv-party-label">From</div>
+      <div class="inv-party-name">LoopRef / Pipe Labs LLC</div>
+      <p>
+        hello@loopref.com<br>
+        <a href="https://loopref.com">loopref.com</a>
+      </p>
+    </div>
+    <div class="inv-party">
+      <div class="inv-party-label">Billed to</div>
+      <div class="inv-party-name">Malibu Poke</div>
+      <p>
+        Marcus Johnson, Owner<br>
+        123 Ocean Ave, Los Angeles CA 90291<br>
+        marcus@malibupoke.com
+      </p>
+    </div>
+  </div>
+
+  <!-- META -->
+  <div class="inv-meta">
+    <div class="inv-meta-item">
+      <div class="inv-meta-label">Invoice date</div>
+      <div class="inv-meta-val">1 Apr 2025</div>
+    </div>
+    <div class="inv-meta-item">
+      <div class="inv-meta-label">Due date</div>
+      <div class="inv-meta-val" style="color:var(--accent);">15 Apr 2025</div>
+    </div>
+    <div class="inv-meta-item">
+      <div class="inv-meta-label">Billing period</div>
+      <div class="inv-meta-val">Mar 2025</div>
+    </div>
+    <div class="inv-meta-item">
+      <div class="inv-meta-label">Venue ID</div>
+      <div class="inv-meta-val" style="font-family:monospace;font-size:13px;">LR-V-00142</div>
+    </div>
+  </div>
+
+  <!-- CAMPAIGN SUMMARY -->
+  <div class="inv-summary">
+    <div class="inv-summary-title">Campaign summary — March 2025</div>
+    <div class="summary-stats">
+      <div class="summary-stat">
+        <div class="summary-stat-val">23</div>
+        <div class="summary-stat-label">Verified posts this month</div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat-val">$50</div>
+        <div class="summary-stat-label">Minimum spend (your setting)</div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat-val">$1,150</div>
+        <div class="summary-stat-label">New revenue generated for you</div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat-val" style="color:var(--accent);">$115.00</div>
+        <div class="summary-stat-label">LoopRef fee (10% of above)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LINE ITEMS -->
+  <div class="inv-items">
+    <div class="inv-items-title">Verified posts — line items</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Customer post</th>
+          <th>Platform</th>
+          <th>Status</th>
+          <th>Min spend</th>
+          <th>Fee (10%)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="color:var(--ink-3);">Mar 3</td>
+          <td><div class="post-handle"><a href="#" onclick="return false;">@sarah_eats_la</a></div><div class="calc-breakdown">Post verified · public · positive sentiment</div></td>
+          <td><span class="platform-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.73a4.84 4.84 0 01-1.01-.04z"/></svg>TikTok</span></td>
+          <td><span class="status-dot">Verified</span></td>
+          <td>$50.00</td>
+          <td>$5.00</td>
+        </tr>
+        <tr>
+          <td style="color:var(--ink-3);">Mar 5</td>
+          <td><div class="post-handle"><a href="#" onclick="return false;">@tomfoodie</a></div><div class="calc-breakdown">Post verified · public · positive sentiment</div></td>
+          <td><span class="platform-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4.5"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/></svg>Instagram</span></td>
+          <td><span class="status-dot">Verified</span></td>
+          <td>$50.00</td>
+          <td>$5.00</td>
+        </tr>
+        <tr>
+          <td style="color:var(--ink-3);">Mar 7</td>
+          <td><div class="post-handle"><a href="#" onclick="return false;">@la_bites</a></div><div class="calc-breakdown">Post verified · public · positive sentiment</div></td>
+          <td><span class="platform-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.741l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.912-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>X</span></td>
+          <td><span class="status-dot">Verified</span></td>
+          <td>$50.00</td>
+          <td>$5.00</td>
+        </tr>
+        <tr>
+          <td style="color:var(--ink-3);">Mar 9</td>
+          <td><div class="post-handle"><a href="#" onclick="return false;">@beachside_bites</a></div><div class="calc-breakdown">Post verified · public · positive sentiment</div></td>
+          <td><span class="platform-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.73a4.84 4.84 0 01-1.01-.04z"/></svg>TikTok</span></td>
+          <td><span class="status-dot">Verified</span></td>
+          <td>$50.00</td>
+          <td>$5.00</td>
+        </tr>
+        <tr>
+          <td style="color:var(--ink-3);">Mar 12</td>
+          <td><div class="post-handle"><a href="#" onclick="return false;">@westside.foodie</a></div><div class="calc-breakdown">Post verified · public · positive sentiment</div></td>
+          <td><span class="platform-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4.5"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/></svg>Instagram</span></td>
+          <td><span class="status-dot">Verified</span></td>
+          <td>$50.00</td>
+          <td>$5.00</td>
+        </tr>
+        <tr>
+          <td style="color:var(--ink-3);">…</td>
+          <td colspan="4" style="color:var(--ink-4);font-style:italic;">18 more verified posts · same calculation</td>
+          <td>$90.00</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- TOTALS -->
+  <div class="inv-totals">
+    <div class="totals-table">
+      <div class="totals-row">
+        <span class="totals-row-label">Verified posts (23)</span>
+        <span>$115.00</span>
+      </div>
+      <div class="totals-row">
+        <span class="totals-row-label">Calculation</span>
+        <span style="color:var(--ink-3);font-size:12px;">23 × $50 × 10%</span>
+      </div>
+      <div class="totals-row divider-row">
+        <span class="totals-row-label">Subtotal</span>
+        <span>$115.00</span>
+      </div>
+      <div class="totals-row">
+        <span class="totals-row-label">Tax</span>
+        <span style="color:var(--ink-3);">$0.00</span>
+      </div>
+      <div class="totals-row total-row">
+        <span class="totals-row-label">Total due</span>
+        <span style="color:var(--accent);">$115.00</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAYMENT -->
+  <div class="inv-payment">
+    <div class="inv-payment-text">
+      <h3>Payment due by 15 April 2025</h3>
+      <p>Pay securely by card via the button. Your campaign remains active while this invoice is unpaid — it pauses automatically if payment is not received within 14 days of the due date.</p>
+    </div>
+    <a class="pay-btn" href="#" onclick="return false;">
+      <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      Pay $115.00 now
+    </a>
+  </div>
+
+  <!-- FOOTER NOTE -->
+  <div class="inv-footer">
+    <div class="inv-footer-left">
+      <strong>LoopRef — Performance fee invoice</strong><br>
+      You only pay from new business LoopRef generated. This invoice covers verified customer posts at <strong>Malibu Poke</strong> during March 2025.<br>
+      Questions? Reply to <a href="mailto:hello@loopref.com">hello@loopref.com</a> or dispute a line item within 7 days of invoice date.
+    </div>
+    <div class="inv-footer-right">
+      loopref.com<br>
+      hello@loopref.com<br>
+      Venue ID: LR-V-00142
+    </div>
+  </div>
+
+</div>
+</div>
+
+</body>
+</html>
