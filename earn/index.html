@@ -225,7 +225,7 @@ footer{background:#080503;padding:24px 48px;display:flex;align-items:center;just
   <div class="income-strip">
     <div class="income-stat">
       <div class="income-val"><em>30%</em></div>
-      <div class="income-label">of LoopRef's cut &mdash; yours on every redemption</div>
+      <div class="income-label">of LoopRef&rsquo;s fee &mdash; yours on every verified post</div>
     </div>
     <div class="income-stat">
       <div class="income-val">&infin;</div>
@@ -251,8 +251,8 @@ footer{background:#080503;padding:24px 48px;display:flex;align-items:center;just
     <div class="earn-card">
       <div class="earn-card-top"><div class="earn-icon">&#128184;</div><span class="earn-tag tag-passive">Passive</span></div>
       <div class="earn-amount">30%</div>
-      <div class="earn-title">Residual on every redemption</div>
-      <div class="earn-desc">Every time a customer redeems a referral discount at a business you signed, you earn 30% of LoopRef's fee. Automatically. Forever. While you sleep.</div>
+      <div class="earn-title">Residual on every verified post</div>
+      <div class="earn-desc">Every time a customer posts and redeems at a venue you signed, LoopRef charges the venue 10% of their minimum spend (max $10). You earn 30% of that &mdash; automatically, forever.</div>
     </div>
     <div class="earn-card">
       <div class="earn-card-top"><div class="earn-icon">&#127942;</div><span class="earn-tag tag-bonus">Bonus</span></div>
@@ -287,6 +287,10 @@ footer{background:#080503;padding:24px 48px;display:flex;align-items:center;just
         <div class="calc-row">
           <div class="calc-label">Avg redemptions per business/month <span id="red-val">40</span></div>
           <input type="range" min="5" max="200" value="40" id="red-slider" oninput="calcEarn()">
+        </div>
+        <div class="calc-row">
+          <div class="calc-label">Avg minimum spend at your venues <span id="spend-val">$50</span></div>
+          <input type="range" min="20" max="100" value="50" step="10" id="spend-slider" oninput="calcEarn()">
         </div>
         <div class="calc-row" style="margin-bottom:0;">
           <div class="calc-label">Team reps you have recruited <span id="team-val">3</span></div>
@@ -496,11 +500,13 @@ footer{background:#080503;padding:24px 48px;display:flex;align-items:center;just
 function calcEarn(){
   var biz=parseInt(document.getElementById('biz-slider').value);
   var red=parseInt(document.getElementById('red-slider').value);
+  var spend=parseInt(document.getElementById('spend-slider').value);
   var team=parseInt(document.getElementById('team-slider').value);
   document.getElementById('biz-val').textContent=biz;
   document.getElementById('red-val').textContent=red;
+  document.getElementById('spend-val').textContent='$'+spend;
   document.getElementById('team-val').textContent=team;
-  var looprefFee=1.50;
+  var looprefFee=Math.min(spend*0.10,10);
   var repPct=0.30;
   var teamPct=0.10;
   var totalRedemptions=biz*red;
