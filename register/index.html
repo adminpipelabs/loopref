@@ -155,8 +155,15 @@ footer{padding:24px 48px;border-top:1px solid var(--border);display:flex;align-i
 .foot-logo span{color:var(--accent);}
 .foot-note{font-size:12px;color:var(--ink-3);}
 
+/* REF BANNER */
+.ref-banner{display:none;align-items:center;gap:10px;background:var(--green-dim);border-bottom:1px solid #00d68f20;padding:10px 48px;font-size:13px;color:var(--green);}
+.ref-banner svg{width:15px;height:15px;stroke:var(--green);fill:none;flex-shrink:0;}
+.ref-banner strong{color:var(--ink);}
+.ref-banner.show{display:flex;}
+
 @media(max-width:640px){
   nav{padding:0 20px;}
+  .ref-banner{padding:10px 20px;}
   .page{padding:36px 16px 60px;}
   .form-card{padding:24px 20px;}
   .field-row{grid-template-columns:1fr;}
@@ -196,6 +203,12 @@ footer{padding:24px 48px;border-top:1px solid var(--border);display:flex;align-i
       Copy link
     </button>
   </div>
+</div>
+
+<!-- REP REFERRAL BANNER -->
+<div class="ref-banner" id="ref-banner">
+  <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  <span>You were referred by <strong id="ref-name"></strong> &mdash; their code has been applied automatically.</span>
 </div>
 
 <div class="page">
@@ -821,6 +834,28 @@ function shareLink() {
     copyRegisterLink();
   }
 }
+
+// Read ?ref= from URL and pre-fill rep code field
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  var ref = params.get('ref');
+  if (ref) {
+    ref = ref.toUpperCase();
+    sessionStorage.setItem('loopref_rep', ref);
+  } else {
+    ref = sessionStorage.getItem('loopref_rep');
+  }
+  if (ref) {
+    var input = document.getElementById('rep-code');
+    if (input) input.value = ref;
+    var banner = document.getElementById('ref-banner');
+    var nameEl = document.getElementById('ref-name');
+    if (banner && nameEl) {
+      nameEl.textContent = ref;
+      banner.classList.add('show');
+    }
+  }
+})();
 </script>
 </body>
 </html>
