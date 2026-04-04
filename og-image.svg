@@ -1,0 +1,53 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#110a04"/>
+      <stop offset="100%" stop-color="#1e1008"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="0" y2="1" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ff6b35" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#ff6b35" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Subtle top glow -->
+  <ellipse cx="600" cy="-60" rx="520" ry="220" fill="url(#glow)"/>
+
+  <!-- Grid lines (subtle) -->
+  <line x1="0" y1="210" x2="1200" y2="210" stroke="#ffffff08" stroke-width="1"/>
+  <line x1="0" y1="420" x2="1200" y2="420" stroke="#ffffff08" stroke-width="1"/>
+  <line x1="400" y1="0" x2="400" y2="630" stroke="#ffffff08" stroke-width="1"/>
+  <line x1="800" y1="0" x2="800" y2="630" stroke="#ffffff08" stroke-width="1"/>
+
+  <!-- LoopRef icon (top left) -->
+  <rect x="80" y="80" width="72" height="72" rx="18" fill="#ff6b35"/>
+  <path d="M100 116 C100 104 109 95 120 95 C131 95 140 104 140 116" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M140 116 C140 128 131 137 120 137 C109 137 100 128 100 116" stroke="rgba(255,255,255,0.35)" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <polyline points="133,109 140,116 133,123" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Wordmark -->
+  <text x="170" y="125" font-family="Georgia,serif" font-weight="700" font-size="44" fill="#fff9f0">loop</text>
+  <text x="282" y="125" font-family="Georgia,serif" font-weight="700" font-size="44" fill="#ff6b35">ref</text>
+
+  <!-- Divider -->
+  <line x1="80" y1="194" x2="480" y2="194" stroke="#ff6b3540" stroke-width="1.5"/>
+
+  <!-- Main headline -->
+  <text x="80" y="290" font-family="Georgia,serif" font-weight="700" font-size="72" fill="#fff9f0">You earn first.</text>
+  <text x="80" y="378" font-family="Georgia,serif" font-weight="400" font-style="italic" font-size="72" fill="#ff6b35">We charge after.</text>
+
+  <!-- Subline -->
+  <text x="80" y="450" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-weight="400" font-size="28" fill="#c4a882">Performance-based marketing for local venues.</text>
+  <text x="80" y="492" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-weight="400" font-size="28" fill="#c4a882">10% of new business we bring you  nothing upfront.</text>
+
+  <!-- URL tag bottom right -->
+  <rect x="980" y="554" width="140" height="40" rx="8" fill="#ff6b3520" stroke="#ff6b3540" stroke-width="1"/>
+  <text x="1050" y="579" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-weight="500" font-size="18" fill="#ff6b35" text-anchor="middle">loopref.com</text>
+
+  <!-- Decorative arc right side -->
+  <circle cx="1100" cy="315" r="240" fill="none" stroke="#ff6b3514" stroke-width="60"/>
+  <circle cx="1100" cy="315" r="160" fill="none" stroke="#ff6b3510" stroke-width="40"/>
+</svg>
