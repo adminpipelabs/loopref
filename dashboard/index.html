@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LoopRef Venue Dashboard</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#f9fafb;--surface:#fff;--surface-2:#f3f4f6;
+  --ink:#111827;--ink-2:#374151;--ink-3:#6b7280;--ink-4:#9ca3af;
+  --accent:#ff6b35;--accent-dim:#fff4ef;--accent-mid:#e55a24;
+  --green:#059669;--green-dim:#ecfdf5;
+  --border:#e5e7eb;--border-2:#d1d5db;
+  --pinterest:#e60023;--pinterest-dim:#fff0f1;
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);}
+
+/* NAV */
+nav{height:60px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 32px;position:sticky;top:0;z-index:50;}
+.nav-logo{font-family:'Fraunces',serif;font-size:20px;font-weight:700;text-decoration:none;color:var(--ink);}
+.nav-logo span{color:var(--accent);}
+.nav-right{display:flex;align-items:center;gap:12px;}
+.nav-tag{font-size:12px;color:var(--ink-3);}
+.btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:8px 16px;border-radius:8px;border:none;cursor:pointer;text-decoration:none;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{background:var(--accent-mid);}
+.btn-outline{background:transparent;color:var(--ink-2);border:1px solid var(--border-2);}
+.btn-outline:hover{background:var(--surface-2);}
+.btn-pinterest{background:var(--pinterest);color:#fff;}
+.btn-pinterest:hover{background:#c0001d;}
+.btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+
+/* LAYOUT */
+.shell{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 60px);}
+aside{background:var(--surface);border-right:1px solid var(--border);padding:24px 16px;}
+.aside-section{margin-bottom:24px;}
+.aside-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-4);padding:0 8px;margin-bottom:6px;}
+.aside-link{display:flex;align-items:center;gap:9px;padding:8px;border-radius:8px;font-size:13px;font-weight:500;color:var(--ink-2);text-decoration:none;cursor:pointer;transition:background .1s;}
+.aside-link:hover,.aside-link.active{background:var(--surface-2);color:var(--ink);}
+.aside-link svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+main{padding:32px;}
+
+/* PANELS */
+.panel{display:none;}
+.panel.active{display:block;}
+.page-h{font-size:22px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.page-sub{font-size:14px;color:var(--ink-3);margin-bottom:28px;}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;}
+.stat-val{font-size:28px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.stat-val.accent{color:var(--accent);}
+.stat-label{font-size:12px;color:var(--ink-3);}
+
+/* PINTEREST CONNECT */
+.connect-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:28px;}
+.connect-card .info h3{font-size:16px;font-weight:700;margin-bottom:4px;}
+.connect-card .info p{font-size:13px;color:var(--ink-3);}
+.connected-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--green);background:var(--green-dim);padding:4px 12px;border-radius:100px;}
+.connected-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);}
+
+/* PHOTO UPLOAD */
+.upload-zone{border:2px dashed var(--border-2);border-radius:12px;padding:40px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;margin-bottom:20px;}
+.upload-zone:hover,.upload-zone.drag-over{border-color:var(--accent);background:var(--accent-dim);}
+.upload-zone svg{width:40px;height:40px;stroke:var(--ink-4);fill:none;stroke-width:1.5;margin-bottom:12px;}
+.upload-zone h3{font-size:15px;font-weight:600;color:var(--ink-2);margin-bottom:4px;}
+.upload-zone p{font-size:13px;color:var(--ink-4);}
+#file-input{display:none;}
+.photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;}
+.photo-thumb{position:relative;border-radius:8px;overflow:hidden;aspect-ratio:1;background:var(--surface-2);}
+.photo-thumb img{width:100%;height:100%;object-fit:cover;}
+.photo-thumb .used-badge{position:absolute;bottom:4px;right:4px;background:#00000090;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;}
+
+/* PIN PREVIEW */
+.pins-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;}
+.pin-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.pin-img{width:100%;aspect-ratio:2/3;object-fit:cover;background:var(--surface-2);}
+.pin-body{padding:14px;}
+.pin-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px;line-height:1.4;}
+.pin-desc{font-size:11px;color:var(--ink-3);line-height:1.5;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.pin-meta{display:flex;align-items:center;justify-content:space-between;}
+.pin-status{font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;}
+.pin-status.draft{background:#fef3c7;color:#92400e;}
+.pin-status.scheduled{background:#dbeafe;color:#1e40af;}
+.pin-status.posted{background:var(--green-dim);color:var(--green);}
+.pin-status.failed{background:#fee2e2;color:#991b1b;}
+.pin-actions{display:flex;gap:6px;margin-top:10px;}
+.pin-approve{font-size:11px;font-weight:600;padding:5px 10px;border-radius:6px;border:none;cursor:pointer;background:var(--accent);color:#fff;}
+.pin-approve:hover{background:var(--accent-mid);}
+.pin-regen{font-size:11px;font-weight:600;padding:5px 10px;border-radius:6px;border:1px solid var(--border-2);cursor:pointer;background:transparent;color:var(--ink-3);}
+
+/* PIN ANALYTICS */
+.pin-stats{display:flex;gap:12px;margin-top:8px;}
+.pin-stat{text-align:center;}
+.pin-stat-val{font-size:14px;font-weight:700;color:var(--ink);}
+.pin-stat-label{font-size:10px;color:var(--ink-4);}
+
+/* TOP PINS TABLE */
+.data-table{width:100%;border-collapse:collapse;}
+.data-table th{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);}
+.data-table td{font-size:13px;color:var(--ink-2);padding:12px;border-bottom:1px solid var(--border);}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table img{width:40px;height:60px;object-fit:cover;border-radius:4px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--ink);color:#fff;font-size:13px;font-weight:600;padding:12px 20px;border-radius:10px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:999;}
+.toast.show{opacity:1;}
+
+@media(max-width:768px){
+  .shell{grid-template-columns:1fr;}
+  aside{display:none;}
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">loop<span>ref</span></a>
+  <div class="nav-right">
+    <span class="nav-tag" id="nav-restaurant-name">Venue Dashboard</span>
+    <a class="btn btn-outline" href="/register">← Back to site</a>
+  </div>
+</nav>
+
+<div class="shell">
+  <aside>
+    <div class="aside-section">
+      <div class="aside-label">Overview</div>
+      <a class="aside-link active" onclick="showPanel('overview')">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+    </div>
+    <div class="aside-section">
+      <div class="aside-label">Pinterest</div>
+      <a class="aside-link" onclick="showPanel('photos')">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        Upload photos
+      </a>
+      <a class="aside-link" onclick="showPanel('pins')">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Review pins
+      </a>
+      <a class="aside-link" onclick="showPanel('analytics')">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Analytics
+      </a>
+    </div>
+    <div class="aside-section">
+      <div class="aside-label">Account</div>
+      <a class="aside-link" onclick="showPanel('settings')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Settings
+      </a>
+    </div>
+  </aside>
+
+  <main>
+
+    <!-- OVERVIEW -->
+    <div class="panel active" id="panel-overview">
+      <h1 class="page-h">Welcome back</h1>
+      <p class="page-sub" id="overview-sub">Your Pinterest engine status</p>
+
+      <div id="pinterest-connect-wrap">
+        <div class="connect-card">
+          <div class="info">
+            <h3>Connect Pinterest</h3>
+            <p>Connect your Pinterest account to start posting food pins and driving customers to your venue.</p>
+          </div>
+          <a class="btn btn-pinterest" id="connect-pinterest-btn" href="#">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.236 2.636 7.855 6.356 9.312-.088-.791-.167-2.005.035-2.868.181-.78 1.172-4.97 1.172-4.97s-.299-.598-.299-1.482c0-1.388.806-2.428 1.808-2.428.852 0 1.265.64 1.265 1.408 0 .858-.546 2.141-.828 3.33-.236.995.499 1.806 1.476 1.806 1.772 0 3.137-1.868 3.137-4.565 0-2.386-1.715-4.054-4.163-4.054-2.836 0-4.498 2.127-4.498 4.324 0 .856.33 1.775.741 2.276a.3.3 0 01.069.286c-.076.313-.244.995-.277 1.134-.044.183-.145.222-.335.134-1.249-.581-2.03-2.407-2.03-3.874 0-3.154 2.292-6.052 6.608-6.052 3.469 0 6.165 2.473 6.165 5.776 0 3.447-2.173 6.22-5.19 6.22-1.013 0-1.967-.527-2.292-1.148l-.623 2.378c-.226.869-.835 1.958-1.244 2.621.937.29 1.931.446 2.962.446 5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
+            Connect Pinterest
+          </a>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-val" id="stat-impressions">—</div>
+          <div class="stat-label">Total pin impressions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="stat-clicks">—</div>
+          <div class="stat-label">Link clicks</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="stat-scans">—</div>
+          <div class="stat-label">QR scans</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val accent" id="stat-referrals">—</div>
+          <div class="stat-label">Referrals generated</div>
+        </div>
+      </div>
+
+      <div id="top-pins-wrap" style="display:none;">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:14px;">Top performing pins</h3>
+        <table class="data-table" id="top-pins-table">
+          <thead><tr>
+            <th>Image</th><th>Title</th><th>Impressions</th><th>Clicks</th><th>Saves</th>
+          </tr></thead>
+          <tbody id="top-pins-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PHOTOS -->
+    <div class="panel" id="panel-photos">
+      <h1 class="page-h">Upload photos</h1>
+      <p class="page-sub">Add your best food and venue photos. Each photo becomes a Pinterest pin.</p>
+
+      <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
+        <svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
+        <h3>Drag photos here or click to browse</h3>
+        <p>JPG or PNG · up to 20MB each · max 20 photos</p>
+      </div>
+      <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" multiple>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <h3 style="font-size:15px;font-weight:700;" id="photos-count">Photos (0)</h3>
+        <button class="btn btn-primary" id="generate-pins-btn" onclick="generatePins()" style="display:none;">
+          Generate Pinterest pins →
+        </button>
+      </div>
+      <div class="photo-grid" id="photo-grid"></div>
+    </div>
+
+    <!-- PINS -->
+    <div class="panel" id="panel-pins">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+        <div>
+          <h1 class="page-h">Review pins</h1>
+          <p class="page-sub" style="margin:0;">Review and approve pins before they post to Pinterest.</p>
+        </div>
+        <button class="btn btn-primary" onclick="approveAll()">Approve all drafts</button>
+      </div>
+      <div class="pins-grid" id="pins-grid">
+        <p style="color:var(--ink-3);font-size:14px;" id="no-pins-msg">No pins yet. Upload photos and generate pins first.</p>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div class="panel" id="panel-analytics">
+      <h1 class="page-h">Analytics</h1>
+      <p class="page-sub">Pinterest performance → landing page visits → QR scans → referrals</p>
+      <div class="stats-row" id="analytics-stats"></div>
+      <h3 style="font-size:15px;font-weight:700;margin-bottom:14px;">Attribution by pin</h3>
+      <table class="data-table">
+        <thead><tr>
+          <th>Pin</th><th>Page visits</th><th>QR scans</th><th>Referrals</th><th>Conversion</th>
+        </tr></thead>
+        <tbody id="attribution-body"></tbody>
+      </table>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="panel" id="panel-settings">
+      <h1 class="page-h">Settings</h1>
+      <p class="page-sub">Manage your venue details and campaign settings.</p>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;max-width:480px;">
+        <p style="font-size:14px;color:var(--ink-3);">Venue settings coming soon. To update your details email <a href="mailto:hello@loopref.com" style="color:var(--accent);">hello@loopref.com</a>.</p>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var restaurantId = null;
+
+// ─── Init ──────────────────────────────────────────────────────────────────
+(function init() {
+  var params = new URLSearchParams(window.location.search);
+  restaurantId = params.get('restaurantId') || localStorage.getItem('loopref_rid');
+  if (!restaurantId) {
+    showToast('No restaurant ID found. Use the link from your registration email.');
+    return;
+  }
+  localStorage.setItem('loopref_rid', restaurantId);
+
+  // Handle Pinterest connect success
+  if (params.get('pinterest') === 'connected') showToast('Pinterest connected ✓');
+  if (params.get('error')) showToast('Error: ' + params.get('error'));
+
+  // Set Pinterest connect link
+  document.getElementById('connect-pinterest-btn').href = '/auth/pinterest?restaurantId=' + restaurantId;
+
+  loadDashboard();
+  loadPhotos();
+  loadPins();
+  loadAnalytics();
+})();
+
+// ─── Load dashboard ────────────────────────────────────────────────────────
+async function loadDashboard() {
+  const data = await api('/api/dashboard/' + restaurantId);
+  if (!data) return;
+
+  document.getElementById('nav-restaurant-name').textContent = data.restaurant?.name || 'Venue Dashboard';
+  document.getElementById('overview-sub').textContent = data.restaurant?.name + ' · ' + (data.restaurant?.city || '');
+
+  if (data.pinterestConnected) {
+    document.getElementById('pinterest-connect-wrap').innerHTML =
+      '<div class="connect-card"><div class="info"><h3>Pinterest connected</h3>' +
+      '<p>Board: <strong>' + (data.boardName || '—') + '</strong></p></div>' +
+      '<span class="connected-badge">Connected</span></div>';
+  }
+
+  setText('stat-impressions', fmt(data.stats?.totalImpressions));
+  setText('stat-clicks', fmt(data.stats?.totalClicks));
+  setText('stat-scans', fmt(data.stats?.scans));
+  setText('stat-referrals', fmt(data.stats?.referrals));
+
+  if (data.topPins?.length) {
+    document.getElementById('top-pins-wrap').style.display = 'block';
+    document.getElementById('top-pins-body').innerHTML = data.topPins.map(p => `
+      <tr>
+        <td><img src="${p.image_url}" alt="pin"></td>
+        <td style="max-width:240px;font-size:12px;">${p.title}</td>
+        <td>${fmt(p.impressions)}</td>
+        <td>${fmt(p.clicks)}</td>
+        <td>${fmt(p.saves)}</td>
+      </tr>`).join('');
+  }
+}
+
+// ─── Photos ────────────────────────────────────────────────────────────────
+async function loadPhotos() {
+  const photos = await api('/api/photos/' + restaurantId);
+  if (!photos) return;
+  renderPhotos(photos);
+}
+
+function renderPhotos(photos) {
+  document.getElementById('photos-count').textContent = 'Photos (' + photos.length + ')';
+  document.getElementById('generate-pins-btn').style.display = photos.length ? 'flex' : 'none';
+  document.getElementById('photo-grid').innerHTML = photos.map(p =>
+    `<div class="photo-thumb">
+      <img src="${p.photo_url}" alt="food photo" loading="lazy">
+      ${p.used_in_pins ? '<span class="used-badge">Used in ' + p.used_in_pins + ' pins</span>' : ''}
+    </div>`
+  ).join('') || '<p style="color:var(--ink-3);font-size:13px;">No photos yet.</p>';
+}
+
+// File input handler
+document.getElementById('file-input').addEventListener('change', async (e) => {
+  const files = e.target.files;
+  if (!files.length) return;
+  showToast('Uploading ' + files.length + ' photo(s)...');
+
+  const fd = new FormData();
+  for (const f of files) fd.append('photos', f);
+
+  const res = await fetch('/api/photos/' + restaurantId, { method: 'POST', body: fd });
+  const data = await res.json();
+  if (data.ok) {
+    showToast(data.photos.length + ' photo(s) uploaded ✓');
+    loadPhotos();
+  }
+});
+
+// Drag and drop
+const zone = document.getElementById('upload-zone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+zone.addEventListener('drop', async e => {
+  e.preventDefault();
+  zone.classList.remove('drag-over');
+  const files = e.dataTransfer.files;
+  const fd = new FormData();
+  for (const f of files) fd.append('photos', f);
+  showToast('Uploading...');
+  const res = await fetch('/api/photos/' + restaurantId, { method: 'POST', body: fd });
+  const data = await res.json();
+  if (data.ok) { showToast(data.photos.length + ' photo(s) uploaded ✓'); loadPhotos(); }
+});
+
+// Generate pins
+async function generatePins() {
+  const btn = document.getElementById('generate-pins-btn');
+  btn.textContent = 'Generating...';
+  btn.disabled = true;
+  showToast('Generating pins with AI — this takes about 30 seconds...');
+
+  const res = await fetch('/api/generate-pins/' + restaurantId, { method: 'POST' });
+  const data = await res.json();
+
+  btn.textContent = 'Generate Pinterest pins →';
+  btn.disabled = false;
+
+  if (data.ok) {
+    showToast(data.count + ' pins generated ✓ — review them in the Pins tab');
+    showPanel('pins');
+    loadPins();
+  } else {
+    showToast('Error: ' + data.error);
+  }
+}
+
+// ─── Pins ──────────────────────────────────────────────────────────────────
+async function loadPins() {
+  const res = await fetch('/auth/pins/' + restaurantId);
+  if (!res.ok) return;
+  const pins = await res.json();
+
+  const grid = document.getElementById('pins-grid');
+  if (!pins.length) {
+    grid.innerHTML = '<p style="color:var(--ink-3);font-size:14px;">No pins yet. Upload photos and click "Generate Pinterest pins".</p>';
+    return;
+  }
+
+  grid.innerHTML = pins.map(p => `
+    <div class="pin-card" id="pin-card-${p.id}">
+      <img class="pin-img" src="${p.image_url || ''}" alt="pin" loading="lazy">
+      <div class="pin-body">
+        <div class="pin-title">${p.title}</div>
+        <div class="pin-desc">${p.description || ''}</div>
+        <div class="pin-meta">
+          <span class="pin-status ${p.status}">${p.status}</span>
+          ${p.status === 'posted' ? `
+            <div class="pin-stats">
+              <div class="pin-stat"><div class="pin-stat-val">${fmt(p.impressions)}</div><div class="pin-stat-label">views</div></div>
+              <div class="pin-stat"><div class="pin-stat-val">${fmt(p.clicks)}</div><div class="pin-stat-label">clicks</div></div>
+              <div class="pin-stat"><div class="pin-stat-val">${fmt(p.saves)}</div><div class="pin-stat-label">saves</div></div>
+            </div>` : ''}
+        </div>
+        ${p.status === 'draft' ? `
+          <div class="pin-actions">
+            <button class="pin-approve" onclick="approvePin(${p.id})">Approve</button>
+            <button class="pin-regen" onclick="regenPin(${p.id})">Rewrite</button>
+          </div>` : ''}
+      </div>
+    </div>`
+  ).join('');
+}
+
+async function approvePin(pinId) {
+  await fetch('/auth/pins/approve', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ pinId }) });
+  showToast('Pin approved — will post within the hour ✓');
+  loadPins();
+}
+
+async function approveAll() {
+  await fetch('/auth/pins/approve-all', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ restaurantId }) });
+  showToast('All draft pins approved ✓');
+  loadPins();
+}
+
+async function regenPin(pinId) {
+  showToast('Rewriting pin...');
+  const res = await fetch('/api/regenerate-pin/' + pinId, { method: 'POST' });
+  const data = await res.json();
+  if (data.ok) { showToast('Pin rewritten ✓'); loadPins(); }
+}
+
+// ─── Analytics ────────────────────────────────────────────────────────────
+async function loadAnalytics() {
+  const data = await api('/api/attribution/' + restaurantId);
+  if (!data) return;
+
+  const t = data.totals || {};
+  const convRate = t.total_scans && t.total_visits
+    ? ((t.total_scans / t.total_visits) * 100).toFixed(1) + '%'
+    : '—';
+
+  document.getElementById('analytics-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-val">${fmt(t.total_visits)}</div><div class="stat-label">Landing page visits</div></div>
+    <div class="stat-card"><div class="stat-val">${fmt(t.total_scans)}</div><div class="stat-label">QR scans</div></div>
+    <div class="stat-card"><div class="stat-val">${convRate}</div><div class="stat-label">Visit → scan rate</div></div>
+    <div class="stat-card"><div class="stat-val accent">${fmt(t.total_referrals)}</div><div class="stat-label">Referrals</div></div>`;
+
+  document.getElementById('attribution-body').innerHTML = (data.rows || []).map(r => {
+    const rate = r.landing_page_visits ? ((r.qr_scans / r.landing_page_visits) * 100).toFixed(0) + '%' : '—';
+    return `<tr>
+      <td style="max-width:200px;font-size:12px;">${r.pin_title || r.tracking_code}</td>
+      <td>${fmt(r.landing_page_visits)}</td>
+      <td>${fmt(r.qr_scans)}</td>
+      <td>${fmt(r.referrals_generated)}</td>
+      <td>${rate}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="5" style="color:var(--ink-4);text-align:center;padding:20px;">No attribution data yet.</td></tr>';
+}
+
+// ─── Helpers ───────────────────────────────────────────────────────────────
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.aside-link').forEach(l => l.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  event?.target?.closest('.aside-link')?.classList.add('active');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+function setText(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+function fmt(n) {
+  if (n == null || n === '—') return '—';
+  return Number(n).toLocaleString();
+}
+
+async function api(url) {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch { return null; }
+}
+</script>
+</body>
+</html>

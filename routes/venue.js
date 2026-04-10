@@ -1,0 +1,152 @@
+const express = require('express');
+const multer = require('multer');
+const path = require('path');
+const { getDb } = require('../database/db');
+const { generateInitialPins, regeneratePin } = require('../agents/pinContent');
+
+const router = express.Router();
+
+// Photo upload: store in /uploads, served statically
+const storage = multer.diskStorage({
+  destination: path.join(__dirname, '../uploads'),
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname.replace(/\s+/g, '-')}`);
+  }
+});
+const upload = multer({
+  storage,
+  limits: { fileSize: 20 * 1024 * 1024 }, // 20MB
+  fileFilter: (req, file, cb) => {
+    cb(null, /image\/(jpeg|jpg|png|webp)/.test(file.mimetype));
+  }
+});
+
+// ─── Restaurant registration (receives Formspree-style data) ─────────────────
+// POST /api/restaurants
+router.post('/restaurants', (req, res) => {
+  const {
+    venue_name, cuisine_type, city, country, google_maps_url,
+    first_name, contact_email, phone, min_spend, discount_pct,
+    instagram_handle, tiktok_handle, website, rep_code
+  } = req.body;
+
+  if (!venue_name || !contact_email) {
+    return res.status(400).json({ error: 'venue_name and contact_email required' });
+  }
+
+  const db = getDb();
+  const result = db.prepare(`
+    INSERT INTO restaurants
+      (name, cuisine, city, country, google_maps_url, contact_name, contact_email,
+       min_spend, discount_pct, instagram_handle, tiktok_handle, website, rep_code)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    venue_name, cuisine_type || null, city || null, country || 'US',
+    google_maps_url || null, first_name || null, contact_email,
+    parseInt(min_spend) || 50, parseInt(discount_pct) || 20,
+    instagram_handle || null, tiktok_handle || null, website || null, rep_code || null
+  );
+
+  res.json({ ok: true, restaurantId: result.lastInsertRowid });
+});
+
+// ─── Get restaurant data ──────────────────────────────────────────────────────
+router.get('/restaurants/:id', (req, res) => {
+  const r = getDb().prepare('SELECT * FROM restaurants WHERE id = ?').get(req.params.id);
+  if (!r) return res.status(404).json({ error: 'Not found' });
+  res.json(r);
+});
+
+// ─── Photo upload ─────────────────────────────────────────────────────────────
+// POST /api/photos/:restaurantId
+router.post('/photos/:restaurantId', upload.array('photos', 20), (req, res) => {
+  const { restaurantId } = req.params;
+  const db = getDb();
+  const BASE_URL = process.env.BASE_URL || 'https://loopref.com';
+
+  const inserted = [];
+  for (const file of req.files) {
+    const url = `${BASE_URL}/uploads/${file.filename}`;
+    const result = db.prepare(`
+      INSERT INTO restaurant_photos (restaurant_id, photo_url, dish_name, source)
+      VALUES (?, ?, ?, 'upload')
+    `).run(restaurantId, url, req.body.dish_name || null);
+    inserted.push({ id: result.lastInsertRowid, url });
+  }
+
+  res.json({ ok: true, photos: inserted });
+});
+
+// ─── Get photos ───────────────────────────────────────────────────────────────
+router.get('/photos/:restaurantId', (req, res) => {
+  const photos = getDb().prepare(
+    'SELECT * FROM restaurant_photos WHERE restaurant_id = ? ORDER BY uploaded_at DESC'
+  ).all(req.params.restaurantId);
+  res.json(photos);
+});
+
+// ─── Trigger pin generation ───────────────────────────────────────────────────
+// POST /api/generate-pins/:restaurantId
+router.post('/generate-pins/:restaurantId', async (req, res) => {
+  const { restaurantId } = req.params;
+  try {
+    const pins = await generateInitialPins(parseInt(restaurantId));
+    res.json({ ok: true, count: pins.length, pins });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── Regenerate a single pin ──────────────────────────────────────────────────
+router.post('/regenerate-pin/:pinId', async (req, res) => {
+  try {
+    const content = await regeneratePin(parseInt(req.params.pinId));
+    res.json({ ok: true, content });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── Dashboard report ─────────────────────────────────────────────────────────
+// GET /api/dashboard/:restaurantId
+router.get('/dashboard/:restaurantId', (req, res) => {
+  const db = getDb();
+  const restaurantId = req.params.restaurantId;
+
+  const restaurant = db.prepare('SELECT * FROM restaurants WHERE id = ?').get(restaurantId);
+  const pinterest = db.prepare('SELECT * FROM restaurant_pinterest WHERE restaurant_id = ?').get(restaurantId);
+
+  const pins = db.prepare(`
+    SELECT *, (impressions + clicks * 10 + saves * 5) as score
+    FROM pinterest_pins
+    WHERE restaurant_id = ? AND status = 'posted'
+    ORDER BY score DESC
+  `).all(restaurantId);
+
+  const drafts = db.prepare(
+    `SELECT * FROM pinterest_pins WHERE restaurant_id = ? AND status = 'draft' ORDER BY created_at DESC`
+  ).all(restaurantId);
+
+  const attribution = db.prepare(`
+    SELECT COALESCE(SUM(landing_page_visits),0) as visits,
+           COALESCE(SUM(qr_scans),0) as scans,
+           COALESCE(SUM(referrals_generated),0) as referrals
+    FROM pinterest_attribution WHERE restaurant_id = ?
+  `).get(restaurantId);
+
+  const totalImpressions = pins.reduce((s, p) => s + p.impressions, 0);
+  const totalClicks = pins.reduce((s, p) => s + p.clicks, 0);
+  const totalSaves = pins.reduce((s, p) => s + p.saves, 0);
+
+  res.json({
+    restaurant,
+    pinterestConnected: !!pinterest?.board_id,
+    boardName: pinterest?.board_name,
+    stats: { totalImpressions, totalClicks, totalSaves, ...attribution },
+    topPins: pins.slice(0, 10),
+    drafts
+  });
+});
+
+module.exports = router;
