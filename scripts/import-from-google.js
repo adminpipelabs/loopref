@@ -11,7 +11,9 @@ require('dotenv').config();
 const fetch = require('node-fetch');
 const { getDb, initDb } = require('../database/db');
 
-const API_KEY = process.env.GOOGLE_PLACES_API_KEY;
+const API_KEY = process.env.GOOGLE_PLACES_API_KEY
+  || process.env.GOOGLE_MAPS_API_KEY
+  || process.env.GOOGLE_API_KEY;
 
 function slugify(str) {
   return str.toLowerCase()
