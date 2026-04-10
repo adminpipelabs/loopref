@@ -136,11 +136,11 @@ function upsertVenue(db, data) {
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
-async function importVenue(query) {
+async function importVenue(query, { autoInitDb = false } = {}) {
   const key = getApiKey();
   if (!key) throw new Error('GOOGLE_PLACES_API_KEY environment variable is not set');
 
-  console.log(`Searching Google Places for: "${query}" (key: ${key.slice(0,8)}...)`);
+  console.log(`Searching Google Places for: "${query}" (key: ${key.slice(0, 8)}...)`);
 
   const placeId = await findPlaceId(query);
   console.log(`Found place_id: ${placeId}`);
@@ -150,7 +150,6 @@ async function importVenue(query) {
 
   const city  = extractCity(place.address_components || []);
   const state = extractState(place.address_components || []);
-
   const photos = (place.photos || []).slice(0, 10).map(p => photoUrl(p.photo_reference));
 
   const venueData = {
@@ -166,7 +165,10 @@ async function importVenue(query) {
     photos
   };
 
-  initDb();
+  // Only initialise DB when running standalone (CLI). When called from the
+  // Express server the DB is already initialised at startup.
+  if (autoInitDb) initDb();
+
   const db = getDb();
   const { restaurantId, slug } = upsertVenue(db, venueData);
 
@@ -181,5 +183,5 @@ module.exports = { importVenueFromGoogle: importVenue };
 if (require.main === module) {
   const query = process.argv.slice(2).join(' ');
   if (!query) { console.log('Usage: node scripts/import-from-google.js "Restaurant Name City"'); process.exit(1); }
-  importVenue(query).catch(err => { console.error('Import failed:', err.message); process.exit(1); });
+  importVenue(query, { autoInitDb: true }).catch(err => { console.error('Import failed:', err.message); process.exit(1); });
 }
