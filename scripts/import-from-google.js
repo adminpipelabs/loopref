@@ -12,7 +12,6 @@ const fetch = require('node-fetch');
 const { getDb, initDb } = require('../database/db');
 
 const API_KEY = process.env.GOOGLE_PLACES_API_KEY;
-if (!API_KEY) { console.error('GOOGLE_PLACES_API_KEY not set'); process.exit(1); }
 
 function slugify(str) {
   return str.toLowerCase()
@@ -133,6 +132,8 @@ function upsertVenue(db, data) {
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function importVenue(query) {
+  if (!API_KEY) throw new Error('GOOGLE_PLACES_API_KEY environment variable is not set');
+
   console.log(`\nSearching Google Places for: "${query}"`);
 
   const placeId = await findPlaceId(query);

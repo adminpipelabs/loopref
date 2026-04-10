@@ -3,6 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const { getDb } = require('../database/db');
 const { generateInitialPins, regeneratePin } = require('../agents/pinContent');
+const { importVenueFromGoogle } = require('../scripts/import-from-google');
 
 function slugify(str) {
   return str.toLowerCase()
@@ -165,7 +166,6 @@ router.post('/places/import', async (req, res) => {
   // Google Places auto-import
   if (req.body.google_query) {
     try {
-      const { importVenueFromGoogle } = require('../scripts/import-from-google');
       const result = await importVenueFromGoogle(req.body.google_query);
       return res.json({ ok: true, ...result });
     } catch (err) {
