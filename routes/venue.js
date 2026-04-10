@@ -158,8 +158,21 @@ router.get('/places/:slug', (req, res) => {
   res.json({ ...venue, photos });
 });
 
-// POST /api/places/import — create an imported venue (admin use)
-router.post('/places/import', (req, res) => {
+// POST /api/places/import — import venue by Google Places query or manual data
+// Body option A: { google_query: "Bebe Zito Minneapolis" }
+// Body option B: { name, city, cuisine, ... } (manual)
+router.post('/places/import', async (req, res) => {
+  // Google Places auto-import
+  if (req.body.google_query) {
+    try {
+      const { importVenueFromGoogle } = require('../scripts/import-from-google');
+      const result = await importVenueFromGoogle(req.body.google_query);
+      return res.json({ ok: true, ...result });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
+
   const {
     name, cuisine, city, state, address, phone, tagline,
     website, min_spend, discount_pct, instagram_handle, tiktok_handle,
