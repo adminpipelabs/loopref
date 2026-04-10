@@ -170,7 +170,18 @@ router.get('/places/:slug', (req, res) => {
 // POST /api/places/import — import venue by Google Places query or manual data
 // Body option A: { google_query: "Bebe Zito Minneapolis" }
 // Body option B: { name, city, cuisine, ... } (manual)
+// Body option C: { check_env: true } — returns which Google env vars are present
 router.post('/places/import', async (req, res) => {
+  if (req.body.check_env) {
+    return res.json({
+      GOOGLE_PLACES_API_KEY: !!process.env.GOOGLE_PLACES_API_KEY,
+      GOOGLE_MAPS_API_KEY:   !!process.env.GOOGLE_MAPS_API_KEY,
+      GOOGLE_API_KEY:        !!process.env.GOOGLE_API_KEY,
+      all_keys: Object.keys(process.env).filter(k => k.startsWith('GOOGLE')),
+      node_version: process.version
+    });
+  }
+
   // Google Places auto-import
   if (req.body.google_query) {
     try {
