@@ -24,21 +24,26 @@ function initDb() {
     CREATE TABLE IF NOT EXISTS restaurants (
       id              INTEGER PRIMARY KEY AUTOINCREMENT,
       name            TEXT NOT NULL,
+      slug            TEXT UNIQUE,
       cuisine         TEXT,
       city            TEXT,
       state           TEXT,
       country         TEXT DEFAULT 'US',
       address         TEXT,
       google_maps_url TEXT,
+      phone           TEXT,
+      tagline         TEXT,
       min_spend       INTEGER DEFAULT 50,
       discount_pct    INTEGER DEFAULT 20,
       instagram_handle TEXT,
       tiktok_handle   TEXT,
       website         TEXT,
       contact_name    TEXT,
-      contact_email   TEXT NOT NULL,
+      contact_email   TEXT,
       rep_code        TEXT,
       formspree_submission_id TEXT,
+      source          TEXT DEFAULT 'signup',
+      imported_from   TEXT,
       status          TEXT DEFAULT 'pending',
       created_at      DATETIME DEFAULT CURRENT_TIMESTAMP
     );
@@ -228,6 +233,13 @@ function runMigrations(db) {
       // Column already exists — this is the expected path on subsequent starts
     }
   };
+
+  // restaurants
+  add('restaurants', 'slug',          'TEXT');
+  add('restaurants', 'phone',         'TEXT');
+  add('restaurants', 'tagline',       'TEXT');
+  add('restaurants', 'source',        "TEXT DEFAULT 'signup'");
+  add('restaurants', 'imported_from', 'TEXT');
 
   // restaurant_pinterest
   add('restaurant_pinterest', 'pinterest_user_id',   'TEXT');

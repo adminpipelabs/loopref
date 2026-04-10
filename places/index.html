@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Places — LoopRef</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <meta name="description" content="Discover restaurants and venues with exclusive LoopRef offers. Post, share, and earn discounts.">
+  <meta property="og:title" content="LoopRef Places — Discover Local Venues">
+  <meta property="og:description" content="Find local restaurants with exclusive referral discounts powered by LoopRef.">
+  <meta property="og:image" content="https://loopref.com/og-image.svg">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface2: #263348;
+      --border: #334155;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #6366f1;
+      --accent-light: #818cf8;
+      --green: #10b981;
+      --radius: 12px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Nav ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      height: 60px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 100;
+    }
+    nav a.logo img { display: block; }
+    .nav-links { display: flex; gap: 24px; align-items: center; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 14px; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--accent);
+      color: #fff !important;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 13px !important;
+    }
+    .nav-cta:hover { background: var(--accent-light) !important; }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center;
+      padding: 72px 24px 48px;
+      background: linear-gradient(180deg, #1a2540 0%, var(--bg) 100%);
+    }
+    .hero h1 {
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 16px;
+    }
+    .hero h1 span { color: var(--accent-light); }
+    .hero p {
+      font-size: 18px;
+      color: var(--muted);
+      max-width: 480px;
+      margin: 0 auto 32px;
+      line-height: 1.6;
+    }
+
+    /* ── Search bar ── */
+    .search-bar {
+      display: flex;
+      gap: 12px;
+      max-width: 600px;
+      margin: 0 auto;
+      flex-wrap: wrap;
+    }
+    .search-bar input, .search-bar select {
+      flex: 1;
+      min-width: 160px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 15px;
+      outline: none;
+    }
+    .search-bar input::placeholder { color: var(--muted); }
+    .search-bar input:focus, .search-bar select:focus { border-color: var(--accent); }
+    .search-bar button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .search-bar button:hover { background: var(--accent-light); }
+
+    /* ── Filter chips ── */
+    .filters {
+      max-width: 1100px;
+      margin: 32px auto 0;
+      padding: 0 24px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .chip {
+      padding: 6px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      font-size: 13px;
+      cursor: pointer;
+      color: var(--muted);
+      background: var(--surface);
+      transition: all .15s;
+    }
+    .chip:hover, .chip.active {
+      border-color: var(--accent);
+      color: var(--accent-light);
+      background: rgba(99,102,241,.12);
+    }
+
+    /* ── Grid ── */
+    .grid-wrap {
+      max-width: 1100px;
+      margin: 40px auto 80px;
+      padding: 0 24px;
+    }
+    .grid-meta {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+    }
+
+    /* ── Venue card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      transition: transform .15s, border-color .15s;
+    }
+    .card:hover { transform: translateY(-3px); border-color: var(--accent); }
+
+    .card-img {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      background: var(--surface2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+    }
+    .card-img img { width: 100%; height: 100%; object-fit: cover; }
+
+    .card-body { padding: 18px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+    .card-cuisine {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--accent-light);
+    }
+    .card-name { font-size: 18px; font-weight: 700; }
+    .card-tagline { font-size: 13px; color: var(--muted); line-height: 1.5; flex: 1; }
+    .card-footer {
+      padding: 12px 18px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-location { font-size: 12px; color: var(--muted); }
+    .card-offer {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--green);
+      background: rgba(16,185,129,.12);
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    /* ── Empty state ── */
+    .empty {
+      text-align: center;
+      padding: 80px 24px;
+      color: var(--muted);
+    }
+    .empty p { font-size: 16px; margin-top: 12px; }
+
+    /* ── Loading skeleton ── */
+    .skeleton {
+      background: linear-gradient(90deg, var(--surface) 25%, var(--surface2) 50%, var(--surface) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 8px;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0 } 100% { background-position: -200% 0 } }
+
+    .skeleton-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .skeleton-img { height: 180px; }
+    .skeleton-body { padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+    .skeleton-line { height: 14px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="/"><img src="/logo-white.svg" alt="LoopRef" height="32"></a>
+  <div class="nav-links">
+    <a href="/">Home</a>
+    <a href="/earn">Earn</a>
+    <a href="/venues">For Venues</a>
+    <a href="/register" class="nav-cta">List Your Venue</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <h1>Discover <span>local venues</span><br>with exclusive offers</h1>
+  <p>Post, share, and earn discounts at the best restaurants and spots near you.</p>
+
+  <form class="search-bar" id="search-form" onsubmit="return false">
+    <input type="text" id="q-input" placeholder="Search venues…" autocomplete="off">
+    <select id="city-input">
+      <option value="">All cities</option>
+      <option value="Minneapolis">Minneapolis</option>
+      <option value="Milwaukee">Milwaukee</option>
+    </select>
+    <button onclick="loadVenues()">Search</button>
+  </form>
+</section>
+
+<!-- Filter chips -->
+<div class="filters" id="cuisine-filters">
+  <div class="chip active" data-cuisine="">All</div>
+  <div class="chip" data-cuisine="ice cream">🍦 Ice Cream</div>
+  <div class="chip" data-cuisine="pizza">🍕 Pizza</div>
+  <div class="chip" data-cuisine="ramen">🍜 Ramen</div>
+  <div class="chip" data-cuisine="tacos">🌮 Tacos</div>
+  <div class="chip" data-cuisine="sushi">🍣 Sushi</div>
+  <div class="chip" data-cuisine="burgers">🍔 Burgers</div>
+  <div class="chip" data-cuisine="coffee">☕ Coffee</div>
+</div>
+
+<!-- Grid -->
+<div class="grid-wrap">
+  <div class="grid-meta" id="grid-meta"></div>
+  <div class="grid" id="venue-grid">
+    <!-- Skeleton placeholders while loading -->
+    ${[1,2,3,4,5,6].map(() => `
+    <div class="skeleton-card">
+      <div class="skeleton skeleton-img"></div>
+      <div class="skeleton-body">
+        <div class="skeleton skeleton-line" style="width:40%"></div>
+        <div class="skeleton skeleton-line" style="width:70%"></div>
+        <div class="skeleton skeleton-line" style="width:90%"></div>
+      </div>
+    </div>`).join('')}
+  </div>
+</div>
+
+<script>
+  let activeCuisine = '';
+
+  // Cuisine chips
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      activeCuisine = chip.dataset.cuisine;
+      loadVenues();
+    });
+  });
+
+  // Emoji fallback per cuisine
+  const EMOJI = {
+    'ice cream': '🍦', 'pizza': '🍕', 'ramen': '🍜', 'tacos': '🌮',
+    'sushi': '🍣', 'burgers': '🍔', 'coffee': '☕', 'italian': '🍝',
+    'mexican': '🌮', 'japanese': '🍣', 'default': '🍽️'
+  };
+  function cuisineEmoji(c) {
+    if (!c) return EMOJI.default;
+    const key = c.toLowerCase();
+    return EMOJI[key] || EMOJI.default;
+  }
+
+  function renderCard(v) {
+    const slug = v.slug || v.id;
+    const hasPhoto = v.photos && v.photos.length;
+    const imgHtml = hasPhoto
+      ? `<img src="${v.photos[0].photo_url}" alt="${v.name}" loading="lazy">`
+      : cuisineEmoji(v.cuisine);
+
+    return `
+    <a class="card" href="/places/venue/?slug=${slug}">
+      <div class="card-img">${imgHtml}</div>
+      <div class="card-body">
+        ${v.cuisine ? `<div class="card-cuisine">${v.cuisine}</div>` : ''}
+        <div class="card-name">${v.name}</div>
+        ${v.tagline ? `<div class="card-tagline">${v.tagline}</div>` : ''}
+      </div>
+      <div class="card-footer">
+        <span class="card-location">📍 ${v.city}${v.state ? ', ' + v.state : ''}</span>
+        <span class="card-offer">${v.discount_pct || 20}% off with LoopRef</span>
+      </div>
+    </a>`;
+  }
+
+  async function loadVenues() {
+    const q = document.getElementById('q-input').value.trim();
+    const city = document.getElementById('city-input').value;
+    const grid = document.getElementById('venue-grid');
+    const meta = document.getElementById('grid-meta');
+
+    const params = new URLSearchParams();
+    if (q) params.set('q', q);
+    if (city) params.set('city', city);
+    if (activeCuisine) params.set('cuisine', activeCuisine);
+
+    try {
+      const res = await fetch(`/api/places?${params}`);
+      const venues = await res.json();
+
+      meta.textContent = venues.length
+        ? `${venues.length} venue${venues.length !== 1 ? 's' : ''} found`
+        : '';
+
+      if (!venues.length) {
+        grid.innerHTML = `
+          <div class="empty" style="grid-column:1/-1">
+            <div style="font-size:48px">🔍</div>
+            <p>No venues found. <a href="/register" style="color:var(--accent-light)">Be the first to list yours.</a></p>
+          </div>`;
+        return;
+      }
+
+      grid.innerHTML = venues.map(renderCard).join('');
+    } catch (err) {
+      grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><p>Failed to load venues. Please try again.</p></div>`;
+    }
+  }
+
+  // Initial load
+  loadVenues();
+</script>
+</body>
+</html>

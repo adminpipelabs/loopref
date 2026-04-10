@@ -4,6 +4,14 @@ const path = require('path');
 const { getDb } = require('../database/db');
 const { generateInitialPins, regeneratePin } = require('../agents/pinContent');
 
+function slugify(str) {
+  return str.toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+}
+
 const router = express.Router();
 
 // Photo upload: store in /uploads, served statically
@@ -106,6 +114,100 @@ router.post('/regenerate-pin/:pinId', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+// ─── Public places directory ──────────────────────────────────────────────────
+// GET /api/places — list all active/imported venues (public directory)
+router.get('/places', (req, res) => {
+  const { city, cuisine, q } = req.query;
+  const db = getDb();
+
+  let sql = `
+    SELECT id, name, slug, cuisine, city, state, address, phone, tagline,
+           website, min_spend, discount_pct, instagram_handle, tiktok_handle, source
+    FROM restaurants
+    WHERE status IN ('active', 'imported')
+  `;
+  const params = [];
+
+  if (city) { sql += ` AND lower(city) = lower(?)`; params.push(city); }
+  if (cuisine) { sql += ` AND lower(cuisine) LIKE lower(?)`; params.push(`%${cuisine}%`); }
+  if (q) { sql += ` AND (lower(name) LIKE lower(?) OR lower(tagline) LIKE lower(?))`; params.push(`%${q}%`, `%${q}%`); }
+
+  sql += ` ORDER BY name ASC`;
+  res.json(db.prepare(sql).all(...params));
+});
+
+// GET /api/places/:slug — single venue by slug (public)
+router.get('/places/:slug', (req, res) => {
+  const venue = getDb().prepare(`
+    SELECT id, name, slug, cuisine, city, state, address, phone, tagline,
+           website, min_spend, discount_pct, instagram_handle, tiktok_handle,
+           source, google_maps_url
+    FROM restaurants WHERE slug = ? AND status IN ('active', 'imported')
+  `).get(req.params.slug);
+
+  if (!venue) return res.status(404).json({ error: 'Venue not found' });
+
+  // Attach photos
+  const photos = getDb().prepare(
+    `SELECT photo_url, dish_name, description FROM restaurant_photos
+     WHERE restaurant_id = ? ORDER BY uploaded_at DESC LIMIT 12`
+  ).all(venue.id);
+
+  res.json({ ...venue, photos });
+});
+
+// POST /api/places/import — create an imported venue (admin use)
+router.post('/places/import', (req, res) => {
+  const {
+    name, cuisine, city, state, address, phone, tagline,
+    website, min_spend, discount_pct, instagram_handle, tiktok_handle,
+    google_maps_url, imported_from, photos = []
+  } = req.body;
+
+  if (!name || !city) return res.status(400).json({ error: 'name and city required' });
+
+  const slug = slugify(`${name}-${city}`);
+  const db = getDb();
+
+  // Upsert by slug so re-importing is idempotent
+  const existing = db.prepare('SELECT id FROM restaurants WHERE slug = ?').get(slug);
+
+  let restaurantId;
+  if (existing) {
+    db.prepare(`UPDATE restaurants SET name=?, cuisine=?, city=?, state=?, address=?, phone=?,
+      tagline=?, website=?, min_spend=?, discount_pct=?, instagram_handle=?, tiktok_handle=?,
+      google_maps_url=?, imported_from=?, source='imported', status='imported' WHERE slug=?`
+    ).run(name, cuisine||null, city, state||null, address||null, phone||null,
+      tagline||null, website||null, parseInt(min_spend)||12, parseInt(discount_pct)||20,
+      instagram_handle||null, tiktok_handle||null, google_maps_url||null, imported_from||null, slug);
+    restaurantId = existing.id;
+  } else {
+    const r = db.prepare(`INSERT INTO restaurants
+      (name, slug, cuisine, city, state, address, phone, tagline, website,
+       min_spend, discount_pct, instagram_handle, tiktok_handle, google_maps_url,
+       imported_from, source, status, contact_email)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'imported','imported',?)`
+    ).run(name, slug, cuisine||null, city, state||null, address||null, phone||null,
+      tagline||null, website||null, parseInt(min_spend)||12, parseInt(discount_pct)||20,
+      instagram_handle||null, tiktok_handle||null, google_maps_url||null,
+      imported_from||null, `imported+${slug}@loopref.com`);
+    restaurantId = r.lastInsertRowid;
+  }
+
+  // Attach any photos passed in
+  if (photos.length) {
+    const insertPhoto = db.prepare(
+      `INSERT OR IGNORE INTO restaurant_photos (restaurant_id, photo_url, dish_name, source)
+       VALUES (?, ?, ?, 'import')`
+    );
+    for (const p of photos) {
+      insertPhoto.run(restaurantId, p.url, p.dish_name || null);
+    }
+  }
+
+  res.json({ ok: true, restaurantId, slug });
 });
 
 // ─── Dashboard report ─────────────────────────────────────────────────────────
