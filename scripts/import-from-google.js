@@ -5,15 +5,18 @@
  *   node scripts/import-from-google.js "Bebe Zito Minneapolis"
  *   node scripts/import-from-google.js "https://maps.google.com/?place_id=ChIJ..."
  *
- * Requires GOOGLE_PLACES_API_KEY in .env or environment.
+ * Requires GOOGLE_PLACES_API_KEY (or GOOGLE_MAPS_API_KEY / GOOGLE_API_KEY) in environment.
  */
 require('dotenv').config();
 const fetch = require('node-fetch');
 const { getDb, initDb } = require('../database/db');
 
-const API_KEY = process.env.GOOGLE_PLACES_API_KEY
-  || process.env.GOOGLE_MAPS_API_KEY
-  || process.env.GOOGLE_API_KEY;
+// Read at call time — not module load — so Railway env vars are always current
+function getApiKey() {
+  return process.env.GOOGLE_PLACES_API_KEY
+    || process.env.GOOGLE_MAPS_API_KEY
+    || process.env.GOOGLE_API_KEY;
+}
 
 function slugify(str) {
   return str.toLowerCase()
@@ -24,13 +27,13 @@ function slugify(str) {
 // ─── Google Places helpers ────────────────────────────────────────────────────
 
 async function findPlaceId(query) {
-  // If it's already a place_id URL, extract it
   const pidMatch = query.match(/place_id=([^&]+)/);
   if (pidMatch) return pidMatch[1];
 
+  const key = getApiKey();
   const url = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?` +
     `input=${encodeURIComponent(query)}&inputtype=textquery` +
-    `&fields=place_id,name&key=${API_KEY}`;
+    `&fields=place_id,name&key=${key}`;
 
   const res = await fetch(url);
   const data = await res.json();
@@ -42,6 +45,7 @@ async function findPlaceId(query) {
 }
 
 async function getPlaceDetails(placeId) {
+  const key = getApiKey();
   const fields = [
     'name', 'formatted_address', 'formatted_phone_number',
     'website', 'photos', 'types', 'rating', 'url',
@@ -49,7 +53,7 @@ async function getPlaceDetails(placeId) {
   ].join(',');
 
   const url = `https://maps.googleapis.com/maps/api/place/details/json?` +
-    `place_id=${placeId}&fields=${fields}&key=${API_KEY}`;
+    `place_id=${placeId}&fields=${fields}&key=${key}`;
 
   const res = await fetch(url);
   const data = await res.json();
@@ -59,7 +63,8 @@ async function getPlaceDetails(placeId) {
 }
 
 function photoUrl(photoReference, maxWidth = 1200) {
-  return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${maxWidth}&photo_reference=${photoReference}&key=${API_KEY}`;
+  const key = getApiKey();
+  return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${maxWidth}&photo_reference=${photoReference}&key=${key}`;
 }
 
 function extractCity(addressComponents) {
@@ -118,12 +123,10 @@ function upsertVenue(db, data) {
     console.log(`Imported: ${data.name} (id: ${restaurantId})`);
   }
 
-  // Attach photos
   if (data.photos?.length) {
-    const insert = db.prepare(`
-      INSERT OR IGNORE INTO restaurant_photos (restaurant_id, photo_url, source)
-      VALUES (?, ?, 'google')
-    `);
+    const insert = db.prepare(
+      `INSERT OR IGNORE INTO restaurant_photos (restaurant_id, photo_url, source) VALUES (?, ?, 'google')`
+    );
     for (const url of data.photos) insert.run(restaurantId, url);
     console.log(`  → ${data.photos.length} photo(s) attached`);
   }
@@ -134,9 +137,10 @@ function upsertVenue(db, data) {
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function importVenue(query) {
-  if (!API_KEY) throw new Error('GOOGLE_PLACES_API_KEY environment variable is not set');
+  const key = getApiKey();
+  if (!key) throw new Error('GOOGLE_PLACES_API_KEY environment variable is not set');
 
-  console.log(`\nSearching Google Places for: "${query}"`);
+  console.log(`Searching Google Places for: "${query}" (key: ${key.slice(0,8)}...)`);
 
   const placeId = await findPlaceId(query);
   console.log(`Found place_id: ${placeId}`);
@@ -147,9 +151,7 @@ async function importVenue(query) {
   const city  = extractCity(place.address_components || []);
   const state = extractState(place.address_components || []);
 
-  const photos = (place.photos || [])
-    .slice(0, 10)
-    .map(p => photoUrl(p.photo_reference));
+  const photos = (place.photos || []).slice(0, 10).map(p => photoUrl(p.photo_reference));
 
   const venueData = {
     name:    place.name,
@@ -164,37 +166,20 @@ async function importVenue(query) {
     photos
   };
 
-  console.log(`\nVenue data:`);
-  console.log(`  Name:    ${venueData.name}`);
-  console.log(`  City:    ${venueData.city}, ${venueData.state}`);
-  console.log(`  Cuisine: ${venueData.cuisine}`);
-  console.log(`  Phone:   ${venueData.phone}`);
-  console.log(`  Photos:  ${venueData.photos.length}`);
-  console.log(`  Tagline: ${venueData.tagline || '(none)'}`);
-
   initDb();
   const db = getDb();
   const { restaurantId, slug } = upsertVenue(db, venueData);
 
   const BASE = process.env.BASE_URL || 'http://localhost:3000';
-  console.log(`\n✓ Live at: ${BASE}/places/venue/?slug=${slug}`);
-  console.log(`  Directory: ${BASE}/places\n`);
+  console.log(`✓ Live at: ${BASE}/places/venue/?slug=${slug}`);
 
   return { restaurantId, slug };
 }
 
-// Export for use as a module (e.g. from API routes)
 module.exports = { importVenueFromGoogle: importVenue };
 
-// Run from command line
 if (require.main === module) {
   const query = process.argv.slice(2).join(' ');
-  if (!query) {
-    console.log('Usage: node scripts/import-from-google.js "Restaurant Name City"');
-    process.exit(1);
-  }
-  importVenue(query).catch(err => {
-    console.error('Import failed:', err.message);
-    process.exit(1);
-  });
+  if (!query) { console.log('Usage: node scripts/import-from-google.js "Restaurant Name City"'); process.exit(1); }
+  importVenue(query).catch(err => { console.error('Import failed:', err.message); process.exit(1); });
 }
