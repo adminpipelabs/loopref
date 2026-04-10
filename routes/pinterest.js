@@ -237,15 +237,34 @@ async function syncPinAnalytics(pin) {
 
 // ─── REST API endpoints ───────────────────────────────────────────────────────
 
-// GET /auth/pins/:restaurantId — list pins
+// GET /auth/pins/:restaurantId — list all pins (optionally filter by ?status=draft|scheduled|posted)
 router.get('/pins/:restaurantId', (req, res) => {
-  const pins = getDb().prepare(
-    'SELECT * FROM pinterest_pins WHERE restaurant_id = ? ORDER BY created_at DESC'
-  ).all(req.params.restaurantId);
+  const db = getDb();
+  const { status } = req.query;
+  const pins = status
+    ? db.prepare('SELECT * FROM pinterest_pins WHERE restaurant_id = ? AND status = ? ORDER BY created_at DESC').all(req.params.restaurantId, status)
+    : db.prepare('SELECT * FROM pinterest_pins WHERE restaurant_id = ? ORDER BY created_at DESC').all(req.params.restaurantId);
   res.json(pins);
 });
 
-// POST /auth/pins/approve — approve a draft pin for posting
+// GET /auth/pins/:restaurantId/draft — draft pins only (convenience alias)
+router.get('/pins/:restaurantId/draft', (req, res) => {
+  const pins = getDb().prepare(
+    `SELECT * FROM pinterest_pins WHERE restaurant_id = ? AND status = 'draft' ORDER BY created_at DESC`
+  ).all(req.params.restaurantId);
+  res.json({ pins });
+});
+
+// PUT /auth/pins/:pinId — edit a draft pin's title and description
+router.put('/pins/:pinId', (req, res) => {
+  const { title, description } = req.body;
+  if (!title || !description) return res.status(400).json({ error: 'title and description required' });
+  getDb().prepare(`UPDATE pinterest_pins SET title=?, description=? WHERE id=? AND status='draft'`)
+    .run(title, description, req.params.pinId);
+  res.json({ ok: true });
+});
+
+// POST /auth/pins/approve — approve a single draft
 router.post('/pins/approve', (req, res) => {
   const { pinId } = req.body;
   getDb().prepare(`UPDATE pinterest_pins SET status='scheduled' WHERE id=?`).run(pinId);
@@ -257,6 +276,109 @@ router.post('/pins/approve-all', (req, res) => {
   const { restaurantId } = req.body;
   getDb().prepare(`UPDATE pinterest_pins SET status='scheduled' WHERE restaurant_id=? AND status='draft'`).run(restaurantId);
   res.json({ ok: true });
+});
+
+// POST /auth/pins/schedule/:restaurantId — schedule selected pins staggered over 30 days
+// Body: { pinIds: [1, 2, 3, ...] }
+router.post('/pins/schedule/:restaurantId', (req, res) => {
+  const { pinIds } = req.body;
+  if (!Array.isArray(pinIds) || !pinIds.length) return res.status(400).json({ error: 'pinIds array required' });
+
+  const db = getDb();
+  const stmt = db.prepare(`UPDATE pinterest_pins SET status='scheduled', posted_at=? WHERE id=?`);
+
+  // 4 pins per week, staggered, posting at 10:00 AM
+  const PINS_PER_WEEK = 4;
+  const daysBetween = 7 / PINS_PER_WEEK;
+
+  const scheduleAll = db.transaction(() => {
+    pinIds.forEach((pinId, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() + Math.floor(i * daysBetween));
+      d.setHours(10, 0, 0, 0);
+      stmt.run(d.toISOString(), pinId);
+    });
+  });
+  scheduleAll();
+
+  res.json({ ok: true, scheduled: pinIds.length });
+});
+
+// POST /auth/pins/post-now/:restaurantId — immediately post selected pins to Pinterest
+// Body: { pinIds: [1, 2, 3] }
+router.post('/pins/post-now/:restaurantId', async (req, res) => {
+  const { restaurantId } = req.params;
+  const { pinIds } = req.body;
+  if (!Array.isArray(pinIds) || !pinIds.length) return res.status(400).json({ error: 'pinIds array required' });
+
+  const db = getDb();
+  const results = [];
+
+  for (const pinId of pinIds) {
+    const pin = db.prepare('SELECT * FROM pinterest_pins WHERE id = ?').get(pinId);
+    if (!pin) { results.push({ pinId, success: false, error: 'Not found' }); continue; }
+
+    try {
+      const posted = await createPin(restaurantId, {
+        title: pin.title,
+        description: pin.description,
+        imageUrl: pin.image_url,
+        trackingUrl: pin.link,
+        dbId: pin.id
+      });
+      results.push({ pinId, success: true, pinterestId: posted.id });
+    } catch (err) {
+      console.error(`Failed to post pin ${pinId}:`, err.message);
+      results.push({ pinId, success: false, error: err.message });
+    }
+
+    await sleep(1500); // avoid Pinterest rate limits between posts
+  }
+
+  res.json({ results });
+});
+
+// GET /auth/analytics/:restaurantId — engagement + attribution summary
+router.get('/analytics/:restaurantId', (req, res) => {
+  const db = getDb();
+  const { restaurantId } = req.params;
+
+  const pins = db.prepare(`
+    SELECT id, title, posted_at, impressions, clicks, saves,
+           (impressions + clicks * 10 + saves * 5) as engagement_score
+    FROM pinterest_pins
+    WHERE restaurant_id = ? AND status = 'posted'
+    ORDER BY engagement_score DESC
+  `).all(restaurantId);
+
+  const attribution = db.prepare(`
+    SELECT COALESCE(SUM(landing_page_visits), 0) as total_visits,
+           COALESCE(SUM(qr_scans), 0)            as total_scans,
+           COALESCE(SUM(referrals_generated), 0) as total_referrals
+    FROM pinterest_attribution WHERE restaurant_id = ?
+  `).get(restaurantId);
+
+  const totalImpressions = pins.reduce((s, p) => s + (p.impressions || 0), 0);
+  const totalClicks      = pins.reduce((s, p) => s + (p.clicks || 0), 0);
+  const totalSaves       = pins.reduce((s, p) => s + (p.saves || 0), 0);
+  const ctr = totalImpressions > 0 ? (totalClicks / totalImpressions * 100).toFixed(2) : 0;
+  const conversionRate = totalClicks > 0
+    ? (attribution.total_scans / totalClicks * 100).toFixed(2) : 0;
+
+  res.json({
+    pins,
+    summary: {
+      totalPins: pins.length,
+      totalImpressions,
+      totalClicks,
+      totalSaves,
+      ctr: parseFloat(ctr),
+      landingPageVisits: attribution.total_visits,
+      qrScans: attribution.total_scans,
+      referrals: attribution.total_referrals,
+      conversionRate: parseFloat(conversionRate)
+    }
+  });
 });
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }

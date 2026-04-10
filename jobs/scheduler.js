@@ -1,6 +1,7 @@
 const cron = require('node-cron');
 const { getDb } = require('../database/db');
 const { createPin, syncPinAnalytics } = require('../routes/pinterest');
+const { sendWeeklyReports } = require('./weeklyReport');
 
 // ─── Post scheduled pins (runs every hour) ───────────────────────────────────
 async function postScheduledPins() {
@@ -123,6 +124,59 @@ async function syncAnalytics() {
     await syncPinAnalytics(pin);
     await sleep(500);
   }
+
+  // After syncing individual pins, snapshot today's aggregates per restaurant
+  writeDailySnapshots(db);
+}
+
+function writeDailySnapshots(db) {
+  const today = new Date().toISOString().split('T')[0];
+
+  const restaurants = db.prepare(`
+    SELECT DISTINCT restaurant_id FROM pinterest_pins WHERE status = 'posted'
+  `).all();
+
+  const upsert = db.prepare(`
+    INSERT INTO pinterest_daily_analytics
+      (restaurant_id, date, total_impressions, total_clicks, total_saves,
+       new_pins_posted, landing_page_visits, qr_scans, referrals_generated)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(restaurant_id, date) DO UPDATE SET
+      total_impressions   = excluded.total_impressions,
+      total_clicks        = excluded.total_clicks,
+      total_saves         = excluded.total_saves,
+      new_pins_posted     = excluded.new_pins_posted,
+      landing_page_visits = excluded.landing_page_visits,
+      qr_scans            = excluded.qr_scans,
+      referrals_generated = excluded.referrals_generated
+  `);
+
+  for (const { restaurant_id } of restaurants) {
+    const perf = db.prepare(`
+      SELECT COALESCE(SUM(impressions),0) as imp,
+             COALESCE(SUM(clicks),0)      as clk,
+             COALESCE(SUM(saves),0)       as sav
+      FROM pinterest_pins WHERE restaurant_id = ? AND status = 'posted'
+    `).get(restaurant_id);
+
+    const postedToday = db.prepare(`
+      SELECT COUNT(*) as cnt FROM pinterest_pins
+      WHERE restaurant_id = ? AND status = 'posted'
+      AND date(posted_at) = ?
+    `).get(restaurant_id, today).cnt;
+
+    const attr = db.prepare(`
+      SELECT COALESCE(SUM(landing_page_visits),0) as vis,
+             COALESCE(SUM(qr_scans),0)            as scn,
+             COALESCE(SUM(referrals_generated),0)  as ref
+      FROM pinterest_attribution WHERE restaurant_id = ?
+    `).get(restaurant_id);
+
+    upsert.run(restaurant_id, today, perf.imp, perf.clk, perf.sav,
+               postedToday, attr.vis, attr.scn, attr.ref);
+  }
+
+  console.log(`[scheduler] Daily snapshots written for ${restaurants.length} restaurant(s)`);
 }
 
 // ─── Start all cron jobs ──────────────────────────────────────────────────────
@@ -142,7 +196,12 @@ function startScheduler() {
     syncAnalytics().catch(err => console.error('[scheduler] syncAnalytics error:', err));
   });
 
-  console.log('[scheduler] Cron jobs started (hourly poster, 6am generator, 3am analytics)');
+  // Weekly restaurant performance reports (Monday 9am)
+  cron.schedule('0 9 * * 1', () => {
+    sendWeeklyReports().catch(err => console.error('[scheduler] weeklyReport error:', err));
+  });
+
+  console.log('[scheduler] Cron jobs started (hourly poster, 6am generator, 3am analytics, Monday 9am reports)');
 }
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
