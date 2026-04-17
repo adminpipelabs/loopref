@@ -1,4 +1,5 @@
 const express = require('express');
+const crypto = require('crypto');
 const { getDb } = require('../database/db');
 
 const router = express.Router();
@@ -99,6 +100,56 @@ router.get('/attribution/:restaurantId', (req, res) => {
   `).get(req.params.restaurantId);
 
   res.json({ rows, totals });
+});
+
+// ─── Generate a share link ───────────────────────────────────────────────────
+// POST /api/share
+router.post('/share', (req, res) => {
+  const { restaurantId, sharerName, channel } = req.body;
+  if (!restaurantId) return res.status(400).json({ error: 'restaurantId required' });
+
+  const db = getDb();
+  const r = db.prepare('SELECT id, slug FROM restaurants WHERE id = ?').get(restaurantId);
+  if (!r) return res.status(404).json({ error: 'Restaurant not found' });
+
+  const shareCode = crypto.randomBytes(4).toString('hex'); // 8 hex chars
+  db.prepare(`INSERT INTO customer_shares (restaurant_id, share_code, sharer_name, channel)
+    VALUES (?, ?, ?, ?)`
+  ).run(restaurantId, shareCode, sharerName || null, channel || null);
+
+  const BASE = process.env.BASE_URL || 'https://loopref.com';
+  res.json({ ok: true, shareCode, shareUrl: `${BASE}/r/${shareCode}` });
+});
+
+// ─── Share stats for a restaurant (used by monthly report) ──────────────────
+// GET /api/share-stats/:restaurantId
+router.get('/share-stats/:restaurantId', (req, res) => {
+  const db = getDb();
+  const rid = req.params.restaurantId;
+
+  const totals = db.prepare(`
+    SELECT
+      COUNT(*) as total_shares,
+      COALESCE(SUM(clicks), 0) as total_clicks
+    FROM customer_shares WHERE restaurant_id = ?
+  `).get(rid);
+
+  const last30 = db.prepare(`
+    SELECT
+      COUNT(*) as shares,
+      COALESCE(SUM(clicks), 0) as clicks
+    FROM customer_shares
+    WHERE restaurant_id = ? AND created_at >= datetime('now', '-30 days')
+  `).get(rid);
+
+  const topSharers = db.prepare(`
+    SELECT sharer_name, share_code, clicks, created_at
+    FROM customer_shares
+    WHERE restaurant_id = ? AND clicks > 0
+    ORDER BY clicks DESC LIMIT 5
+  `).all(rid);
+
+  res.json({ totals, last30, topSharers });
 });
 
 module.exports = router;

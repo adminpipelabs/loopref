@@ -81,6 +81,30 @@
     .not-found h2{font-family:'Fraunces',serif;font-size:28px;color:var(--ink);margin-bottom:12px;}
     .not-found a{color:var(--accent);text-decoration:none;font-weight:600;}
 
+    /* REFERRAL BANNER */
+    .ref-banner{background:var(--accent-dim);border:1px solid #ff6b3525;border-radius:10px;padding:14px 20px;margin-bottom:24px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--accent);font-weight:600;}
+    .ref-banner svg{width:18px;height:18px;stroke:var(--accent);fill:none;flex-shrink:0;}
+
+    /* SHARE CARD */
+    .share-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;margin-bottom:40px;}
+    .share-card h2{font-family:'Fraunces',serif;font-size:24px;font-weight:700;margin-bottom:8px;letter-spacing:-0.5px;}
+    .share-card p{font-size:13px;color:var(--ink-2);margin-bottom:20px;line-height:1.6;}
+    .share-form{display:flex;gap:10px;margin-bottom:0;}
+    .share-form input{flex:1;padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);outline:none;}
+    .share-form input:focus{border-color:var(--accent);}
+    .share-form button{padding:11px 22px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap;transition:background .15s;}
+    .share-form button:hover{background:var(--accent-mid);}
+    .share-result{margin-top:20px;display:none;}
+    .share-url-row{display:flex;gap:8px;margin-bottom:14px;}
+    .share-url-row input{flex:1;padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;background:var(--surface-2);color:var(--ink);outline:none;}
+    .share-url-row button{padding:11px 16px;background:var(--ink);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:background .15s;}
+    .share-url-row button:hover{background:var(--ink-2);}
+    .share-channels{display:flex;gap:10px;flex-wrap:wrap;}
+    .share-ch-btn{display:flex;align-items:center;gap:7px;padding:10px 16px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);text-decoration:none;color:var(--ink-2);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
+    .share-ch-btn:hover{border-color:var(--accent);color:var(--accent);}
+    .share-ch-btn svg{width:16px;height:16px;flex-shrink:0;}
+    .share-hint{font-size:11px;color:var(--ink-3);margin-top:12px;}
+
     /* FOOTER */
     .powered{text-align:center;font-size:12px;color:var(--ink-3);padding:32px 0 16px;border-top:1px solid var(--border);}
     .powered a{color:var(--accent);text-decoration:none;font-weight:600;}
@@ -92,6 +116,8 @@
       .photo-strip .side{display:none;}
       .info-grid{grid-template-columns:1fr;}
       .steps-grid{grid-template-columns:1fr;}
+      .share-form{flex-direction:column;}
+      .share-channels{flex-direction:column;}
     }
   </style>
 </head>
@@ -163,7 +189,15 @@
     var websiteLink = v.website ? '<a class="social-btn" href="' + v.website + '" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>Website</a>' : '';
     var igLink = v.instagram_handle ? '<a class="social-btn" href="https://instagram.com/' + v.instagram_handle.replace('@','') + '" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg>@' + v.instagram_handle.replace('@','') + '</a>' : '';
 
+    // Referral banner if ?ref= present
+    var refCode = params.get('ref');
+    var refBannerHtml = refCode
+      ? '<div class="ref-banner"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>A friend invited you to check out ' + v.name + '!</div>'
+      : '';
+
     document.getElementById('page-content').innerHTML =
+      refBannerHtml +
+
       '<div class="venue-hero">' + photoStripHtml + '</div>' +
 
       '<div class="venue-info">' +
@@ -182,8 +216,25 @@
         '<h2>How <em>LoopRef</em> works</h2>' +
         '<div class="steps-grid">' +
           '<div class="step"><div class="step-num">1</div><h3>Visit &amp; enjoy</h3><p>Head to ' + v.name + ' and enjoy your meal or experience.</p></div>' +
-          '<div class="step"><div class="step-num">2</div><h3>Share on social</h3><p>Post a photo or video on Instagram, TikTok, or X and tag the venue.</p></div>' +
-          '<div class="step"><div class="step-num">3</div><h3>Friends get invited</h3><p>Your friends see your post and discover a great venue through you.</p></div>' +
+          '<div class="step"><div class="step-num">2</div><h3>Share with friends</h3><p>Get your share link below and send it to 5+ friends via WhatsApp, text, or social media.</p></div>' +
+          '<div class="step"><div class="step-num">3</div><h3>Friends discover</h3><p>Your friends click your link, discover ' + v.name + ', and visit too.</p></div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="share-card" id="share-card">' +
+        '<h2>Share <em>' + v.name + '</em></h2>' +
+        '<p>Enjoyed your visit? Share with friends and help them discover this place.</p>' +
+        '<div class="share-form" id="share-form">' +
+          '<input type="text" id="sharer-name" placeholder="Your first name (optional)">' +
+          '<button onclick="generateShareLink(' + v.id + ')">Get your share link</button>' +
+        '</div>' +
+        '<div class="share-result" id="share-result">' +
+          '<div class="share-url-row">' +
+            '<input type="text" id="share-url" readonly>' +
+            '<button onclick="copyShareLink()">Copy</button>' +
+          '</div>' +
+          '<div class="share-channels" id="share-channels"></div>' +
+          '<div class="share-hint">Share with 5+ friends to spread the word!</div>' +
         '</div>' +
       '</div>' +
 
@@ -194,6 +245,9 @@
         '<a href="/places">Browse all venues</a> &middot; ' +
         '<a href="/register">List your venue</a>' +
       '</div>';
+
+    // Store venue data for share functions
+    window._venue = v;
   }
 
   function notFoundHtml(msg) {
@@ -203,6 +257,62 @@
       '<p>' + msg + '</p>' +
       '<a href="/places" style="display:inline-block;margin-top:24px">&larr; Back to directory</a>' +
     '</div>';
+  }
+
+  // ─── Share functions ──────────────────────────────────────────────────────
+
+  var currentShareUrl = '';
+
+  function generateShareLink(restaurantId) {
+    var name = document.getElementById('sharer-name').value.trim();
+    var btn = document.querySelector('#share-form button');
+    btn.textContent = 'Generating...';
+    btn.disabled = true;
+
+    fetch('/api/share', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ restaurantId: restaurantId, sharerName: name || null })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (!data.ok) throw new Error(data.error);
+      currentShareUrl = data.shareUrl;
+      document.getElementById('share-url').value = currentShareUrl;
+      document.getElementById('share-form').style.display = 'none';
+      document.getElementById('share-result').style.display = 'block';
+
+      var v = window._venue;
+      var msg = (name ? name + ' recommends ' : 'Check out ') + v.name + (v.city ? ' in ' + v.city : '') + '! ' + currentShareUrl;
+
+      var channels = document.getElementById('share-channels');
+      channels.innerHTML =
+        '<a class="share-ch-btn" href="https://wa.me/?text=' + encodeURIComponent(msg) + '" target="_blank">' +
+          '<svg viewBox="0 0 24 24" fill="#25d366" stroke="none"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2 22l5.112-1.328C8.44 21.516 10.185 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>' +
+          'WhatsApp</a>' +
+        '<a class="share-ch-btn" href="sms:?body=' + encodeURIComponent(msg) + '">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' +
+          'Text</a>' +
+        '<a class="share-ch-btn" href="https://twitter.com/intent/tweet?text=' + encodeURIComponent(msg) + '" target="_blank">' +
+          '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.74l7.73-8.835L1.254 2.25H8.08l4.259 5.632L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>' +
+          'X</a>' +
+        '<button class="share-ch-btn" onclick="copyShareLink()">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>' +
+          'Copy link</button>';
+    })
+    .catch(function() {
+      btn.textContent = 'Get your share link';
+      btn.disabled = false;
+      alert('Something went wrong. Please try again.');
+    });
+  }
+
+  function copyShareLink() {
+    navigator.clipboard.writeText(currentShareUrl).then(function() {
+      var btn = document.querySelector('#share-result .share-url-row button');
+      btn.textContent = 'Copied!';
+      setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
+    });
   }
 
   var EMOJI = {
