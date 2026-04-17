@@ -1,0 +1,80 @@
+# LoopRef — Venues to import from Google Places
+# One per line: "Restaurant Name City"
+# Lines starting with # are ignored
+
+# --- New York City (10) ---
+Russ & Daughters New York
+Rao's New York
+Ferrara Bakery & Cafe New York
+Veniero's Pasticceria & Caffe New York
+Zaro's Family Bakery New York
+Bamonte's Brooklyn
+Randazzo's Clam Bar Brooklyn
+DiTondo's New York
+Tony's Di Napoli New York
+Barney Greengrass New York
+
+# --- California (37) ---
+The Saugus Cafe Santa Clarita
+Cole's Los Angeles
+Philippe the Original Los Angeles
+Fair Oaks Pharmacy & Soda Fountain South Pasadena
+Musso & Frank Grill Los Angeles
+Joe Jost Long Beach
+Original Pantry Cafe Los Angeles
+Bay Cities Italian Deli Santa Monica
+Formosa Cafe West Hollywood
+Tam O'Shanter Los Angeles
+Lanza Brothers Market Los Angeles
+Barney's Beanery West Hollywood
+El Cholo Los Angeles
+Eastside Market & Italian Deli Los Angeles
+The Rock Inn Lake Hughes
+Brighton Coffee Shop Beverly Hills
+Canter's Los Angeles
+El Coyote Los Angeles
+Halfway House Cafe Santa Clarita
+Colonial Kitchen San Marino
+Damon's Steak House Glendale
+Mitla Cafe San Bernardino
+The Derby Restaurant Arcadia
+Du-par's Los Angeles
+Lawry's The Prime Rib Beverly Hills
+Snug Harbor Santa Monica
+Carrillo's Tortilleria San Fernando
+Barone's Pizzeria Valley Glen
+Nate 'n Al Beverly Hills
+Chili John's Burbank
+Chris & Pitts Bellflower
+Clearman's Steak 'n Stein Pico Rivera
+Nick's Coffee Shop Los Angeles
+Original Tommy's Hamburgers Los Angeles
+Paul's Kitchen Los Angeles
+Pecos Bill's BBQ Glendale
+The Smoke House Restaurant Burbank
+
+# --- Chicago (13) ---
+Ragadan Chicago
+Aloha Eats Chicago
+Tacotlan Chicago
+Cedar Palace Chicago
+Twin Anchors Chicago
+Marrakech Chicago
+La Scarola Chicago
+Gene & Georgetti Chicago
+Cairo Kebab Chicago
+5 Rabanitos Chicago
+Qing Xiang Yuan Dumplings Chicago
+Carnicería Maribel Chicago
+Ricobene's Chicago
+
+# --- Miami (9) ---
+Amelia's 1931 Miami
+Awash Ethiopian Restaurant Miami
+Mignonette Miami
+Ghee Indian Kitchen Miami
+La Camaronera Miami
+Sra. Martinez Miami
+Cafe La Trova Miami
+Paya Miami
+Zitz Sum Miami

@@ -1,110 +1,140 @@
 /**
- * Seed script — import venues into LoopRef without requiring owner sign-up.
+ * Seed LoopRef with venue directory — no API keys required.
  * Run: node scripts/seed-venues.js
+ *
+ * This inserts venues as 'imported' status with default 20% discount / $50 min spend.
+ * Once a venue owner signs up, their record gets upgraded to 'active'.
  */
 require('dotenv').config();
 const { getDb, initDb } = require('../database/db');
 
 function slugify(str) {
   return str.toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .trim()
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-');
+    .replace(/[^a-z0-9\s-]/g, '').trim()
+    .replace(/\s+/g, '-').replace(/-+/g, '-');
 }
 
+// ─── Venue list ──────────────────────────────────────────────────────────────
+
 const venues = [
-  {
-    name: 'Bebe Zito',
-    cuisine: 'Ice Cream',
-    city: 'Minneapolis',
-    state: 'MN',
-    country: 'US',
-    address: '704 W. 22nd Street, Minneapolis, MN 55405',
-    phone: '(612) 315-5180',
-    tagline: 'Handmade, deliciously compelling Minneapolis ice cream.',
-    website: 'https://www.bebezitomn.com',
-    instagram_handle: 'bebezito',
-    min_spend: 12,
-    discount_pct: 20,
-    google_maps_url: 'https://maps.google.com/?q=Bebe+Zito+Minneapolis',
-    imported_from: 'https://www.bebezitomn.com',
-    photos: [
-      // Pull from their public website / social media
-      // Swap for real CDN URLs once you have them
-      {
-        url: 'https://images.squarespace-cdn.com/content/v1/5e6a2a7f5fe58536f7b88025/ice-cream-1.jpg',
-        dish_name: 'Signature Scoop'
-      },
-      {
-        url: 'https://images.squarespace-cdn.com/content/v1/5e6a2a7f5fe58536f7b88025/ice-cream-2.jpg',
-        dish_name: 'Double Cone'
-      },
-    ]
-  }
+  // New York City
+  { name: "Russ & Daughters", city: "New York", state: "NY", cuisine: "Deli" },
+  { name: "Rao's", city: "New York", state: "NY", cuisine: "Italian" },
+  { name: "Ferrara Bakery & Cafe", city: "New York", state: "NY", cuisine: "Bakery" },
+  { name: "Veniero's Pasticceria & Caffe", city: "New York", state: "NY", cuisine: "Bakery" },
+  { name: "Zaro's Family Bakery", city: "New York", state: "NY", cuisine: "Bakery" },
+  { name: "Bamonte's", city: "Brooklyn", state: "NY", cuisine: "Italian" },
+  { name: "Randazzo's Clam Bar", city: "Brooklyn", state: "NY", cuisine: "Seafood" },
+  { name: "DiTondo's", city: "New York", state: "NY", cuisine: "Italian" },
+  { name: "Tony's Di Napoli", city: "New York", state: "NY", cuisine: "Italian" },
+  { name: "Barney Greengrass", city: "New York", state: "NY", cuisine: "Deli" },
+
+  // California
+  { name: "The Saugus Cafe", city: "Santa Clarita", state: "CA", cuisine: "Restaurant" },
+  { name: "Cole's", city: "Los Angeles", state: "CA", cuisine: "Restaurant" },
+  { name: "Philippe the Original", city: "Los Angeles", state: "CA", cuisine: "Restaurant" },
+  { name: "Fair Oaks Pharmacy & Soda Fountain", city: "South Pasadena", state: "CA", cuisine: "Restaurant" },
+  { name: "Musso & Frank Grill", city: "Los Angeles", state: "CA", cuisine: "Restaurant" },
+  { name: "Joe Jost", city: "Long Beach", state: "CA", cuisine: "Restaurant" },
+  { name: "Original Pantry Cafe", city: "Los Angeles", state: "CA", cuisine: "Restaurant" },
+  { name: "Bay Cities Italian Deli", city: "Santa Monica", state: "CA", cuisine: "Deli" },
+  { name: "Formosa Cafe", city: "West Hollywood", state: "CA", cuisine: "Restaurant" },
+  { name: "Tam O'Shanter", city: "Los Angeles", state: "CA", cuisine: "Restaurant" },
+  { name: "Lanza Brothers Market", city: "Los Angeles", state: "CA", cuisine: "Deli" },
+  { name: "Barney's Beanery", city: "West Hollywood", state: "CA", cuisine: "Restaurant" },
+  { name: "El Cholo", city: "Los Angeles", state: "CA", cuisine: "Mexican" },
+  { name: "Eastside Market & Italian Deli", city: "Los Angeles", state: "CA", cuisine: "Deli" },
+  { name: "The Rock Inn", city: "Lake Hughes", state: "CA", cuisine: "Restaurant" },
+  { name: "Brighton Coffee Shop", city: "Beverly Hills", state: "CA", cuisine: "Coffee" },
+  { name: "Canter's", city: "Los Angeles", state: "CA", cuisine: "Deli" },
+  { name: "El Coyote", city: "Los Angeles", state: "CA", cuisine: "Mexican" },
+  { name: "Halfway House Cafe", city: "Santa Clarita", state: "CA", cuisine: "Restaurant" },
+  { name: "Colonial Kitchen", city: "San Marino", state: "CA", cuisine: "Restaurant" },
+  { name: "Damon's Steak House", city: "Glendale", state: "CA", cuisine: "Steakhouse" },
+  { name: "Mitla Cafe", city: "San Bernardino", state: "CA", cuisine: "Mexican" },
+  { name: "The Derby Restaurant", city: "Arcadia", state: "CA", cuisine: "Restaurant" },
+  { name: "Du-par's", city: "Los Angeles", state: "CA", cuisine: "Restaurant" },
+  { name: "Lawry's The Prime Rib", city: "Beverly Hills", state: "CA", cuisine: "Steakhouse" },
+  { name: "Snug Harbor", city: "Santa Monica", state: "CA", cuisine: "Restaurant" },
+  { name: "Carrillo's Tortilleria", city: "San Fernando", state: "CA", cuisine: "Mexican" },
+  { name: "Barone's Pizzeria", city: "Valley Glen", state: "CA", cuisine: "Pizza" },
+  { name: "Nate 'n Al", city: "Beverly Hills", state: "CA", cuisine: "Deli" },
+  { name: "Chili John's", city: "Burbank", state: "CA", cuisine: "Restaurant" },
+  { name: "Chris & Pitts", city: "Bellflower", state: "CA", cuisine: "BBQ" },
+  { name: "Clearman's Steak 'n Stein", city: "Pico Rivera", state: "CA", cuisine: "Steakhouse" },
+  { name: "Nick's Coffee Shop", city: "Los Angeles", state: "CA", cuisine: "Coffee" },
+  { name: "Original Tommy's Hamburgers", city: "Los Angeles", state: "CA", cuisine: "Burgers" },
+  { name: "Paul's Kitchen", city: "Los Angeles", state: "CA", cuisine: "Restaurant" },
+  { name: "Pecos Bill's BBQ", city: "Glendale", state: "CA", cuisine: "BBQ" },
+  { name: "The Smoke House Restaurant", city: "Burbank", state: "CA", cuisine: "Restaurant" },
+
+  // Chicago
+  { name: "Ragadan", city: "Chicago", state: "IL", cuisine: "Restaurant" },
+  { name: "Aloha Eats", city: "Chicago", state: "IL", cuisine: "Restaurant" },
+  { name: "Tacotlan", city: "Chicago", state: "IL", cuisine: "Mexican" },
+  { name: "Cedar Palace", city: "Chicago", state: "IL", cuisine: "Restaurant" },
+  { name: "Twin Anchors", city: "Chicago", state: "IL", cuisine: "BBQ" },
+  { name: "Marrakech", city: "Chicago", state: "IL", cuisine: "Restaurant" },
+  { name: "La Scarola", city: "Chicago", state: "IL", cuisine: "Italian" },
+  { name: "Gene & Georgetti", city: "Chicago", state: "IL", cuisine: "Steakhouse" },
+  { name: "Cairo Kebab", city: "Chicago", state: "IL", cuisine: "Restaurant" },
+  { name: "5 Rabanitos", city: "Chicago", state: "IL", cuisine: "Mexican" },
+  { name: "Qing Xiang Yuan Dumplings", city: "Chicago", state: "IL", cuisine: "Chinese" },
+  { name: "Carnicería Maribel", city: "Chicago", state: "IL", cuisine: "Mexican" },
+  { name: "Ricobene's", city: "Chicago", state: "IL", cuisine: "Restaurant" },
+
+  // Miami
+  { name: "Amelia's 1931", city: "Miami", state: "FL", cuisine: "Restaurant" },
+  { name: "Awash Ethiopian Restaurant", city: "Miami", state: "FL", cuisine: "Ethiopian" },
+  { name: "Mignonette", city: "Miami", state: "FL", cuisine: "Seafood" },
+  { name: "Ghee Indian Kitchen", city: "Miami", state: "FL", cuisine: "Indian" },
+  { name: "La Camaronera", city: "Miami", state: "FL", cuisine: "Seafood" },
+  { name: "Sra. Martinez", city: "Miami", state: "FL", cuisine: "Restaurant" },
+  { name: "Cafe La Trova", city: "Miami", state: "FL", cuisine: "Cuban" },
+  { name: "Paya", city: "Miami", state: "FL", cuisine: "Restaurant" },
+  { name: "Zitz Sum", city: "Miami", state: "FL", cuisine: "Chinese" },
 ];
 
-function importVenue(db, venue) {
+// ─── Import logic ────────────────────────────────────────────────────────────
+
+function seedVenue(db, venue) {
   const slug = slugify(`${venue.name}-${venue.city}`);
   const existing = db.prepare('SELECT id FROM restaurants WHERE slug = ?').get(slug);
 
-  let restaurantId;
-
   if (existing) {
-    db.prepare(`
-      UPDATE restaurants SET
-        name=?, cuisine=?, city=?, state=?, country=?, address=?, phone=?, tagline=?,
-        website=?, instagram_handle=?, min_spend=?, discount_pct=?, google_maps_url=?,
-        imported_from=?, source='imported', status='imported'
-      WHERE slug=?
-    `).run(
-      venue.name, venue.cuisine, venue.city, venue.state, venue.country,
-      venue.address, venue.phone, venue.tagline, venue.website,
-      venue.instagram_handle, venue.min_spend, venue.discount_pct,
-      venue.google_maps_url, venue.imported_from, slug
-    );
-    restaurantId = existing.id;
-    console.log(`Updated: ${venue.name} (slug: ${slug}, id: ${restaurantId})`);
-  } else {
-    const r = db.prepare(`
-      INSERT INTO restaurants
-        (name, slug, cuisine, city, state, country, address, phone, tagline, website,
-         instagram_handle, min_spend, discount_pct, google_maps_url, imported_from,
-         source, status, contact_email)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'imported','imported',?)
-    `).run(
-      venue.name, slug, venue.cuisine, venue.city, venue.state, venue.country,
-      venue.address, venue.phone, venue.tagline, venue.website,
-      venue.instagram_handle, venue.min_spend, venue.discount_pct,
-      venue.google_maps_url, venue.imported_from,
-      `imported+${slug}@loopref.com`
-    );
-    restaurantId = r.lastInsertRowid;
-    console.log(`Imported: ${venue.name} (slug: ${slug}, id: ${restaurantId})`);
+    console.log(`  SKIP (exists): ${venue.name} — ${venue.city}`);
+    return { id: existing.id, slug, skipped: true };
   }
 
-  // Insert photos (skip duplicates)
-  if (venue.photos?.length) {
-    const insertPhoto = db.prepare(`
-      INSERT OR IGNORE INTO restaurant_photos (restaurant_id, photo_url, dish_name, source)
-      VALUES (?, ?, ?, 'import')
-    `);
-    for (const p of venue.photos) {
-      insertPhoto.run(restaurantId, p.url, p.dish_name || null);
-    }
-    console.log(`  → ${venue.photos.length} photo(s) attached`);
-  }
+  const r = db.prepare(`
+    INSERT INTO restaurants
+      (name, slug, cuisine, city, state, country, min_spend, discount_pct,
+       source, status, contact_email)
+    VALUES (?, ?, ?, ?, ?, 'US', 50, 20, 'imported', 'imported', ?)
+  `).run(
+    venue.name, slug, venue.cuisine, venue.city, venue.state,
+    `imported+${slug}@loopref.com`
+  );
 
-  return { restaurantId, slug };
+  console.log(`  ADDED: ${venue.name} — ${venue.city} (id: ${r.lastInsertRowid})`);
+  return { id: r.lastInsertRowid, slug, skipped: false };
 }
 
-// ── Run ──
+// ─── Run ─────────────────────────────────────────────────────────────────────
+
 initDb();
 const db = getDb();
 
-console.log('Seeding venues…\n');
+console.log(`\nSeeding ${venues.length} venues...\n`);
+
+let added = 0, skipped = 0;
 for (const venue of venues) {
-  const { slug } = importVenue(db, venue);
-  console.log(`  Preview: http://localhost:3000/places/venue/?slug=${slug}\n`);
+  const result = seedVenue(db, venue);
+  if (result.skipped) skipped++; else added++;
 }
-console.log('Done.');
+
+console.log(`\n═══════════════════════════════════`);
+console.log(`  Added:   ${added}`);
+console.log(`  Skipped: ${skipped} (already existed)`);
+console.log(`  Total:   ${venues.length}`);
+console.log(`═══════════════════════════════════\n`);

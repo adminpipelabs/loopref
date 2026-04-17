@@ -3,262 +3,133 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Places — LoopRef</title>
+  <title>Find Venues — LoopRef</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <meta name="description" content="Discover restaurants and venues with exclusive LoopRef offers. Post, share, and earn discounts.">
-  <meta property="og:title" content="LoopRef Places — Discover Local Venues">
+  <meta property="og:title" content="LoopRef — Find Venues Near You">
   <meta property="og:description" content="Find local restaurants with exclusive referral discounts powered by LoopRef.">
   <meta property="og:image" content="https://loopref.com/og-image.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --bg:#fffdf9;--surface:#fff;--surface-2:#f5f0e8;--surface-3:#ede5d8;
+      --ink:#1a1208;--ink-2:#5a4f40;--ink-3:#9a8a78;
+      --accent:#ff6b35;--accent-mid:#e55a24;--accent-dim:#ff6b3512;
+      --green:#00875a;--green-dim:#00875a12;
+      --border:#e8e0d0;--border-2:#d0c4b0;
+    }
+    html{scroll-behavior:smooth;}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;}
 
-    :root {
-      --bg: #0f172a;
-      --surface: #1e293b;
-      --surface2: #263348;
-      --border: #334155;
-      --text: #f1f5f9;
-      --muted: #94a3b8;
-      --accent: #6366f1;
-      --accent-light: #818cf8;
-      --green: #10b981;
-      --radius: 12px;
-    }
+    /* NAV */
+    nav{padding:0 56px;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(255,253,249,0.96);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);}
+    .logo{display:flex;align-items:center;gap:9px;text-decoration:none;}
+    .logo-text{font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-0.5px;}
+    .logo-text span{color:var(--accent);}
+    .nav-links{display:flex;gap:28px;align-items:center;}
+    .nav-links a{font-size:13px;color:var(--ink-2);text-decoration:none;font-weight:500;transition:color .15s;}
+    .nav-links a:hover{color:var(--ink);}
+    .nav-cta{padding:9px 20px;background:var(--accent);color:#fff !important;border:none;border-radius:7px;font-size:13px;font-weight:700;text-decoration:none;display:inline-block;transition:background .15s;}
+    .nav-cta:hover{background:var(--accent-mid);}
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
+    /* HERO */
+    .hero{padding:64px 56px 48px;max-width:1140px;margin:0 auto;text-align:center;}
+    .hero-tag{display:inline-flex;align-items:center;gap:7px;background:var(--accent-dim);border:1px solid #ff6b3525;border-radius:20px;padding:5px 13px;margin-bottom:22px;}
+    .hero-tag-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);}
+    .hero-tag-text{font-size:11px;color:var(--accent);font-weight:700;letter-spacing:0.06em;}
+    .hero h1{font-family:'Fraunces',serif;font-size:48px;line-height:1.1;letter-spacing:-1.5px;margin-bottom:14px;font-weight:700;}
+    .hero h1 em{font-style:italic;color:var(--accent);}
+    .hero-p{font-size:16px;color:var(--ink-2);line-height:1.8;margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto;}
 
-    /* ── Nav ── */
-    nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 24px;
-      height: 60px;
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 0;
-      background: var(--bg);
-      z-index: 100;
-    }
-    nav a.logo img { display: block; }
-    .nav-links { display: flex; gap: 24px; align-items: center; }
-    .nav-links a { color: var(--muted); text-decoration: none; font-size: 14px; }
-    .nav-links a:hover { color: var(--text); }
-    .nav-cta {
-      background: var(--accent);
-      color: #fff !important;
-      padding: 8px 18px;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 13px !important;
-    }
-    .nav-cta:hover { background: var(--accent-light) !important; }
+    /* SEARCH */
+    .search-bar{display:flex;gap:10px;max-width:620px;margin:0 auto;flex-wrap:wrap;}
+    .search-bar input,.search-bar select{flex:1;min-width:150px;background:var(--surface);border:1.5px solid var(--border);color:var(--ink);padding:12px 16px;border-radius:8px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;}
+    .search-bar input::placeholder{color:var(--ink-3);}
+    .search-bar input:focus,.search-bar select:focus{border-color:var(--accent);}
+    .search-bar button{background:var(--accent);color:#fff;border:none;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:background .15s;}
+    .search-bar button:hover{background:var(--accent-mid);}
 
-    /* ── Hero ── */
-    .hero {
-      text-align: center;
-      padding: 72px 24px 48px;
-      background: linear-gradient(180deg, #1a2540 0%, var(--bg) 100%);
-    }
-    .hero h1 {
-      font-size: clamp(32px, 5vw, 52px);
-      font-weight: 800;
-      letter-spacing: -1px;
-      margin-bottom: 16px;
-    }
-    .hero h1 span { color: var(--accent-light); }
-    .hero p {
-      font-size: 18px;
-      color: var(--muted);
-      max-width: 480px;
-      margin: 0 auto 32px;
-      line-height: 1.6;
-    }
+    /* FILTER CHIPS */
+    .filters{max-width:1140px;margin:28px auto 0;padding:0 56px;display:flex;gap:8px;flex-wrap:wrap;}
+    .chip{padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;color:var(--ink-2);background:var(--surface);transition:all .15s;}
+    .chip:hover,.chip.active{border-color:var(--accent);color:var(--accent);background:var(--accent-dim);}
 
-    /* ── Search bar ── */
-    .search-bar {
-      display: flex;
-      gap: 12px;
-      max-width: 600px;
-      margin: 0 auto;
-      flex-wrap: wrap;
-    }
-    .search-bar input, .search-bar select {
-      flex: 1;
-      min-width: 160px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 12px 16px;
-      border-radius: 10px;
-      font-size: 15px;
-      outline: none;
-    }
-    .search-bar input::placeholder { color: var(--muted); }
-    .search-bar input:focus, .search-bar select:focus { border-color: var(--accent); }
-    .search-bar button {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 10px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .search-bar button:hover { background: var(--accent-light); }
+    /* GRID */
+    .grid-wrap{max-width:1140px;margin:32px auto 80px;padding:0 56px;}
+    .grid-meta{font-size:13px;color:var(--ink-3);margin-bottom:16px;font-weight:500;}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
 
-    /* ── Filter chips ── */
-    .filters {
-      max-width: 1100px;
-      margin: 32px auto 0;
-      padding: 0 24px;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .chip {
-      padding: 6px 16px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      font-size: 13px;
-      cursor: pointer;
-      color: var(--muted);
-      background: var(--surface);
-      transition: all .15s;
-    }
-    .chip:hover, .chip.active {
-      border-color: var(--accent);
-      color: var(--accent-light);
-      background: rgba(99,102,241,.12);
-    }
+    /* VENUE CARD */
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;display:flex;flex-direction:column;transition:transform .15s,border-color .15s;}
+    .card:hover{transform:translateY(-3px);border-color:var(--border-2);}
+    .card-img{width:100%;height:140px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:42px;overflow:hidden;}
+    .card-img img{width:100%;height:100%;object-fit:cover;}
+    .card-body{padding:16px 18px;flex:1;display:flex;flex-direction:column;gap:4px;}
+    .card-cuisine{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);}
+    .card-name{font-size:15px;font-weight:700;color:var(--ink);}
+    .card-tagline{font-size:12px;color:var(--ink-2);line-height:1.5;flex:1;}
+    .card-footer{padding:10px 18px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+    .card-location{font-size:11px;color:var(--ink-3);display:flex;align-items:center;gap:4px;}
+    .card-location svg{width:12px;height:12px;stroke:var(--ink-3);fill:none;stroke-width:2;flex-shrink:0;}
+    .card-offer{font-size:11px;font-weight:700;color:var(--green);background:var(--green-dim);padding:3px 9px;border-radius:20px;}
 
-    /* ── Grid ── */
-    .grid-wrap {
-      max-width: 1100px;
-      margin: 40px auto 80px;
-      padding: 0 24px;
-    }
-    .grid-meta {
-      font-size: 13px;
-      color: var(--muted);
-      margin-bottom: 20px;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 24px;
-    }
+    /* EMPTY */
+    .empty{text-align:center;padding:80px 24px;color:var(--ink-3);grid-column:1/-1;}
+    .empty p{font-size:15px;margin-top:12px;}
+    .empty a{color:var(--accent);font-weight:600;text-decoration:none;}
 
-    /* ── Venue card ── */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-      text-decoration: none;
-      color: inherit;
-      display: flex;
-      flex-direction: column;
-      transition: transform .15s, border-color .15s;
-    }
-    .card:hover { transform: translateY(-3px); border-color: var(--accent); }
+    /* SKELETON */
+    .skeleton{background:linear-gradient(90deg,var(--surface-2) 25%,var(--surface-3) 50%,var(--surface-2) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:6px;}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+    .skeleton-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+    .skeleton-img{height:140px;}
+    .skeleton-body{padding:16px 18px;display:flex;flex-direction:column;gap:10px;}
+    .skeleton-line{height:12px;border-radius:4px;}
 
-    .card-img {
-      width: 100%;
-      aspect-ratio: 16/9;
-      object-fit: cover;
-      background: var(--surface2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 48px;
-    }
-    .card-img img { width: 100%; height: 100%; object-fit: cover; }
+    /* FOOTER */
+    footer{padding:24px 56px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;background:var(--bg);}
+    .foot-logo{font-size:15px;font-weight:800;color:var(--ink);}
+    .foot-logo span{color:var(--accent);}
+    .foot-note{font-size:12px;color:var(--ink-3);}
 
-    .card-body { padding: 18px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
-    .card-cuisine {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .8px;
-      color: var(--accent-light);
+    @media(max-width:700px){
+      nav{padding:0 20px;}
+      .nav-links{display:none;}
+      .hero{padding:40px 20px 32px;}
+      .hero h1{font-size:32px;}
+      .filters,.grid-wrap{padding-left:20px;padding-right:20px;}
+      .grid{grid-template-columns:1fr;}
+      footer{padding:16px 20px;flex-direction:column;text-align:center;}
     }
-    .card-name { font-size: 18px; font-weight: 700; }
-    .card-tagline { font-size: 13px; color: var(--muted); line-height: 1.5; flex: 1; }
-    .card-footer {
-      padding: 12px 18px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .card-location { font-size: 12px; color: var(--muted); }
-    .card-offer {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--green);
-      background: rgba(16,185,129,.12);
-      padding: 4px 10px;
-      border-radius: 999px;
-    }
-
-    /* ── Empty state ── */
-    .empty {
-      text-align: center;
-      padding: 80px 24px;
-      color: var(--muted);
-    }
-    .empty p { font-size: 16px; margin-top: 12px; }
-
-    /* ── Loading skeleton ── */
-    .skeleton {
-      background: linear-gradient(90deg, var(--surface) 25%, var(--surface2) 50%, var(--surface) 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.4s infinite;
-      border-radius: 8px;
-    }
-    @keyframes shimmer { 0% { background-position: 200% 0 } 100% { background-position: -200% 0 } }
-
-    .skeleton-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-    }
-    .skeleton-img { height: 180px; }
-    .skeleton-body { padding: 18px; display: flex; flex-direction: column; gap: 10px; }
-    .skeleton-line { height: 14px; border-radius: 4px; }
   </style>
 </head>
 <body>
 
 <nav>
-  <a class="logo" href="/"><img src="/logo-white.svg" alt="LoopRef" height="32"></a>
+  <a href="/" class="logo">
+    <img src="/logo.svg" alt="LoopRef" height="36">
+  </a>
   <div class="nav-links">
-    <a href="/">Home</a>
+    <a href="/#how">How it works</a>
+    <a href="/places">Find venues</a>
     <a href="/earn">Earn</a>
-    <a href="/venues">For Venues</a>
-    <a href="/register" class="nav-cta">List Your Venue</a>
+    <a href="/register" class="nav-cta">List your venue</a>
   </div>
 </nav>
 
 <!-- Hero -->
 <section class="hero">
-  <h1>Discover <span>local venues</span><br>with exclusive offers</h1>
-  <p>Post, share, and earn discounts at the best restaurants and spots near you.</p>
+  <div class="hero-tag"><div class="hero-tag-dot"></div><div class="hero-tag-text">69 venues and counting</div></div>
+  <h1>Find venues with <em>exclusive offers</em></h1>
+  <p class="hero-p">Visit, share your experience on social media, and unlock your discount instantly.</p>
 
   <form class="search-bar" id="search-form" onsubmit="return false">
-    <input type="text" id="q-input" placeholder="Search venues…" autocomplete="off">
+    <input type="text" id="q-input" placeholder="Search venues..." autocomplete="off">
     <select id="city-input">
       <option value="">All cities</option>
-      <option value="Minneapolis">Minneapolis</option>
-      <option value="Milwaukee">Milwaukee</option>
     </select>
     <button onclick="loadVenues()">Search</button>
   </form>
@@ -267,114 +138,134 @@
 <!-- Filter chips -->
 <div class="filters" id="cuisine-filters">
   <div class="chip active" data-cuisine="">All</div>
-  <div class="chip" data-cuisine="ice cream">🍦 Ice Cream</div>
-  <div class="chip" data-cuisine="pizza">🍕 Pizza</div>
-  <div class="chip" data-cuisine="ramen">🍜 Ramen</div>
-  <div class="chip" data-cuisine="tacos">🌮 Tacos</div>
-  <div class="chip" data-cuisine="sushi">🍣 Sushi</div>
-  <div class="chip" data-cuisine="burgers">🍔 Burgers</div>
-  <div class="chip" data-cuisine="coffee">☕ Coffee</div>
 </div>
 
 <!-- Grid -->
 <div class="grid-wrap">
   <div class="grid-meta" id="grid-meta"></div>
   <div class="grid" id="venue-grid">
-    <!-- Skeleton placeholders while loading -->
-    ${[1,2,3,4,5,6].map(() => `
-    <div class="skeleton-card">
-      <div class="skeleton skeleton-img"></div>
-      <div class="skeleton-body">
-        <div class="skeleton skeleton-line" style="width:40%"></div>
-        <div class="skeleton skeleton-line" style="width:70%"></div>
-        <div class="skeleton skeleton-line" style="width:90%"></div>
-      </div>
-    </div>`).join('')}
+    <div class="skeleton-card"><div class="skeleton skeleton-img"></div><div class="skeleton-body"><div class="skeleton skeleton-line" style="width:40%"></div><div class="skeleton skeleton-line" style="width:70%"></div></div></div>
+    <div class="skeleton-card"><div class="skeleton skeleton-img"></div><div class="skeleton-body"><div class="skeleton skeleton-line" style="width:50%"></div><div class="skeleton skeleton-line" style="width:60%"></div></div></div>
+    <div class="skeleton-card"><div class="skeleton skeleton-img"></div><div class="skeleton-body"><div class="skeleton skeleton-line" style="width:35%"></div><div class="skeleton skeleton-line" style="width:80%"></div></div></div>
   </div>
 </div>
+
+<footer>
+  <div class="foot-logo">loop<span>ref</span></div>
+  <div class="foot-note">&copy; 2026 Pipe Labs LLC</div>
+</footer>
 
 <script>
   let activeCuisine = '';
 
-  // Cuisine chips
-  document.querySelectorAll('.chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      activeCuisine = chip.dataset.cuisine;
-      loadVenues();
-    });
-  });
-
   // Emoji fallback per cuisine
   const EMOJI = {
-    'ice cream': '🍦', 'pizza': '🍕', 'ramen': '🍜', 'tacos': '🌮',
-    'sushi': '🍣', 'burgers': '🍔', 'coffee': '☕', 'italian': '🍝',
-    'mexican': '🌮', 'japanese': '🍣', 'default': '🍽️'
+    'deli':'🥪','bakery':'🥐','italian':'🍝','seafood':'🦞',
+    'mexican':'🌮','pizza':'🍕','bbq':'🍖','steakhouse':'🥩',
+    'burgers':'🍔','coffee':'☕','chinese':'🥟','cuban':'🍹',
+    'indian':'🍛','ethiopian':'🍲','restaurant':'🍽️','default':'🍽️'
   };
   function cuisineEmoji(c) {
     if (!c) return EMOJI.default;
-    const key = c.toLowerCase();
-    return EMOJI[key] || EMOJI.default;
+    return EMOJI[c.toLowerCase()] || EMOJI.default;
   }
+
+  // Build city dropdown + cuisine chips dynamically from data
+  function buildFilters(venues) {
+    // Cities
+    const cities = [...new Set(venues.map(v => v.city).filter(Boolean))].sort();
+    const citySelect = document.getElementById('city-input');
+    cities.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c; opt.textContent = c;
+      citySelect.appendChild(opt);
+    });
+
+    // Cuisines
+    const cuisines = [...new Set(venues.map(v => v.cuisine).filter(Boolean))].sort();
+    const filtersEl = document.getElementById('cuisine-filters');
+    cuisines.forEach(c => {
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.dataset.cuisine = c.toLowerCase();
+      chip.textContent = (EMOJI[c.toLowerCase()] || '') + ' ' + c;
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.chip').forEach(ch => ch.classList.remove('active'));
+        chip.classList.add('active');
+        activeCuisine = chip.dataset.cuisine;
+        loadVenues();
+      });
+      filtersEl.appendChild(chip);
+    });
+  }
+
+  // Cuisine chip click for the "All" chip
+  document.querySelector('.chip[data-cuisine=""]').addEventListener('click', () => {
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    document.querySelector('.chip[data-cuisine=""]').classList.add('active');
+    activeCuisine = '';
+    loadVenues();
+  });
 
   function renderCard(v) {
     const slug = v.slug || v.id;
     const hasPhoto = v.photos && v.photos.length;
     const imgHtml = hasPhoto
-      ? `<img src="${v.photos[0].photo_url}" alt="${v.name}" loading="lazy">`
+      ? '<img src="' + v.photos[0].photo_url + '" alt="' + v.name + '" loading="lazy">'
       : cuisineEmoji(v.cuisine);
 
-    return `
-    <a class="card" href="/places/venue/?slug=${slug}">
-      <div class="card-img">${imgHtml}</div>
-      <div class="card-body">
-        ${v.cuisine ? `<div class="card-cuisine">${v.cuisine}</div>` : ''}
-        <div class="card-name">${v.name}</div>
-        ${v.tagline ? `<div class="card-tagline">${v.tagline}</div>` : ''}
-      </div>
-      <div class="card-footer">
-        <span class="card-location">📍 ${v.city}${v.state ? ', ' + v.state : ''}</span>
-        <span class="card-offer">${v.discount_pct || 20}% off with LoopRef</span>
-      </div>
-    </a>`;
+    return '<a class="card" href="/places/venue/?slug=' + slug + '">' +
+      '<div class="card-img">' + imgHtml + '</div>' +
+      '<div class="card-body">' +
+        (v.cuisine ? '<div class="card-cuisine">' + v.cuisine + '</div>' : '') +
+        '<div class="card-name">' + v.name + '</div>' +
+        (v.tagline ? '<div class="card-tagline">' + v.tagline + '</div>' : '') +
+      '</div>' +
+      '<div class="card-footer">' +
+        '<span class="card-location"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> ' + v.city + (v.state ? ', ' + v.state : '') + '</span>' +
+        '<span class="card-offer">' + (v.discount_pct || 20) + '% off</span>' +
+      '</div>' +
+    '</a>';
   }
 
-  async function loadVenues() {
-    const q = document.getElementById('q-input').value.trim();
-    const city = document.getElementById('city-input').value;
-    const grid = document.getElementById('venue-grid');
-    const meta = document.getElementById('grid-meta');
+  let allVenues = [];
+  let filtersBuilt = false;
 
-    const params = new URLSearchParams();
+  async function loadVenues() {
+    var q = document.getElementById('q-input').value.trim();
+    var city = document.getElementById('city-input').value;
+    var grid = document.getElementById('venue-grid');
+    var meta = document.getElementById('grid-meta');
+
+    var params = new URLSearchParams();
     if (q) params.set('q', q);
     if (city) params.set('city', city);
     if (activeCuisine) params.set('cuisine', activeCuisine);
 
     try {
-      const res = await fetch(`/api/places?${params}`);
-      const venues = await res.json();
+      var res = await fetch('/api/places?' + params);
+      var venues = await res.json();
+
+      if (!filtersBuilt && venues.length) {
+        buildFilters(venues);
+        filtersBuilt = true;
+      }
 
       meta.textContent = venues.length
-        ? `${venues.length} venue${venues.length !== 1 ? 's' : ''} found`
+        ? venues.length + ' venue' + (venues.length !== 1 ? 's' : '') + ' found'
         : '';
 
       if (!venues.length) {
-        grid.innerHTML = `
-          <div class="empty" style="grid-column:1/-1">
-            <div style="font-size:48px">🔍</div>
-            <p>No venues found. <a href="/register" style="color:var(--accent-light)">Be the first to list yours.</a></p>
-          </div>`;
+        grid.innerHTML = '<div class="empty"><div style="font-size:48px">&#128269;</div><p>No venues found. <a href="/register">Be the first to list yours.</a></p></div>';
         return;
       }
 
       grid.innerHTML = venues.map(renderCard).join('');
     } catch (err) {
-      grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><p>Failed to load venues. Please try again.</p></div>`;
+      grid.innerHTML = '<div class="empty"><p>Failed to load venues. Please try again.</p></div>';
     }
   }
 
-  // Initial load
   loadVenues();
 </script>
 </body>

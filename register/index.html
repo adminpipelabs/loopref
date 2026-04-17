@@ -818,10 +818,6 @@ function show(id, visible) {
   if (el) el.style.display = visible ? 'flex' : 'none';
 }
 
-// Replace YOUR_FORM_ID with your Formspree form ID (formspree.io/f/YOUR_FORM_ID)
-// Get a free ID at formspree.io — it handles email notifications and auto-replies
-var FORMSPREE_ID = 'xgopndld';
-
 function submitForm() {
   var btn = document.getElementById('submit-btn');
   btn.classList.add('loading');
@@ -832,43 +828,38 @@ function submitForm() {
 
   var data = {
     venue_name: val('venue-name'),
-    venue_type: typeChecked ? typeChecked.value : '',
-    maps_url: val('maps-url'),
+    cuisine_type: typeChecked ? typeChecked.value : '',
+    google_maps_url: val('maps-url'),
     first_name: val('fname'),
     last_name: val('lname'),
     role: val('role'),
-    email: val('email'),
+    contact_email: val('email'),
     phone: val('phone'),
     city: val('city'),
     country: val('country'),
     min_spend: val('min-spend'),
-    discount: val('discount'),
+    discount_pct: val('discount').replace('%', '').replace('off', '').trim(),
     platforms: plats.join(', '),
     tagline: val('tagline'),
     terms_note: val('terms-note'),
     website: val('website'),
-    instagram: val('instagram'),
-    tiktok: val('tiktok'),
+    instagram_handle: val('instagram'),
+    tiktok_handle: val('tiktok'),
     referral: val('referral'),
-    rep_code: val('rep-code'),
-    _subject: 'New venue registration: ' + val('venue-name'),
-    _replyto: val('email')
+    rep_code: val('rep-code')
   };
 
-  if (FORMSPREE_ID === 'YOUR_FORM_ID') {
-    // No endpoint set yet — just show confirmation
-    setTimeout(function(){ goTo(6); }, 800);
-    return;
-  }
-
-  fetch('https://formspree.io/f/' + FORMSPREE_ID, {
+  fetch('/api/restaurants', {
     method: 'POST',
     headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
     body: JSON.stringify(data)
   })
   .then(function(r){ return r.json(); })
-  .then(function(){ goTo(6); })
-  .catch(function(){
+  .then(function(result){
+    if (result.error) throw new Error(result.error);
+    goTo(6);
+  })
+  .catch(function(err){
     btn.classList.remove('loading');
     btn.innerHTML = 'Submit registration <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
     alert('Something went wrong — please email hello@loopref.com directly and we will get you set up.');

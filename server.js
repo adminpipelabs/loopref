@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const { initDb } = require('./database/db');
 const pinterestRoutes = require('./routes/pinterest');
 const trackingRoutes = require('./routes/tracking');
@@ -10,8 +11,19 @@ const { startScheduler } = require('./jobs/scheduler');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', uptime: process.uptime() });
+});
 
 // API routes (before static files so /api/* is never file-served)
 app.use('/auth', pinterestRoutes);
@@ -32,8 +44,13 @@ app.get('*', (req, res, next) => {
 });
 
 // Init DB then start
-initDb();
-startScheduler();
+try {
+  initDb();
+  startScheduler();
+} catch (err) {
+  console.error('Startup error:', err);
+  process.exit(1);
+}
 
 app.listen(PORT, () => {
   console.log(`LoopRef running on port ${PORT}`);

@@ -117,14 +117,6 @@ router.post('/regenerate-pin/:pinId', async (req, res) => {
   }
 });
 
-// ─── Temporary debug: check which env vars are present (remove after diagnosis)
-router.get('/debug/env', (req, res) => {
-  const keys = Object.keys(process.env).filter(k =>
-    k.includes('GOOGLE') || k.includes('PINTEREST') || k.includes('ANTHROPIC') || k.includes('SMTP')
-  );
-  res.json({ found_keys: keys, node_version: process.version });
-});
-
 // ─── Public places directory ──────────────────────────────────────────────────
 // GET /api/places — list all active/imported venues (public directory)
 router.get('/places', (req, res) => {
