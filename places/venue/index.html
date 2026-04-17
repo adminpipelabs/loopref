@@ -286,16 +286,33 @@
       var msg = (name ? name + ' recommends ' : 'Check out ') + v.name + (v.city ? ' in ' + v.city : '') + '! ' + currentShareUrl;
 
       var channels = document.getElementById('share-channels');
+      var encodedMsg = encodeURIComponent(msg);
+      var encodedUrl = encodeURIComponent(currentShareUrl);
       channels.innerHTML =
-        '<a class="share-ch-btn" href="https://wa.me/?text=' + encodeURIComponent(msg) + '" target="_blank">' +
+        '<a class="share-ch-btn" href="https://wa.me/?text=' + encodedMsg + '" target="_blank">' +
           '<svg viewBox="0 0 24 24" fill="#25d366" stroke="none"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2 22l5.112-1.328C8.44 21.516 10.185 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>' +
           'WhatsApp</a>' +
-        '<a class="share-ch-btn" href="sms:?body=' + encodeURIComponent(msg) + '">' +
+        '<a class="share-ch-btn" href="https://www.instagram.com/" target="_blank">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="#E4405F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>' +
+          'Instagram</a>' +
+        '<a class="share-ch-btn" href="https://www.tiktok.com/" target="_blank">' +
+          '<svg viewBox="0 0 24 24" fill="#000"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.65a8.16 8.16 0 0 0 4.77 1.52V6.72a4.85 4.85 0 0 1-1-.03z"/></svg>' +
+          'TikTok</a>' +
+        '<a class="share-ch-btn" href="https://www.snapchat.com/" target="_blank">' +
+          '<svg viewBox="0 0 24 24" fill="#FFFC00" stroke="#333" stroke-width="0.5"><path d="M12.017 2C9.31 2 7.05 4.05 7.05 6.56c0 .21.01.42.04.62l-.57.03c-.51 0-.97.26-.97.69 0 .37.3.69.8.69h.16c-.08.28-.12.58-.12.89 0 2.04 1.65 4.2 3.9 5.02-.05.12-.16.23-.33.3-.41.18-1.17.3-2.15.49-.45.09-.73.51-.64.96.12.54 1.54 1.27 4.86 1.27s4.74-.73 4.85-1.27c.09-.45-.19-.87-.64-.96-.98-.2-1.74-.31-2.15-.5-.17-.07-.28-.18-.33-.3 2.25-.82 3.9-2.98 3.9-5.02 0-.31-.04-.6-.12-.89h.16c.5 0 .8-.32.8-.69 0-.43-.46-.69-.97-.69l-.57-.03c.03-.2.04-.41.04-.62C16.98 4.05 14.72 2 12.02 2z"/></svg>' +
+          'Snapchat</a>' +
+        '<a class="share-ch-btn" href="https://www.facebook.com/sharer/sharer.php?u=' + encodedUrl + '" target="_blank">' +
+          '<svg viewBox="0 0 24 24" fill="#1877F2" stroke="none"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>' +
+          'Facebook</a>' +
+        '<a class="share-ch-btn" href="https://pinterest.com/pin/create/button/?url=' + encodedUrl + '&description=' + encodedMsg + '" target="_blank">' +
+          '<svg viewBox="0 0 24 24" fill="#E60023" stroke="none"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.236 2.636 7.855 6.356 9.312-.088-.791-.167-2.005.035-2.868.181-.78 1.172-4.97 1.172-4.97s-.299-.598-.299-1.482c0-1.388.806-2.428 1.808-2.428.852 0 1.265.64 1.265 1.408 0 .858-.546 2.141-.828 3.33-.236.995.499 1.806 1.476 1.806 1.772 0 3.137-1.868 3.137-4.565 0-2.386-1.715-4.054-4.163-4.054-2.836 0-4.498 2.127-4.498 4.324 0 .856.33 1.775.741 2.276a.3.3 0 01.069.286c-.076.313-.244.995-.277 1.134-.044.183-.145.222-.335.134-1.249-.581-2.03-2.407-2.03-3.874 0-3.154 2.292-6.052 6.608-6.052 3.469 0 6.165 2.473 6.165 5.776 0 3.447-2.173 6.22-5.19 6.22-1.013 0-1.967-.527-2.292-1.148l-.623 2.378c-.226.869-.835 1.958-1.244 2.621.937.29 1.931.446 2.962.446 5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>' +
+          'Pinterest</a>' +
+        '<a class="share-ch-btn" href="https://twitter.com/intent/tweet?text=' + encodedMsg + '" target="_blank">' +
+          '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.74l7.73-8.835L1.254 2.25H8.08l4.259 5.632L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>' +
+          'Post on X</a>' +
+        '<a class="share-ch-btn" href="sms:?body=' + encodedMsg + '">' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' +
           'Text</a>' +
-        '<a class="share-ch-btn" href="https://twitter.com/intent/tweet?text=' + encodeURIComponent(msg) + '" target="_blank">' +
-          '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.74l7.73-8.835L1.254 2.25H8.08l4.259 5.632L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>' +
-          'X</a>' +
         '<button class="share-ch-btn" onclick="copyShareLink()">' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>' +
           'Copy link</button>';
