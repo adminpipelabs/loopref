@@ -25,6 +25,26 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', uptime: process.uptime() });
 });
 
+// Referral redirect: /r/:shareCode → track click → redirect to venue page
+app.get('/r/:shareCode', (req, res) => {
+  const { getDb } = require('./database/db');
+  const db = getDb();
+  const share = db.prepare(`
+    SELECT cs.id, cs.restaurant_id, r.slug
+    FROM customer_shares cs
+    JOIN restaurants r ON r.id = cs.restaurant_id
+    WHERE cs.share_code = ?
+  `).get(req.params.shareCode);
+
+  if (!share) return res.redirect('/places');
+
+  // Increment click counter and log the click
+  db.prepare('UPDATE customer_shares SET clicks = clicks + 1 WHERE id = ?').run(share.id);
+  db.prepare('INSERT INTO referral_clicks (share_id, restaurant_id) VALUES (?, ?)').run(share.id, share.restaurant_id);
+
+  res.redirect(`/places/venue/?slug=${share.slug}&ref=${req.params.shareCode}`);
+});
+
 // API routes (before static files so /api/* is never file-served)
 app.use('/auth', pinterestRoutes);
 app.use('/api', trackingRoutes);

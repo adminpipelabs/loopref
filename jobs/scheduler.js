@@ -2,6 +2,7 @@ const cron = require('node-cron');
 const { getDb } = require('../database/db');
 const { createPin, syncPinAnalytics } = require('../routes/pinterest');
 const { sendWeeklyReports } = require('./weeklyReport');
+const { sendMonthlyReports } = require('./monthlyReport');
 
 // ─── Post scheduled pins (runs every hour) ───────────────────────────────────
 async function postScheduledPins() {
@@ -201,7 +202,12 @@ function startScheduler() {
     sendWeeklyReports().catch(err => console.error('[scheduler] weeklyReport error:', err));
   });
 
-  console.log('[scheduler] Cron jobs started (hourly poster, 6am generator, 3am analytics, Monday 9am reports)');
+  // Monthly sharing stats report (1st of each month at 10am)
+  cron.schedule('0 10 1 * *', () => {
+    sendMonthlyReports().catch(err => console.error('[scheduler] monthlyReport error:', err));
+  });
+
+  console.log('[scheduler] Cron jobs started (hourly poster, 6am generator, 3am analytics, Monday 9am reports, 1st monthly report)');
 }
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }

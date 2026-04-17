@@ -166,6 +166,36 @@ function initDb() {
     CREATE INDEX IF NOT EXISTS idx_pinterest_daily_analytics_restaurant_date
       ON pinterest_daily_analytics(restaurant_id, date);
 
+    -- Customer share links (one per share action)
+    CREATE TABLE IF NOT EXISTS customer_shares (
+      id            INTEGER PRIMARY KEY AUTOINCREMENT,
+      restaurant_id INTEGER NOT NULL,
+      share_code    TEXT UNIQUE NOT NULL,
+      sharer_name   TEXT,
+      channel       TEXT,
+      clicks        INTEGER DEFAULT 0,
+      created_at    DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE
+    );
+    CREATE INDEX IF NOT EXISTS idx_customer_shares_code
+      ON customer_shares(share_code);
+    CREATE INDEX IF NOT EXISTS idx_customer_shares_restaurant
+      ON customer_shares(restaurant_id);
+
+    -- Referral clicks (one per friend click on a share link)
+    CREATE TABLE IF NOT EXISTS referral_clicks (
+      id            INTEGER PRIMARY KEY AUTOINCREMENT,
+      share_id      INTEGER NOT NULL,
+      restaurant_id INTEGER NOT NULL,
+      clicked_at    DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (share_id) REFERENCES customer_shares(id) ON DELETE CASCADE,
+      FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE
+    );
+    CREATE INDEX IF NOT EXISTS idx_referral_clicks_share
+      ON referral_clicks(share_id);
+    CREATE INDEX IF NOT EXISTS idx_referral_clicks_restaurant
+      ON referral_clicks(restaurant_id);
+
     -- View: per-restaurant Pinterest summary (used by admin and weekly reports)
     CREATE VIEW IF NOT EXISTS v_restaurant_pinterest_summary AS
     SELECT
