@@ -20,13 +20,15 @@ function getMonthlyStats(restaurantId) {
   const db = getDb();
 
   const shares = db.prepare(`
-    SELECT COUNT(*) as total_shares, COALESCE(SUM(clicks), 0) as total_clicks
+    SELECT COUNT(*) as total_shares, COALESCE(SUM(clicks), 0) as total_clicks,
+           COALESCE(SUM(verified_clicks), 0) as verified_clicks
     FROM customer_shares
     WHERE restaurant_id = ? AND created_at >= datetime('now', '-30 days')
   `).get(restaurantId);
 
   const allTime = db.prepare(`
-    SELECT COUNT(*) as total_shares, COALESCE(SUM(clicks), 0) as total_clicks
+    SELECT COUNT(*) as total_shares, COALESCE(SUM(clicks), 0) as total_clicks,
+           COALESCE(SUM(verified_clicks), 0) as verified_clicks
     FROM customer_shares WHERE restaurant_id = ?
   `).get(restaurantId);
 
@@ -84,11 +86,11 @@ function buildEmailHtml(restaurant, stats) {
   <table style="width:100%;border-collapse:separate;border-spacing:8px;margin-bottom:24px;">
     <tr>
       ${statCard('Shares this month', stats.shares.total_shares)}
-      ${statCard('Friend clicks', stats.shares.total_clicks)}
+      ${statCard('Verified referrals', stats.shares.verified_clicks)}
     </tr>
     <tr>
       ${statCard('All-time shares', stats.allTime.total_shares)}
-      ${statCard('All-time clicks', stats.allTime.total_clicks)}
+      ${statCard('All-time verified', stats.allTime.verified_clicks)}
     </tr>
   </table>
 
@@ -135,7 +137,7 @@ async function sendMonthlyReports() {
   for (const r of restaurants) {
     const stats = getMonthlyStats(r.id);
     const html = buildEmailHtml(r, stats);
-    const subject = `Your LoopRef monthly report: ${stats.shares.total_clicks} friend clicks in ${new Date().toLocaleString('en-US', { month: 'long' })}`;
+    const subject = `Your LoopRef monthly report: ${stats.shares.verified_clicks} verified referrals in ${new Date().toLocaleString('en-US', { month: 'long' })}`;
 
     if (!transport) {
       console.log(`[monthlyReport] PREVIEW for ${r.name} (${r.contact_email}):`);

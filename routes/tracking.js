@@ -102,6 +102,30 @@ router.get('/attribution/:restaurantId', (req, res) => {
   res.json({ rows, totals });
 });
 
+// ─── Verify a referral click (friend submits name/email) ─────────────────────
+// POST /api/verify-referral
+router.post('/verify-referral', (req, res) => {
+  const { clickId, visitorName, visitorEmail } = req.body;
+  if (!clickId || !visitorName) {
+    return res.status(400).json({ error: 'clickId and visitorName required' });
+  }
+
+  const db = getDb();
+  const click = db.prepare('SELECT id, share_id, verified FROM referral_clicks WHERE id = ?').get(clickId);
+  if (!click) return res.status(404).json({ error: 'Click not found' });
+  if (click.verified) return res.json({ ok: true, already: true });
+
+  // Mark click as verified
+  db.prepare(`UPDATE referral_clicks SET verified = 1, visitor_name = ?, visitor_email = ?, verified_at = datetime('now') WHERE id = ?`)
+    .run(visitorName, visitorEmail || null, clickId);
+
+  // Increment verified counter on share
+  db.prepare('UPDATE customer_shares SET verified_clicks = verified_clicks + 1 WHERE id = ?')
+    .run(click.share_id);
+
+  res.json({ ok: true });
+});
+
 // ─── Generate a share link ───────────────────────────────────────────────────
 // POST /api/share
 router.post('/share', (req, res) => {
@@ -137,7 +161,8 @@ router.get('/share-stats/:restaurantId', (req, res) => {
   const last30 = db.prepare(`
     SELECT
       COUNT(*) as shares,
-      COALESCE(SUM(clicks), 0) as clicks
+      COALESCE(SUM(clicks), 0) as clicks,
+      COALESCE(SUM(verified_clicks), 0) as verified_clicks
     FROM customer_shares
     WHERE restaurant_id = ? AND created_at >= datetime('now', '-30 days')
   `).get(rid);
