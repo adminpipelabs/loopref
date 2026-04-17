@@ -4,3 +4,4 @@ database/loopref.db
 database/*.db
 uploads/
 *.log
+batch-import-*.json
