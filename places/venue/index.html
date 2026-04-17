@@ -86,8 +86,17 @@
     .venue-offer-pct{font-weight:800;color:var(--green);font-size:16px;}
 
     /* REFERRAL BANNER */
-    .ref-banner{background:var(--accent-dim);border:1px solid #ff6b3525;border-radius:10px;padding:14px 20px;margin-bottom:24px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--accent);font-weight:600;}
-    .ref-banner svg{width:18px;height:18px;stroke:var(--accent);fill:none;flex-shrink:0;}
+    .ref-banner{background:var(--accent-dim);border:1px solid #ff6b3525;border-radius:14px;padding:20px 24px;margin-bottom:24px;}
+    .ref-banner-title{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--accent);font-weight:700;margin-bottom:12px;}
+    .ref-banner-title svg{width:18px;height:18px;stroke:var(--accent);fill:none;flex-shrink:0;}
+    .ref-banner p{font-size:13px;color:var(--ink-2);margin-bottom:14px;line-height:1.5;}
+    .ref-form{display:flex;gap:8px;}
+    .ref-form input{flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;background:var(--surface);color:var(--ink);outline:none;}
+    .ref-form input:focus{border-color:var(--accent);}
+    .ref-form button{padding:10px 18px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap;transition:background .15s;}
+    .ref-form button:hover{background:var(--accent-mid);}
+    .ref-done{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--green);font-weight:600;}
+    .ref-done svg{width:16px;height:16px;stroke:var(--green);fill:none;}
 
     /* SHARE CARD */
     .share-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;margin-bottom:40px;}
@@ -193,11 +202,27 @@
     var websiteLink = v.website ? '<a class="social-btn" href="' + v.website + '" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>Website</a>' : '';
     var igLink = v.instagram_handle ? '<a class="social-btn" href="https://instagram.com/' + v.instagram_handle.replace('@','') + '" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg>@' + v.instagram_handle.replace('@','') + '</a>' : '';
 
-    // Referral banner if ?ref= present
+    // Referral verification form if ?ref= present
     var refCode = params.get('ref');
-    var refBannerHtml = refCode
-      ? '<div class="ref-banner"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>A friend invited you to check out ' + v.name + '!</div>'
-      : '';
+    var clickId = params.get('cid');
+    var refBannerHtml = '';
+    if (refCode && clickId) {
+      refBannerHtml =
+        '<div class="ref-banner" id="ref-banner">' +
+          '<div class="ref-banner-title"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>A friend invited you to check out ' + v.name + '!</div>' +
+          '<p>Enter your name to confirm you received this referral.</p>' +
+          '<div class="ref-form" id="ref-form">' +
+            '<input type="text" id="ref-name" placeholder="Your first name">' +
+            '<input type="email" id="ref-email" placeholder="Email (optional)">' +
+            '<button onclick="verifyReferral(' + clickId + ')">Confirm</button>' +
+          '</div>' +
+        '</div>';
+    } else if (refCode) {
+      refBannerHtml =
+        '<div class="ref-banner">' +
+          '<div class="ref-banner-title"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>A friend invited you to check out ' + v.name + '!</div>' +
+        '</div>';
+    }
 
     document.getElementById('page-content').innerHTML =
       refBannerHtml +
@@ -262,6 +287,33 @@
       '<p>' + msg + '</p>' +
       '<a href="/places" style="display:inline-block;margin-top:24px">&larr; Back to directory</a>' +
     '</div>';
+  }
+
+  // ─── Referral verification ────────────────────────────────────────────────
+
+  function verifyReferral(clickId) {
+    var name = document.getElementById('ref-name').value.trim();
+    if (!name) { document.getElementById('ref-name').style.borderColor = '#e55a24'; return; }
+    var email = document.getElementById('ref-email').value.trim();
+    var btn = document.querySelector('#ref-form button');
+    btn.textContent = 'Confirming...';
+    btn.disabled = true;
+
+    fetch('/api/verify-referral', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ clickId: clickId, visitorName: name, visitorEmail: email || null })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (!data.ok) throw new Error();
+      document.getElementById('ref-form').innerHTML =
+        '<div class="ref-done"><svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Thanks ' + name + '! Your referral is confirmed.</div>';
+    })
+    .catch(function() {
+      btn.textContent = 'Confirm';
+      btn.disabled = false;
+    });
   }
 
   // ─── Share functions ──────────────────────────────────────────────────────

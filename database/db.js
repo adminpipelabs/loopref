@@ -174,6 +174,7 @@ function initDb() {
       sharer_name   TEXT,
       channel       TEXT,
       clicks        INTEGER DEFAULT 0,
+      verified_clicks INTEGER DEFAULT 0,
       created_at    DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE
     );
@@ -187,7 +188,11 @@ function initDb() {
       id            INTEGER PRIMARY KEY AUTOINCREMENT,
       share_id      INTEGER NOT NULL,
       restaurant_id INTEGER NOT NULL,
+      visitor_name  TEXT,
+      visitor_email TEXT,
+      verified      INTEGER DEFAULT 0,
       clicked_at    DATETIME DEFAULT CURRENT_TIMESTAMP,
+      verified_at   DATETIME,
       FOREIGN KEY (share_id) REFERENCES customer_shares(id) ON DELETE CASCADE,
       FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE
     );
@@ -292,6 +297,15 @@ function runMigrations(db) {
   add('restaurant_photos', 'file_size',     'INTEGER');
   add('restaurant_photos', 'width',         'INTEGER');
   add('restaurant_photos', 'height',        'INTEGER');
+
+  // referral_clicks
+  add('referral_clicks', 'visitor_name',  'TEXT');
+  add('referral_clicks', 'visitor_email', 'TEXT');
+  add('referral_clicks', 'verified',      'INTEGER DEFAULT 0');
+  add('referral_clicks', 'verified_at',   'DATETIME');
+
+  // customer_shares
+  add('customer_shares', 'verified_clicks', 'INTEGER DEFAULT 0');
 }
 
 module.exports = { getDb, initDb };

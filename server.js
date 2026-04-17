@@ -38,11 +38,11 @@ app.get('/r/:shareCode', (req, res) => {
 
   if (!share) return res.redirect('/places');
 
-  // Increment click counter and log the click
+  // Log raw click (not verified yet)
   db.prepare('UPDATE customer_shares SET clicks = clicks + 1 WHERE id = ?').run(share.id);
-  db.prepare('INSERT INTO referral_clicks (share_id, restaurant_id) VALUES (?, ?)').run(share.id, share.restaurant_id);
+  const click = db.prepare('INSERT INTO referral_clicks (share_id, restaurant_id) VALUES (?, ?)').run(share.id, share.restaurant_id);
 
-  res.redirect(`/places/venue/?slug=${share.slug}&ref=${req.params.shareCode}`);
+  res.redirect(`/places/venue/?slug=${share.slug}&ref=${req.params.shareCode}&cid=${click.lastInsertRowid}`);
 });
 
 // API routes (before static files so /api/* is never file-served)
