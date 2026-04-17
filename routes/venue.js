@@ -30,7 +30,7 @@ const upload = multer({
   }
 });
 
-// ─── Restaurant registration (receives Formspree-style data) ─────────────────
+// ─── Restaurant registration ─────────────────────────────────────────────────
 // POST /api/restaurants
 router.post('/restaurants', (req, res) => {
   const {
@@ -43,20 +43,22 @@ router.post('/restaurants', (req, res) => {
     return res.status(400).json({ error: 'venue_name and contact_email required' });
   }
 
+  const slug = slugify(`${venue_name}-${city || 'venue'}`);
   const db = getDb();
   const result = db.prepare(`
     INSERT INTO restaurants
-      (name, cuisine, city, country, google_maps_url, contact_name, contact_email,
-       min_spend, discount_pct, instagram_handle, tiktok_handle, website, rep_code)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      (name, slug, cuisine, city, country, google_maps_url, contact_name, contact_email,
+       phone, min_spend, discount_pct, instagram_handle, tiktok_handle, website, rep_code,
+       source, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'signup', 'active')
   `).run(
-    venue_name, cuisine_type || null, city || null, country || 'US',
+    venue_name, slug, cuisine_type || null, city || null, country || 'US',
     google_maps_url || null, first_name || null, contact_email,
-    parseInt(min_spend) || 50, parseInt(discount_pct) || 20,
+    phone || null, parseInt(min_spend) || 50, parseInt(discount_pct) || 20,
     instagram_handle || null, tiktok_handle || null, website || null, rep_code || null
   );
 
-  res.json({ ok: true, restaurantId: result.lastInsertRowid });
+  res.json({ ok: true, restaurantId: result.lastInsertRowid, slug });
 });
 
 // ─── Get restaurant data ──────────────────────────────────────────────────────
@@ -144,7 +146,7 @@ router.get('/places/:slug', (req, res) => {
   const venue = getDb().prepare(`
     SELECT id, name, slug, cuisine, city, state, address, phone, tagline,
            website, min_spend, discount_pct, instagram_handle, tiktok_handle,
-           source, google_maps_url
+           source, status, google_maps_url
     FROM restaurants WHERE slug = ? AND status IN ('active', 'imported')
   `).get(req.params.slug);
 

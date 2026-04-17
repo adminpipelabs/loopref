@@ -81,6 +81,10 @@
     .not-found h2{font-family:'Fraunces',serif;font-size:28px;color:var(--ink);margin-bottom:12px;}
     .not-found a{color:var(--accent);text-decoration:none;font-weight:600;}
 
+    /* OFFER BADGE (active venues only) */
+    .venue-offer{background:var(--green-dim);border:1px solid #00875a25;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:14px;color:var(--ink-2);}
+    .venue-offer-pct{font-weight:800;color:var(--green);font-size:16px;}
+
     /* REFERRAL BANNER */
     .ref-banner{background:var(--accent-dim);border:1px solid #ff6b3525;border-radius:10px;padding:14px 20px;margin-bottom:24px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--accent);font-weight:600;}
     .ref-banner svg{width:18px;height:18px;stroke:var(--accent);fill:none;flex-shrink:0;}
@@ -204,6 +208,7 @@
         (v.cuisine ? '<span class="venue-cuisine">' + v.cuisine + '</span>' : '') +
         '<h1 class="venue-name">' + v.name + '</h1>' +
         (v.tagline ? '<p class="venue-tagline">' + v.tagline + '</p>' : '') +
+        (v.status === 'active' ? '<div class="venue-offer"><span class="venue-offer-pct">' + (v.discount_pct || 20) + '% off</span> when you spend $' + (v.min_spend || 50) + '+ and share with friends</div>' : '') +
         '<div class="venue-meta">' +
           (v.city ? '<span>&#128205; ' + v.city + (v.state ? ', ' + v.state : '') + '</span>' : '') +
           (v.address ? '<span>' + v.address + '</span>' : '') +

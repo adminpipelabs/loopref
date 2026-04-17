@@ -587,43 +587,43 @@ footer{padding:24px 48px;border-top:1px solid var(--border);display:flex;align-i
       <div class="confirm-icon">
         <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
-      <h2 class="confirm-h">You&rsquo;re <em>registered.</em></h2>
-      <p class="confirm-p">Your registration has been received. We will review your venue and activate your campaign within 24 hours.</p>
-
-      <div class="confirm-steps">
-        <div class="confirm-step-row">
-          <div class="confirm-step-num">1</div>
-          <div class="confirm-step-text"><strong>Check your inbox</strong> — a confirmation email is on its way to the address you provided.</div>
-        </div>
-        <div class="confirm-step-row">
-          <div class="confirm-step-num">2</div>
-          <div class="confirm-step-text"><strong>We review your listing</strong> — usually within a few hours. We may reach out if we have questions.</div>
-        </div>
-        <div class="confirm-step-row">
-          <div class="confirm-step-num">3</div>
-          <div class="confirm-step-text"><strong>Your campaign goes live</strong> — you receive your unique QR code, Customer ID, and dashboard link by email.</div>
-        </div>
-        <div class="confirm-step-row">
-          <div class="confirm-step-num">4</div>
-          <div class="confirm-step-text"><strong>Customers start posting</strong> — place your QR at the till and watch the social reach build.</div>
-        </div>
-      </div>
+      <h2 class="confirm-h">You&rsquo;re <em>live.</em></h2>
+      <p class="confirm-p">Your venue is active on LoopRef. Print your QR code and place it at your till &mdash; customers can start sharing right away.</p>
 
       <!-- VENUE QR CODE -->
       <div class="confirm-qr-wrap" id="confirm-qr-wrap" style="display:none;">
         <div class="confirm-qr-img">
-          <img id="confirm-qr-img" src="" alt="Your venue QR code" width="96" height="96">
+          <img id="confirm-qr-img" src="" alt="Your venue QR code" width="128" height="128" style="border-radius:8px;">
         </div>
         <div class="confirm-qr-text">
-          <h4>Your WhatsApp QR code — ready now</h4>
-          <p>Print this and place it at your till. When customers scan it, WhatsApp opens and they can claim their discount after posting on social media.</p>
+          <h4>Your venue QR code</h4>
+          <p>Customers scan this to open your venue page on LoopRef, share with friends, and spread the word. Print it and place it at the till, on tables, or in the window.</p>
           <div class="confirm-qr-actions">
-            <a class="confirm-qr-wa" id="confirm-qr-wa" href="#" target="_blank" rel="noopener">
-              <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2 22l5.112-1.328C8.44 21.516 10.185 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z" fill-rule="evenodd" clip-rule="evenodd"/></svg>
-              Test on WhatsApp
+            <a class="confirm-qr-dl" id="confirm-qr-dl" href="#" download>
+              <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;vertical-align:-2px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+              Download &amp; print
             </a>
-            <a class="confirm-qr-dl" id="confirm-qr-dl" href="#" download>Download &amp; print</a>
+            <a class="confirm-qr-venue" id="confirm-qr-venue" href="#" target="_blank" rel="noopener" style="font-size:13px;font-weight:600;color:var(--accent);text-decoration:none;">View your venue page &rarr;</a>
           </div>
+        </div>
+      </div>
+
+      <div class="confirm-steps">
+        <div class="confirm-step-row">
+          <div class="confirm-step-num">1</div>
+          <div class="confirm-step-text"><strong>Print your QR code</strong> &mdash; place it at the till, on menus, or in the window.</div>
+        </div>
+        <div class="confirm-step-row">
+          <div class="confirm-step-num">2</div>
+          <div class="confirm-step-text"><strong>Customers scan &amp; share</strong> &mdash; they visit your LoopRef page and share it with friends.</div>
+        </div>
+        <div class="confirm-step-row">
+          <div class="confirm-step-num">3</div>
+          <div class="confirm-step-text"><strong>Friends click &amp; visit</strong> &mdash; more people discover your venue through word of mouth.</div>
+        </div>
+        <div class="confirm-step-row">
+          <div class="confirm-step-num">4</div>
+          <div class="confirm-step-text"><strong>Monthly report</strong> &mdash; we email you a summary of shares and clicks each month.</div>
         </div>
       </div>
 
@@ -668,24 +668,16 @@ function goTo(step) {
 }
 
 function generateConfirmQR() {
-  var venueName = val('venue-name') || 'this venue';
-  var city = val('city') || '';
-  var off = val('discount') || '';
-  var waText = 'Hi Kazi! I just visited ' + venueName +
-    (city ? ' in ' + city : '') +
-    ' and want to claim my LoopRef discount' +
-    (off ? ' (' + off + ' off)' : '') +
-    '. Here is my post: ';
-  var waUrl = 'https://wa.me/15734125273?text=' + encodeURIComponent(waText);
-  var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=192x192&margin=8&data=' +
-    encodeURIComponent(waUrl);
-  var dlUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=20&data=' +
-    encodeURIComponent(waUrl);
-  var slug = venueName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  var slug = window._registeredSlug || val('venue-name').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  var venuePageUrl = 'https://loopref.com/places/venue/?slug=' + slug;
+  var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=256x256&margin=12&data=' +
+    encodeURIComponent(venuePageUrl);
+  var dlUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=800x800&margin=24&data=' +
+    encodeURIComponent(venuePageUrl);
   document.getElementById('confirm-qr-img').src = qrUrl;
-  document.getElementById('confirm-qr-wa').href = waUrl;
   document.getElementById('confirm-qr-dl').href = dlUrl;
   document.getElementById('confirm-qr-dl').setAttribute('download', 'loopref-' + slug + '-qr.png');
+  document.getElementById('confirm-qr-venue').href = venuePageUrl;
   document.getElementById('confirm-qr-wrap').style.display = 'flex';
 }
 
@@ -857,6 +849,7 @@ function submitForm() {
   .then(function(r){ return r.json(); })
   .then(function(result){
     if (result.error) throw new Error(result.error);
+    window._registeredSlug = result.slug;
     goTo(6);
   })
   .catch(function(err){
