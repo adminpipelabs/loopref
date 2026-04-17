@@ -5,149 +5,112 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Venue — LoopRef</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg: #0f172a; --surface: #1e293b; --surface2: #263348;
-      --border: #334155; --text: #f1f5f9; --muted: #94a3b8;
-      --accent: #6366f1; --accent-light: #818cf8; --green: #10b981;
-      --radius: 14px;
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --bg:#fffdf9;--surface:#fff;--surface-2:#f5f0e8;--surface-3:#ede5d8;
+      --ink:#1a1208;--ink-2:#5a4f40;--ink-3:#9a8a78;
+      --accent:#ff6b35;--accent-mid:#e55a24;--accent-dim:#ff6b3512;
+      --green:#00875a;--green-dim:#00875a12;
+      --border:#e8e0d0;--border-2:#d0c4b0;
     }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    html{scroll-behavior:smooth;}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;}
 
-    nav {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 24px; height: 60px; border-bottom: 1px solid var(--border);
-      position: sticky; top: 0; background: var(--bg); z-index: 100;
-    }
-    nav a.logo img { display: block; }
-    .back-link { font-size: 14px; color: var(--muted); text-decoration: none; display: flex; align-items: center; gap: 6px; }
-    .back-link:hover { color: var(--text); }
+    /* NAV */
+    nav{padding:0 56px;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(255,253,249,0.96);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);}
+    .logo{display:flex;align-items:center;gap:9px;text-decoration:none;}
+    .back-link{font-size:13px;color:var(--ink-2);text-decoration:none;font-weight:500;display:flex;align-items:center;gap:6px;transition:color .15s;}
+    .back-link:hover{color:var(--ink);}
 
-    .page { max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; }
+    .page{max-width:900px;margin:0 auto;padding:48px 56px 80px;}
 
-    /* ── Hero ── */
-    .venue-hero { position: relative; border-radius: var(--radius); overflow: hidden; margin-bottom: 32px; }
-    .photo-strip {
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr;
-      grid-template-rows: 260px;
-      gap: 4px;
-    }
-    .photo-strip .main { grid-row: 1 / 3; }
-    .photo-slot {
-      background: var(--surface2);
-      overflow: hidden;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 56px;
-    }
-    .photo-slot img { width: 100%; height: 100%; object-fit: cover; }
-    @media (max-width: 600px) {
-      .photo-strip { grid-template-columns: 1fr; grid-template-rows: 220px; }
-      .photo-strip .side { display: none; }
-    }
+    /* HERO PHOTO */
+    .venue-hero{position:relative;border-radius:12px;overflow:hidden;margin-bottom:32px;}
+    .photo-strip{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:240px;gap:4px;}
+    .photo-strip .main{grid-row:1/3;}
+    .photo-slot{background:var(--surface-2);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:48px;}
+    .photo-slot img{width:100%;height:100%;object-fit:cover;}
 
-    /* ── Info block ── */
-    .venue-info { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: start; margin-bottom: 32px; }
-    @media (max-width: 620px) { .venue-info { grid-template-columns: 1fr; } }
+    /* VENUE INFO */
+    .venue-info{margin-bottom:40px;}
+    .venue-cuisine{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:8px;}
+    .venue-name{font-family:'Fraunces',serif;font-size:clamp(28px,4vw,42px);font-weight:700;letter-spacing:-1px;line-height:1.1;margin-bottom:10px;color:var(--ink);}
+    .venue-tagline{font-size:15px;color:var(--ink-2);line-height:1.7;margin-bottom:16px;max-width:600px;}
+    .venue-meta{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--ink-3);}
+    .venue-meta span{display:flex;align-items:center;gap:5px;}
+    .venue-meta a{color:inherit;text-decoration:none;}
+    .venue-meta a:hover{color:var(--ink);}
 
-    .venue-name { font-size: clamp(26px, 4vw, 38px); font-weight: 800; letter-spacing: -0.5px; margin-bottom: 8px; }
-    .venue-cuisine {
-      display: inline-block; font-size: 12px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: .8px; color: var(--accent-light); margin-bottom: 12px;
-    }
-    .venue-tagline { font-size: 16px; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
-    .venue-meta { display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; color: var(--muted); }
-    .venue-meta span { display: flex; align-items: center; gap: 5px; }
+    /* SOCIAL LINKS */
+    .social-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;}
+    .social-btn{display:flex;align-items:center;gap:8px;padding:9px 16px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);text-decoration:none;color:var(--ink-2);font-size:12px;font-weight:600;transition:all .15s;}
+    .social-btn:hover{border-color:var(--accent);color:var(--accent);}
+    .social-btn svg{width:14px;height:14px;}
 
-    /* ── Offer box ── */
-    .offer-box {
-      background: linear-gradient(135deg, #1a2e1e, #1b2d3a);
-      border: 1px solid #2d4a33;
-      border-radius: var(--radius);
-      padding: 24px;
-      text-align: center;
-      min-width: 220px;
-    }
-    .offer-pct { font-size: 52px; font-weight: 900; color: var(--green); line-height: 1; }
-    .offer-label { font-size: 13px; color: #6ee7a0; margin-top: 4px; margin-bottom: 20px; }
-    .offer-btn {
-      display: block; width: 100%;
-      background: var(--green); color: #0f172a;
-      text-decoration: none; font-weight: 700; font-size: 14px;
-      padding: 12px; border-radius: 10px;
-      transition: opacity .15s;
-    }
-    .offer-btn:hover { opacity: .88; }
-    .offer-min { font-size: 11px; color: #6ee7a0; margin-top: 10px; }
+    /* INFO CARD */
+    .info-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:32px;}
+    .info-card-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:16px;}
+    .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .info-item{padding:14px;background:var(--surface-2);border-radius:8px;}
+    .info-item-label{font-size:11px;font-weight:600;color:var(--ink-3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
+    .info-item-value{font-size:15px;font-weight:700;color:var(--ink);}
 
-    /* ── How to claim ── */
-    .steps { margin-bottom: 40px; }
-    .steps h2 { font-size: 20px; font-weight: 700; margin-bottom: 20px; }
-    .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-    @media (max-width: 560px) { .steps-grid { grid-template-columns: 1fr; } }
-    .step {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 12px; padding: 20px; text-align: center;
-    }
-    .step-num {
-      width: 36px; height: 36px; border-radius: 50%;
-      background: rgba(99,102,241,.18); color: var(--accent-light);
-      font-weight: 800; font-size: 16px; display: inline-flex;
-      align-items: center; justify-content: center; margin-bottom: 12px;
-    }
-    .step h3 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
-    .step p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+    /* HOW IT WORKS */
+    .steps{margin-bottom:40px;}
+    .steps h2{font-family:'Fraunces',serif;font-size:24px;font-weight:700;margin-bottom:20px;letter-spacing:-0.5px;}
+    .steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+    .step{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;}
+    .step-num{width:32px;height:32px;border-radius:50%;background:var(--accent-dim);border:1px solid #ff6b3525;color:var(--accent);font-weight:700;font-size:13px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;}
+    .step h3{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:6px;}
+    .step p{font-size:12px;color:var(--ink-2);line-height:1.6;}
 
-    /* ── Photo gallery ── */
-    .gallery { margin-bottom: 40px; }
-    .gallery h2 { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
-    .gallery-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px;
-    }
-    .gallery-item {
-      aspect-ratio: 1; border-radius: 10px; overflow: hidden;
-      background: var(--surface2); cursor: pointer;
-    }
-    .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform .2s; }
-    .gallery-item:hover img { transform: scale(1.05); }
+    /* GALLERY */
+    .gallery{margin-bottom:40px;}
+    .gallery h2{font-family:'Fraunces',serif;font-size:24px;font-weight:700;margin-bottom:16px;letter-spacing:-0.5px;}
+    .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;}
+    .gallery-item{aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--surface-2);}
+    .gallery-item img{width:100%;height:100%;object-fit:cover;transition:transform .2s;}
+    .gallery-item:hover img{transform:scale(1.05);}
 
-    /* ── Socials ── */
-    .social-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
-    .social-btn {
-      display: flex; align-items: center; gap: 8px;
-      padding: 10px 18px; border-radius: 10px;
-      border: 1px solid var(--border); background: var(--surface);
-      text-decoration: none; color: var(--muted); font-size: 13px;
-      font-weight: 600; transition: all .15s;
-    }
-    .social-btn:hover { border-color: var(--accent); color: var(--text); }
+    /* NOT FOUND */
+    .not-found{text-align:center;padding:100px 24px;color:var(--ink-3);}
+    .not-found h2{font-family:'Fraunces',serif;font-size:28px;color:var(--ink);margin-bottom:12px;}
+    .not-found a{color:var(--accent);text-decoration:none;font-weight:600;}
 
-    /* ── Not found ── */
-    .not-found { text-align: center; padding: 100px 24px; color: var(--muted); }
-    .not-found h2 { font-size: 24px; color: var(--text); margin-bottom: 12px; }
+    /* FOOTER */
+    .powered{text-align:center;font-size:12px;color:var(--ink-3);padding:32px 0 16px;border-top:1px solid var(--border);}
+    .powered a{color:var(--accent);text-decoration:none;font-weight:600;}
 
-    .powered {
-      text-align: center; font-size: 12px; color: var(--muted); padding: 32px 0 16px;
+    @media(max-width:700px){
+      nav{padding:0 20px;}
+      .page{padding:32px 20px 60px;}
+      .photo-strip{grid-template-columns:1fr;grid-template-rows:200px;}
+      .photo-strip .side{display:none;}
+      .info-grid{grid-template-columns:1fr;}
+      .steps-grid{grid-template-columns:1fr;}
     }
-    .powered a { color: var(--accent-light); text-decoration: none; }
   </style>
 </head>
 <body>
 
 <nav>
-  <a class="logo" href="/"><img src="/logo-white.svg" alt="LoopRef" height="32"></a>
-  <a class="back-link" href="/places">← All venues</a>
+  <a href="/" class="logo">
+    <img src="/logo.svg" alt="LoopRef" height="36">
+  </a>
+  <a class="back-link" href="/places">&larr; All venues</a>
 </nav>
 
 <div class="page" id="page-content">
-  <!-- Loaded by JS -->
-  <div style="text-align:center;padding:80px;color:#64748b">Loading venue…</div>
+  <div style="text-align:center;padding:80px;color:var(--ink-3)">Loading venue...</div>
 </div>
 
 <script>
-  const params = new URLSearchParams(location.search);
-  const slug = params.get('slug') || params.get('id');
+  var params = new URLSearchParams(location.search);
+  var slug = params.get('slug') || params.get('id');
 
   if (!slug) {
     document.getElementById('page-content').innerHTML = notFoundHtml('No venue specified.');
@@ -157,132 +120,100 @@
 
   async function loadVenue(slug) {
     try {
-      const res = await fetch(`/api/places/${slug}`);
+      var res = await fetch('/api/places/' + slug);
       if (!res.ok) throw new Error('not found');
-      const v = await res.json();
+      var v = await res.json();
       renderVenue(v);
-      // Update page title and OG
-      document.title = `${v.name} — LoopRef`;
-    } catch {
-      document.getElementById('page-content').innerHTML = notFoundHtml(`We couldn't find that venue.`);
+      document.title = v.name + ' — LoopRef';
+    } catch(e) {
+      document.getElementById('page-content').innerHTML = notFoundHtml("We couldn't find that venue.");
     }
   }
 
   function renderVenue(v) {
-    const photos = v.photos || [];
-    const mainPhoto = photos[0];
-    const side1 = photos[1];
-    const side2 = photos[2];
-    const emoji = cuisineEmoji(v.cuisine);
+    var photos = v.photos || [];
+    var mainPhoto = photos[0];
+    var side1 = photos[1];
+    var side2 = photos[2];
+    var emoji = cuisineEmoji(v.cuisine);
 
-    const photoStripHtml = `
-      <div class="photo-strip">
-        <div class="photo-slot main">
-          ${mainPhoto ? `<img src="${mainPhoto.photo_url}" alt="${v.name}">` : emoji}
-        </div>
-        <div class="photo-slot side">
-          ${side1 ? `<img src="${side1.photo_url}" alt="${side1.dish_name || v.name}">` : ''}
-        </div>
-        <div class="photo-slot side">
-          ${side2 ? `<img src="${side2.photo_url}" alt="${side2.dish_name || v.name}">` : ''}
-        </div>
-      </div>`;
+    var photoStripHtml =
+      '<div class="photo-strip">' +
+        '<div class="photo-slot main">' +
+          (mainPhoto ? '<img src="' + mainPhoto.photo_url + '" alt="' + v.name + '">' : emoji) +
+        '</div>' +
+        '<div class="photo-slot side">' +
+          (side1 ? '<img src="' + side1.photo_url + '" alt="' + (side1.dish_name || v.name) + '">' : '') +
+        '</div>' +
+        '<div class="photo-slot side">' +
+          (side2 ? '<img src="' + side2.photo_url + '" alt="' + (side2.dish_name || v.name) + '">' : '') +
+        '</div>' +
+      '</div>';
 
-    const galleryPhotos = photos.slice(3);
-    const galleryHtml = galleryPhotos.length ? `
-      <div class="gallery">
-        <h2>More photos</h2>
-        <div class="gallery-grid">
-          ${galleryPhotos.map(p => `
-            <div class="gallery-item">
-              <img src="${p.photo_url}" alt="${p.dish_name || v.name}" loading="lazy">
-            </div>`).join('')}
-        </div>
-      </div>` : '';
+    var galleryPhotos = photos.slice(3);
+    var galleryHtml = '';
+    if (galleryPhotos.length) {
+      galleryHtml = '<div class="gallery"><h2>More photos</h2><div class="gallery-grid">' +
+        galleryPhotos.map(function(p) {
+          return '<div class="gallery-item"><img src="' + p.photo_url + '" alt="' + (p.dish_name || v.name) + '" loading="lazy"></div>';
+        }).join('') +
+        '</div></div>';
+    }
 
-    const websiteLink = v.website ? `<a class="social-btn" href="${v.website}" target="_blank" rel="noopener">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-        Website
-      </a>` : '';
-    const igLink = v.instagram_handle ? `<a class="social-btn" href="https://instagram.com/${v.instagram_handle.replace('@','')}" target="_blank" rel="noopener">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor"/></svg>
-        @${v.instagram_handle.replace('@','')}
-      </a>` : '';
+    var websiteLink = v.website ? '<a class="social-btn" href="' + v.website + '" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>Website</a>' : '';
+    var igLink = v.instagram_handle ? '<a class="social-btn" href="https://instagram.com/' + v.instagram_handle.replace('@','') + '" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg>@' + v.instagram_handle.replace('@','') + '</a>' : '';
 
-    document.getElementById('page-content').innerHTML = `
-      <div class="venue-hero">${photoStripHtml}</div>
+    document.getElementById('page-content').innerHTML =
+      '<div class="venue-hero">' + photoStripHtml + '</div>' +
 
-      <div class="venue-info">
-        <div>
-          ${v.cuisine ? `<span class="venue-cuisine">${v.cuisine}</span>` : ''}
-          <h1 class="venue-name">${v.name}</h1>
-          ${v.tagline ? `<p class="venue-tagline">${v.tagline}</p>` : ''}
-          <div class="venue-meta">
-            ${v.city ? `<span>📍 ${v.city}${v.state ? ', ' + v.state : ''}</span>` : ''}
-            ${v.address ? `<span>🏠 ${v.address}</span>` : ''}
-            ${v.phone ? `<span>📞 <a href="tel:${v.phone}" style="color:inherit">${v.phone}</a></span>` : ''}
-          </div>
-          <div class="social-row">
-            ${websiteLink}${igLink}
-          </div>
-        </div>
+      '<div class="venue-info">' +
+        (v.cuisine ? '<span class="venue-cuisine">' + v.cuisine + '</span>' : '') +
+        '<h1 class="venue-name">' + v.name + '</h1>' +
+        (v.tagline ? '<p class="venue-tagline">' + v.tagline + '</p>' : '') +
+        '<div class="venue-meta">' +
+          (v.city ? '<span>&#128205; ' + v.city + (v.state ? ', ' + v.state : '') + '</span>' : '') +
+          (v.address ? '<span>' + v.address + '</span>' : '') +
+          (v.phone ? '<span><a href="tel:' + v.phone + '">' + v.phone + '</a></span>' : '') +
+        '</div>' +
+        '<div class="social-row">' + websiteLink + igLink + '</div>' +
+      '</div>' +
 
-        <div class="offer-box">
-          <div class="offer-pct">${v.discount_pct || 20}%</div>
-          <div class="offer-label">off your visit</div>
-          <a class="offer-btn" href="https://wa.me/15734125273?text=${encodeURIComponent(`Hi! I want to claim my LoopRef discount at ${v.name} in ${v.city}.`)}" target="_blank">
-            Claim Discount
-          </a>
-          <div class="offer-min">Min. spend $${v.min_spend || 12} · Powered by LoopRef</div>
-        </div>
-      </div>
+      '<div class="steps">' +
+        '<h2>How <em>LoopRef</em> works</h2>' +
+        '<div class="steps-grid">' +
+          '<div class="step"><div class="step-num">1</div><h3>Visit &amp; enjoy</h3><p>Head to ' + v.name + ' and enjoy your meal or experience.</p></div>' +
+          '<div class="step"><div class="step-num">2</div><h3>Share on social</h3><p>Post a photo or video on Instagram, TikTok, or X and tag the venue.</p></div>' +
+          '<div class="step"><div class="step-num">3</div><h3>Friends get invited</h3><p>Your friends see your post and discover a great venue through you.</p></div>' +
+        '</div>' +
+      '</div>' +
 
-      <div class="steps">
-        <h2>How to claim your offer</h2>
-        <div class="steps-grid">
-          <div class="step">
-            <div class="step-num">1</div>
-            <h3>Visit &amp; enjoy</h3>
-            <p>Head to ${v.name} and spend at least $${v.min_spend || 12}.</p>
-          </div>
-          <div class="step">
-            <div class="step-num">2</div>
-            <h3>Post &amp; share</h3>
-            <p>Post a photo or video on Instagram, TikTok, or Snapchat and tag LoopRef.</p>
-          </div>
-          <div class="step">
-            <div class="step-num">3</div>
-            <h3>Get your discount</h3>
-            <p>Tap "Claim Discount" and message LoopRef on WhatsApp to verify and redeem.</p>
-          </div>
-        </div>
-      </div>
+      galleryHtml +
 
-      ${galleryHtml}
-
-      <div class="powered">
-        Exclusive offer powered by <a href="/">LoopRef</a> ·
-        <a href="/places">Browse all venues</a> ·
-        <a href="/register">List your venue</a>
-      </div>`;
+      '<div class="powered">' +
+        'Powered by <a href="/">LoopRef</a> &middot; ' +
+        '<a href="/places">Browse all venues</a> &middot; ' +
+        '<a href="/register">List your venue</a>' +
+      '</div>';
   }
 
   function notFoundHtml(msg) {
-    return `<div class="not-found">
-      <div style="font-size:48px;margin-bottom:16px">🔍</div>
-      <h2>Venue not found</h2>
-      <p>${msg}</p>
-      <a href="/places" style="display:inline-block;margin-top:24px;color:var(--accent-light)">← Back to directory</a>
-    </div>`;
+    return '<div class="not-found">' +
+      '<div style="font-size:48px;margin-bottom:16px">&#128269;</div>' +
+      '<h2>Venue not found</h2>' +
+      '<p>' + msg + '</p>' +
+      '<a href="/places" style="display:inline-block;margin-top:24px">&larr; Back to directory</a>' +
+    '</div>';
   }
 
-  const EMOJI = {
-    'ice cream': '🍦', 'pizza': '🍕', 'ramen': '🍜', 'tacos': '🌮',
-    'sushi': '🍣', 'burgers': '🍔', 'coffee': '☕', 'default': '🍽️'
+  var EMOJI = {
+    'deli':'&#129386;','bakery':'&#129360;','italian':'&#127837;','seafood':'&#129438;',
+    'mexican':'&#127790;','pizza':'&#127829;','bbq':'&#127830;','steakhouse':'&#129385;',
+    'burgers':'&#127828;','coffee':'&#9749;','chinese':'&#129375;','cuban':'&#127865;',
+    'indian':'&#127835;','ethiopian':'&#127858;','restaurant':'&#127869;','default':'&#127869;'
   };
   function cuisineEmoji(c) {
-    if (!c) return EMOJI.default;
-    return EMOJI[c.toLowerCase()] || EMOJI.default;
+    if (!c) return EMOJI['default'];
+    return EMOJI[c.toLowerCase()] || EMOJI['default'];
   }
 </script>
 </body>
