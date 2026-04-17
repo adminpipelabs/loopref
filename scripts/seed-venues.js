@@ -120,21 +120,25 @@ function seedVenue(db, venue) {
   return { id: r.lastInsertRowid, slug, skipped: false };
 }
 
-// ─── Run ─────────────────────────────────────────────────────────────────────
+// ─── Exported seed function (called from server.js on first boot) ────────────
 
-initDb();
-const db = getDb();
-
-console.log(`\nSeeding ${venues.length} venues...\n`);
-
-let added = 0, skipped = 0;
-for (const venue of venues) {
-  const result = seedVenue(db, venue);
-  if (result.skipped) skipped++; else added++;
+function seedAll(db) {
+  let added = 0, skipped = 0;
+  for (const venue of venues) {
+    const result = seedVenue(db, venue);
+    if (result.skipped) skipped++; else added++;
+  }
+  console.log(`Seeded: ${added} added, ${skipped} skipped (${venues.length} total)`);
+  return { added, skipped };
 }
 
-console.log(`\n═══════════════════════════════════`);
-console.log(`  Added:   ${added}`);
-console.log(`  Skipped: ${skipped} (already existed)`);
-console.log(`  Total:   ${venues.length}`);
-console.log(`═══════════════════════════════════\n`);
+module.exports = { seedAll, venues };
+
+// ─── CLI: node scripts/seed-venues.js ────────────────────────────────────────
+
+if (require.main === module) {
+  initDb();
+  const db = getDb();
+  console.log(`\nSeeding ${venues.length} venues...\n`);
+  seedAll(db);
+}

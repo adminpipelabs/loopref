@@ -43,9 +43,16 @@ app.get('*', (req, res, next) => {
   });
 });
 
-// Init DB then start
+// Init DB, auto-seed if empty, then start
 try {
   initDb();
+  const { getDb } = require('./database/db');
+  const count = getDb().prepare('SELECT COUNT(*) as n FROM restaurants').get().n;
+  if (count === 0) {
+    console.log('Empty database detected — seeding venues...');
+    const { seedAll } = require('./scripts/seed-venues');
+    seedAll(getDb());
+  }
   startScheduler();
 } catch (err) {
   console.error('Startup error:', err);
