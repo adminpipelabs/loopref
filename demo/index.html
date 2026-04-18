@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LoopRef Demo — How it works</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --bg:#0d0805;--ink-on-dark:#fff9f0;--ink-dim:#b5a88f;--ink-dimmer:#7a6040;
+      --accent:#ff6b35;
+      --cream:#fffdf9;--cream-surface:#fff;--cream-border:#e8e0d0;
+      --warm-ink:#1a1208;--warm-ink-2:#5a4f40;--warm-ink-3:#9a8a78;
+      --green:#00875a;--green-dim:#00875a12;
+      --accent-dim:#ff6b3512;
+    }
+    html,body{height:100%;overflow:hidden;}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:radial-gradient(ellipse at center, #1a1208 0%, #0d0805 70%);color:var(--ink-on-dark);min-height:100vh;display:grid;grid-template-columns:1fr auto 1fr;gap:40px;align-items:center;padding:40px;}
+
+    /* LEFT PANEL */
+    .left{text-align:right;max-width:360px;justify-self:end;}
+    .eyebrow{font-size:11px;color:var(--accent);letter-spacing:0.2em;font-weight:700;margin-bottom:12px;text-transform:uppercase;}
+    .title{font-family:'Fraunces',serif;font-size:42px;font-weight:700;letter-spacing:-1px;line-height:1.05;margin-bottom:16px;}
+    .title em{font-style:italic;color:var(--accent);}
+    .subtitle{font-size:14px;color:var(--ink-dim);line-height:1.6;}
+
+    /* PHONE */
+    .phone{position:relative;width:290px;height:600px;background:#1a1208;border-radius:38px;padding:8px;box-shadow:0 30px 80px rgba(0,0,0,0.6),0 0 0 2px rgba(255,255,255,0.04);}
+    .phone-notch{position:absolute;top:14px;left:50%;transform:translateX(-50%);width:90px;height:20px;background:#000;border-radius:0 0 14px 14px;z-index:10;}
+    .phone-screen{width:100%;height:100%;background:var(--cream);border-radius:30px;overflow:hidden;position:relative;}
+
+    .slide{position:absolute;inset:0;opacity:0;transition:opacity 0.7s ease;padding:44px 18px 18px;background:var(--cream);color:var(--warm-ink);overflow:hidden;}
+    .slide.active{opacity:1;z-index:2;}
+
+    /* RIGHT PANEL */
+    .right{max-width:320px;justify-self:start;}
+    .caption-num{display:inline-block;font-family:'Fraunces',serif;font-size:54px;font-weight:700;color:var(--accent);line-height:1;margin-bottom:12px;font-style:italic;}
+    .caption-title{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--ink-on-dark);margin-bottom:10px;letter-spacing:-0.5px;line-height:1.2;}
+    .caption-desc{font-size:14px;color:var(--ink-dim);line-height:1.6;margin-bottom:28px;}
+
+    .progress-bar{display:flex;gap:6px;align-items:center;margin-bottom:20px;}
+    .dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.15);cursor:pointer;transition:all 0.3s;}
+    .dot.active{background:var(--accent);width:24px;border-radius:3px;}
+    .dot.done{background:rgba(255,107,53,0.35);}
+
+    .controls{display:flex;gap:8px;}
+    .ctrl-btn{padding:8px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);color:var(--ink-on-dark);cursor:pointer;border-radius:8px;font-size:12px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;transition:background .15s;}
+    .ctrl-btn:hover{background:rgba(255,255,255,0.12);}
+
+    /* ═══ TITLE SLIDE ═══ */
+    .s-title{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 20px;}
+    .s-title-logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:34px;color:var(--warm-ink);margin-bottom:32px;}
+    .s-title-logo span{color:var(--accent);}
+    .s-title h2{font-family:'Fraunces',serif;font-size:26px;line-height:1.15;color:var(--warm-ink);margin-bottom:14px;letter-spacing:-0.5px;}
+    .s-title h2 em{font-style:italic;color:var(--accent);}
+    .s-title p{font-size:13px;color:var(--warm-ink-2);line-height:1.6;}
+
+    /* ═══ HOMEPAGE ═══ */
+    .s-home{padding:0;}
+    .home-nav{height:44px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--cream-border);margin-top:36px;}
+    .home-nav-logo{font-weight:800;font-size:15px;color:var(--warm-ink);}
+    .home-nav-logo span{color:var(--accent);}
+    .home-nav-cta{padding:6px 12px;background:var(--accent);color:#fff;border-radius:6px;font-size:10px;font-weight:700;}
+    .home-body{padding:22px 18px;}
+    .home-tag{display:inline-block;background:var(--accent-dim);color:var(--accent);padding:3px 10px;border-radius:14px;font-size:10px;font-weight:700;margin-bottom:14px;}
+    .home-h1{font-family:'Fraunces',serif;font-size:22px;font-weight:700;line-height:1.1;color:var(--warm-ink);margin-bottom:10px;letter-spacing:-0.5px;}
+    .home-h1 em{font-style:italic;color:var(--accent);}
+    .home-p{font-size:11px;color:var(--warm-ink-2);line-height:1.5;margin-bottom:18px;}
+    .home-btn{padding:10px 16px;background:var(--accent);color:#fff;border-radius:7px;font-size:11px;font-weight:700;display:inline-block;}
+
+    /* ═══ BROWSE ═══ */
+    .s-browse{padding:52px 16px 18px;overflow:hidden;}
+    .browse-h1{font-family:'Fraunces',serif;font-size:18px;font-weight:700;line-height:1.15;color:var(--warm-ink);margin-bottom:6px;text-align:center;}
+    .browse-h1 em{font-style:italic;color:var(--accent);}
+    .browse-p{font-size:10px;color:var(--warm-ink-2);text-align:center;margin-bottom:14px;}
+    .browse-search{background:var(--cream-surface);border:1.5px solid var(--cream-border);padding:8px 12px;border-radius:7px;font-size:10px;color:var(--warm-ink-3);margin-bottom:10px;}
+    .browse-chips{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;}
+    .chip{padding:3px 9px;border-radius:14px;border:1px solid var(--cream-border);font-size:9px;background:var(--cream-surface);font-weight:600;color:var(--warm-ink-2);}
+    .chip.active{border-color:var(--accent);color:var(--accent);background:var(--accent-dim);}
+    .browse-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+    .browse-card{background:var(--cream-surface);border:1px solid var(--cream-border);border-radius:8px;overflow:hidden;}
+    .browse-card-img{height:54px;background:var(--cream-border);display:flex;align-items:center;justify-content:center;font-size:22px;}
+    .browse-card-body{padding:6px 9px;}
+    .browse-card-cuisine{font-size:7px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:0.08em;}
+    .browse-card-name{font-size:10px;font-weight:700;margin:2px 0;color:var(--warm-ink);}
+    .browse-card-city{font-size:8px;color:var(--warm-ink-3);}
+
+    /* ═══ VENUE DETAIL ═══ */
+    .s-venue{padding:50px 18px 18px;}
+    .venue-photo{height:100px;background:linear-gradient(135deg,#ffeedd,#f5e0c8);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:40px;margin-bottom:14px;}
+    .venue-cuisine{font-size:9px;color:var(--accent);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;}
+    .venue-name{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--warm-ink);line-height:1.1;letter-spacing:-0.5px;margin:4px 0 6px;}
+    .venue-tagline{font-size:11px;color:var(--warm-ink-2);line-height:1.4;margin-bottom:10px;}
+    .venue-offer{background:var(--green-dim);border:1px solid #00875a25;border-radius:8px;padding:9px 10px;margin-bottom:8px;font-size:10px;color:var(--warm-ink-2);line-height:1.4;}
+    .venue-offer strong{color:var(--green);font-size:12px;}
+    .venue-meta{font-size:9px;color:var(--warm-ink-3);margin-top:6px;}
+
+    /* ═══ SHARE CARD ═══ */
+    .s-share{padding:40px 18px;display:flex;flex-direction:column;justify-content:center;}
+    .share-box{background:var(--cream-surface);border:1px solid var(--cream-border);border-radius:12px;padding:18px;}
+    .share-box h3{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--warm-ink);line-height:1.15;margin-bottom:8px;letter-spacing:-0.3px;}
+    .share-box h3 em{font-style:italic;color:var(--accent);}
+    .share-box p{font-size:10px;color:var(--warm-ink-2);line-height:1.5;margin-bottom:12px;}
+    .share-box p strong{color:var(--warm-ink);}
+    .share-input{width:100%;padding:8px 11px;border:1.5px solid var(--cream-border);border-radius:6px;font-size:10px;font-family:'Plus Jakarta Sans',sans-serif;margin-bottom:7px;color:var(--warm-ink);background:var(--cream);}
+    .share-btn-main{width:100%;padding:10px;background:var(--accent);color:#fff;border-radius:6px;font-size:11px;font-weight:700;margin-top:4px;text-align:center;}
+
+    /* ═══ SHARE BUTTONS ═══ */
+    .s-buttons{padding:40px 16px;display:flex;flex-direction:column;justify-content:center;}
+    .buttons-box{background:var(--cream-surface);border:1px solid var(--cream-border);border-radius:12px;padding:16px;}
+    .buttons-box h3{font-family:'Fraunces',serif;font-size:16px;font-weight:700;color:var(--warm-ink);line-height:1.15;margin-bottom:12px;letter-spacing:-0.3px;}
+    .buttons-box h3 em{font-style:italic;color:var(--accent);}
+    .share-url-row{display:flex;gap:5px;margin-bottom:10px;}
+    .share-url{flex:1;padding:7px 9px;background:var(--cream);border:1.5px solid var(--cream-border);border-radius:6px;font-size:9px;color:var(--warm-ink-3);font-family:monospace;}
+    .copy-btn{padding:7px 11px;background:var(--warm-ink);color:#fff;border-radius:6px;font-size:9px;font-weight:700;}
+    .channel-row{display:flex;align-items:center;gap:7px;padding:7px 10px;border:1.5px solid var(--cream-border);border-radius:6px;margin-bottom:5px;font-size:10px;font-weight:600;color:var(--warm-ink-2);background:var(--cream-surface);}
+    .channel-icon{width:14px;height:14px;border-radius:3px;display:inline-block;flex-shrink:0;}
+
+    /* ═══ FRIEND VERIFY ═══ */
+    .s-verify{padding:40px 18px;display:flex;flex-direction:column;justify-content:center;}
+    .verify-banner{background:var(--accent-dim);border:1px solid #ff6b3525;border-radius:12px;padding:16px;}
+    .verify-title{display:flex;align-items:center;gap:7px;color:var(--accent);font-weight:700;font-size:12px;margin-bottom:10px;line-height:1.3;}
+    .verify-heart{width:14px;height:14px;flex-shrink:0;}
+    .verify-p{font-size:10px;color:var(--warm-ink-2);margin-bottom:12px;line-height:1.5;}
+    .verify-form{display:flex;gap:5px;}
+    .verify-form input{flex:1;padding:7px 9px;border:1.5px solid var(--cream-border);border-radius:6px;font-size:10px;background:var(--cream-surface);color:var(--warm-ink);}
+    .verify-form button{padding:7px 12px;background:var(--accent);color:#fff;border-radius:6px;font-size:10px;font-weight:700;}
+
+    /* ═══ VALID CLAIM ═══ */
+    .s-claim{padding:40px 18px;display:flex;flex-direction:column;justify-content:center;}
+    .claim-box{background:var(--cream-surface);border:2px solid var(--green);border-radius:14px;padding:22px 18px;text-align:center;box-shadow:0 4px 20px rgba(0,135,90,0.1);}
+    .claim-check{width:54px;height:54px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;}
+    .claim-check svg{stroke:#fff;stroke-width:3;width:26px;height:26px;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+    .claim-status{font-family:'Fraunces',serif;font-size:19px;font-weight:700;color:var(--green);margin-bottom:4px;letter-spacing:-0.3px;}
+    .claim-venue{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--warm-ink);margin-bottom:8px;}
+    .claim-discount{font-size:11px;color:var(--warm-ink-2);margin-bottom:14px;}
+    .claim-discount strong{color:var(--accent);font-weight:700;}
+    .claim-code-box{background:var(--accent-dim);border:2px dashed var(--accent);border-radius:10px;padding:12px;margin-bottom:12px;}
+    .claim-code-label{font-size:8px;color:var(--warm-ink-3);letter-spacing:0.12em;margin-bottom:3px;}
+    .claim-code-value{font-family:monospace;font-size:20px;font-weight:800;color:var(--warm-ink);letter-spacing:2px;}
+    .redeem-btn{width:100%;padding:10px;background:var(--warm-ink);color:#fff;border-radius:8px;font-size:11px;font-weight:700;}
+
+    /* ═══ REDEEMED ═══ */
+    .s-redeemed{padding:40px 18px;display:flex;flex-direction:column;justify-content:center;}
+    .redeemed-box{background:#f5f0e8;border:2px solid #9a8a78;border-radius:14px;padding:22px 18px;text-align:center;}
+    .redeemed-check{width:54px;height:54px;border-radius:50%;background:#9a8a78;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;color:#fff;font-size:28px;}
+    .redeemed-status{font-family:'Fraunces',serif;font-size:19px;font-weight:700;color:#5a4f40;margin-bottom:4px;letter-spacing:-0.3px;}
+    .redeemed-venue{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--warm-ink);margin-bottom:12px;}
+    .redeemed-row{display:flex;justify-content:space-between;padding:7px 0;border-top:1px solid var(--cream-border);font-size:10px;}
+    .redeemed-row:first-child{border-top:none;}
+    .redeemed-label{color:var(--warm-ink-3);}
+    .redeemed-value{color:var(--warm-ink);font-weight:600;}
+    .redeemed-value.mono{font-family:monospace;}
+
+    /* ═══ END CARD ═══ */
+    .s-end{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 22px;}
+    .s-end-logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:28px;color:var(--warm-ink);margin-bottom:24px;}
+    .s-end-logo span{color:var(--accent);}
+    .s-end h2{font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:var(--warm-ink);margin-bottom:10px;line-height:1.15;letter-spacing:-0.5px;}
+    .s-end h2 em{font-style:italic;color:var(--accent);}
+    .s-end p{font-size:12px;color:var(--warm-ink-2);line-height:1.6;margin-bottom:22px;}
+    .s-end-cta{padding:12px 26px;background:var(--accent);color:#fff;border-radius:8px;font-size:12px;font-weight:700;display:inline-block;}
+
+    /* Responsive — stack on mobile */
+    @media(max-width:900px){
+      body{grid-template-columns:1fr;gap:24px;padding:24px;text-align:center;}
+      .left{justify-self:center;text-align:center;}
+      .right{justify-self:center;text-align:center;}
+      .progress-bar,.controls{justify-content:center;}
+      .title{font-size:30px;}
+      .caption-num{font-size:42px;}
+      .phone{transform:scale(0.95);}
+    }
+  </style>
+</head>
+<body>
+
+<div class="left">
+  <div class="eyebrow">LoopRef &middot; Product demo</div>
+  <h1 class="title">How it <em>works</em></h1>
+  <p class="subtitle">From venue signup to customer referral — the full 30-second tour.</p>
+</div>
+
+<div class="phone">
+  <div class="phone-notch"></div>
+  <div class="phone-screen">
+
+    <!-- 0: Title -->
+    <div class="slide active" data-num="01" data-title="Start here" data-desc="A quick tour of how LoopRef works.">
+      <div class="s-title">
+        <div class="s-title-logo">loop<span>ref</span></div>
+        <h2>Real discounts.<br><em>Real places.</em></h2>
+        <p>Free to list &middot; Pay only for verified reach</p>
+      </div>
+    </div>
+
+    <!-- 1: Homepage -->
+    <div class="slide s-home" data-num="02" data-title="Customers land on LoopRef" data-desc="Finding local venues that offer rewards for sharing.">
+      <div class="home-nav">
+        <div class="home-nav-logo">loop<span>ref</span></div>
+        <div class="home-nav-cta">Find venues</div>
+      </div>
+      <div class="home-body">
+        <div class="home-tag">&bull; Free to use</div>
+        <h1 class="home-h1">Get rewarded at your <em>favourite</em> restaurants</h1>
+        <p class="home-p">Find venues near you offering real discounts. Share with friends, unlock your reward.</p>
+        <div class="home-btn">Find venues &rarr;</div>
+      </div>
+    </div>
+
+    <!-- 2: Browse -->
+    <div class="slide s-browse" data-num="03" data-title="Browse the directory" data-desc="69 venues across NYC, LA, Chicago, and Miami — more coming weekly.">
+      <h2 class="browse-h1">Find venues with <em>offers</em></h2>
+      <p class="browse-p">69 venues and counting</p>
+      <div class="browse-search">&#128269; Search venues...</div>
+      <div class="browse-chips">
+        <div class="chip active">All</div>
+        <div class="chip">Italian</div>
+        <div class="chip">Pizza</div>
+      </div>
+      <div class="browse-grid">
+        <div class="browse-card">
+          <div class="browse-card-img">&#127837;</div>
+          <div class="browse-card-body">
+            <div class="browse-card-cuisine">ITALIAN</div>
+            <div class="browse-card-name">Rao's</div>
+            <div class="browse-card-city">New York</div>
+          </div>
+        </div>
+        <div class="browse-card">
+          <div class="browse-card-img">&#127829;</div>
+          <div class="browse-card-body">
+            <div class="browse-card-cuisine">PIZZA</div>
+            <div class="browse-card-name">Joe's Pizza</div>
+            <div class="browse-card-city">New York</div>
+          </div>
+        </div>
+        <div class="browse-card">
+          <div class="browse-card-img">&#127790;</div>
+          <div class="browse-card-body">
+            <div class="browse-card-cuisine">MEXICAN</div>
+            <div class="browse-card-name">El Cholo</div>
+            <div class="browse-card-city">Los Angeles</div>
+          </div>
+        </div>
+        <div class="browse-card">
+          <div class="browse-card-img">&#129386;</div>
+          <div class="browse-card-body">
+            <div class="browse-card-cuisine">DELI</div>
+            <div class="browse-card-name">Katz's</div>
+            <div class="browse-card-city">New York</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3: Venue detail -->
+    <div class="slide s-venue" data-num="04" data-title="Pick a venue" data-desc="See the venue details and what discount awaits.">
+      <div class="venue-photo">&#127837;</div>
+      <div class="venue-cuisine">ITALIAN</div>
+      <h2 class="venue-name">Rao's</h2>
+      <p class="venue-tagline">Classic New York Italian — since 1896</p>
+      <div class="venue-offer">
+        <strong>15% off</strong> when you spend $50+ and share with friends
+      </div>
+      <div class="venue-meta">&#128205; New York, NY</div>
+    </div>
+
+    <!-- 4: Share card -->
+    <div class="slide s-share" data-num="05" data-title="Share to unlock" data-desc="Customer enters name + email, shares with friends.">
+      <div class="share-box">
+        <h3>Share &amp; unlock <em>15% off</em></h3>
+        <p>When <strong>3 real people</strong> confirm they received your referral, you unlock your discount code.</p>
+        <input class="share-input" type="text" value="Ana">
+        <input class="share-input" type="email" value="ana@example.com">
+        <div class="share-btn-main">Get your share link</div>
+      </div>
+    </div>
+
+    <!-- 5: Share buttons -->
+    <div class="slide s-buttons" data-num="06" data-title="Share on any channel" data-desc="WhatsApp, Instagram, TikTok, Snapchat — wherever their friends are.">
+      <div class="buttons-box">
+        <h3>Share on <em>any channel</em></h3>
+        <div class="share-url-row">
+          <div class="share-url">loopref.com/r/a3f8b2</div>
+          <div class="copy-btn">Copy</div>
+        </div>
+        <div class="channel-row">
+          <div class="channel-icon" style="background:#25d366;"></div>WhatsApp
+        </div>
+        <div class="channel-row">
+          <div class="channel-icon" style="background:linear-gradient(45deg,#f09433,#bc1888);"></div>Instagram
+        </div>
+        <div class="channel-row">
+          <div class="channel-icon" style="background:#000;"></div>TikTok
+        </div>
+        <div class="channel-row">
+          <div class="channel-icon" style="background:#FFFC00;"></div>Snapchat
+        </div>
+      </div>
+    </div>
+
+    <!-- 6: Friend verifies -->
+    <div class="slide s-verify" data-num="07" data-title="Friends verify" data-desc="Each friend enters their name to confirm — no bots, no fake clicks.">
+      <div class="verify-banner">
+        <div class="verify-title">
+          <svg class="verify-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          A friend invited you to Rao's!
+        </div>
+        <p class="verify-p">Enter your name to confirm you received this referral.</p>
+        <div class="verify-form">
+          <input type="text" value="Sarah">
+          <button>Confirm</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7: Valid claim -->
+    <div class="slide s-claim" data-num="08" data-title="Claim code unlocks" data-desc="Once 3 friends confirm, the customer's claim code is emailed automatically.">
+      <div class="claim-box">
+        <div class="claim-check">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="claim-status">Valid discount</div>
+        <div class="claim-venue">Rao's</div>
+        <div class="claim-discount"><strong>15% off</strong> when you spend $50+</div>
+        <div class="claim-code-box">
+          <div class="claim-code-label">CLAIM CODE</div>
+          <div class="claim-code-value">RAOS-A3F9</div>
+        </div>
+        <div class="redeem-btn">Show at venue &rarr;</div>
+      </div>
+    </div>
+
+    <!-- 8: Redeemed -->
+    <div class="slide s-redeemed" data-num="09" data-title="Staff redeems" data-desc="Customer shows phone. Staff taps 'Mark as redeemed'. Done.">
+      <div class="redeemed-box">
+        <div class="redeemed-check">&#10003;</div>
+        <div class="redeemed-status">Redeemed</div>
+        <div class="redeemed-venue">Rao's</div>
+        <div class="redeemed-row">
+          <span class="redeemed-label">Redeemed</span>
+          <span class="redeemed-value">Apr 18, 5:56 PM</span>
+        </div>
+        <div class="redeemed-row">
+          <span class="redeemed-label">Customer</span>
+          <span class="redeemed-value">Ana</span>
+        </div>
+        <div class="redeemed-row">
+          <span class="redeemed-label">Code</span>
+          <span class="redeemed-value mono">RAOS-A3F9</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9: End -->
+    <div class="slide s-end" data-num="10" data-title="Free service. Real results." data-desc="Venues only pay $1 per verified referral. Zero risk.">
+      <div>
+        <div class="s-end-logo">loop<span>ref</span></div>
+        <h2>Free service.<br><em>Real results.</em></h2>
+        <p>$1 per verified referral.<br>No monthly fees. No risk.</p>
+        <div class="s-end-cta">loopref.com</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="right">
+  <div class="caption-num" id="cap-num">01</div>
+  <div class="caption-title" id="cap-title">Start here</div>
+  <div class="caption-desc" id="cap-desc">A quick tour of how LoopRef works.</div>
+  <div class="progress-bar" id="progress"></div>
+  <div class="controls">
+    <button class="ctrl-btn" onclick="togglePlay()" id="play-btn">&#9208; Pause</button>
+    <button class="ctrl-btn" onclick="restart()">&#8635; Restart</button>
+  </div>
+</div>
+
+<script>
+  var slides = document.querySelectorAll('.slide');
+  var progress = document.getElementById('progress');
+  var playBtn = document.getElementById('play-btn');
+  var current = 0;
+  var playing = true;
+  var timer = null;
+
+  slides.forEach(function(_, i){
+    var dot = document.createElement('div');
+    dot.className = 'dot' + (i === 0 ? ' active' : '');
+    dot.onclick = function(){ goTo(i); };
+    progress.appendChild(dot);
+  });
+
+  var dots = document.querySelectorAll('.dot');
+
+  function updateCaption(idx) {
+    var s = slides[idx];
+    document.getElementById('cap-num').textContent = s.dataset.num;
+    document.getElementById('cap-title').textContent = s.dataset.title;
+    document.getElementById('cap-desc').textContent = s.dataset.desc;
+  }
+
+  function updateDots(idx) {
+    dots.forEach(function(d, i){
+      d.classList.remove('active', 'done');
+      if (i < idx) d.classList.add('done');
+      if (i === idx) d.classList.add('active');
+    });
+  }
+
+  function goTo(idx) {
+    slides[current].classList.remove('active');
+    current = (idx + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    updateCaption(current);
+    updateDots(current);
+  }
+
+  function next() { goTo(current + 1); }
+
+  function startTimer() {
+    stopTimer();
+    timer = setInterval(next, 3500);
+  }
+  function stopTimer() {
+    if (timer) clearInterval(timer);
+    timer = null;
+  }
+
+  function togglePlay() {
+    playing = !playing;
+    if (playing) { startTimer(); playBtn.innerHTML = '&#9208; Pause'; }
+    else { stopTimer(); playBtn.innerHTML = '&#9654; Play'; }
+  }
+
+  function restart() { goTo(0); if (playing) startTimer(); }
+
+  updateCaption(0);
+  startTimer();
+</script>
+</body>
+</html>
