@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claim Discount — LoopRef</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --bg:#fffdf9;--surface:#fff;--surface-2:#f5f0e8;
+      --ink:#1a1208;--ink-2:#5a4f40;--ink-3:#9a8a78;
+      --accent:#ff6b35;--accent-mid:#e55a24;--accent-dim:#ff6b3512;
+      --green:#00875a;--green-dim:#00875a12;
+      --red:#c0392b;
+      --border:#e8e0d0;
+    }
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;min-height:100vh;}
+
+    nav{padding:0 24px;height:60px;display:flex;align-items:center;justify-content:center;background:var(--bg);border-bottom:1px solid var(--border);}
+    .logo{display:flex;align-items:center;gap:9px;text-decoration:none;}
+    .logo img{height:32px;}
+
+    .page{max-width:440px;margin:0 auto;padding:32px 20px;}
+
+    .claim-card{background:var(--surface);border:2px solid var(--green);border-radius:16px;padding:32px 24px;text-align:center;box-shadow:0 4px 24px rgba(0,135,90,0.1);}
+    .claim-card.redeemed{border-color:var(--ink-3);background:var(--surface-2);box-shadow:none;}
+    .claim-card.invalid{border-color:var(--red);}
+
+    .status-icon{width:72px;height:72px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;}
+    .status-icon.valid{background:var(--green);}
+    .status-icon.valid svg{stroke:#fff;width:40px;height:40px;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+    .status-icon.invalid{background:var(--red);color:#fff;font-size:40px;}
+    .status-icon.redeemed{background:var(--ink-3);color:#fff;font-size:36px;}
+
+    .status-text{font-family:'Fraunces',serif;font-size:28px;font-weight:700;color:var(--green);margin-bottom:8px;letter-spacing:-0.5px;}
+    .redeemed .status-text{color:var(--ink-2);}
+    .invalid .status-text{color:var(--red);}
+
+    .venue-name{font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:var(--ink);margin-bottom:12px;}
+    .discount-text{font-size:18px;color:var(--ink-2);margin-bottom:24px;}
+    .discount-text strong{color:var(--accent);font-weight:700;}
+
+    .info-row{display:flex;justify-content:space-between;padding:10px 0;border-top:1px solid var(--border);font-size:13px;}
+    .info-row:first-child{border-top:none;}
+    .info-label{color:var(--ink-3);}
+    .info-value{color:var(--ink);font-weight:600;}
+
+    .claim-code-box{background:var(--accent-dim);border:2px dashed var(--accent);border-radius:12px;padding:20px;margin:20px 0;}
+    .claim-code-label{font-size:11px;color:var(--ink-3);letter-spacing:0.1em;margin-bottom:6px;}
+    .claim-code-value{font-family:monospace;font-size:28px;font-weight:800;color:var(--ink);letter-spacing:3px;}
+
+    .redeem-btn{width:100%;padding:16px;background:var(--ink);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;margin-top:20px;transition:background .15s;}
+    .redeem-btn:hover{background:#2a1f10;}
+    .redeem-btn:disabled{opacity:0.5;cursor:not-allowed;}
+
+    .staff-note{font-size:12px;color:var(--ink-3);margin-top:14px;line-height:1.5;}
+
+    .loading{text-align:center;padding:60px 20px;color:var(--ink-3);}
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo"><img src="/logo.svg" alt="LoopRef"></a>
+</nav>
+
+<div class="page" id="page">
+  <div class="loading">Loading your claim...</div>
+</div>
+
+<script>
+  var pathParts = window.location.pathname.split('/').filter(Boolean);
+  var code = pathParts[pathParts.length - 1];
+  if (code && code !== 'claim') loadClaim(code.toUpperCase());
+  else showInvalid('No claim code specified.');
+
+  function loadClaim(code) {
+    fetch('/api/claim/' + code)
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.error) return showInvalid(data.error);
+        renderClaim(data);
+      })
+      .catch(function() { showInvalid('Could not load claim.'); });
+  }
+
+  function renderClaim(claim) {
+    var isRedeemed = claim.status === 'redeemed';
+    var statusClass = isRedeemed ? 'redeemed' : '';
+
+    var html = '<div class="claim-card ' + statusClass + '">';
+
+    if (isRedeemed) {
+      html += '<div class="status-icon redeemed">&#10003;</div>';
+      html += '<div class="status-text">Already redeemed</div>';
+      html += '<div class="venue-name">' + claim.restaurant_name + '</div>';
+      html += '<div class="info-row"><span class="info-label">Redeemed at</span><span class="info-value">' + formatDate(claim.redeemed_at) + '</span></div>';
+      html += '<div class="info-row"><span class="info-label">Customer</span><span class="info-value">' + (claim.sharer_name || '&mdash;') + '</span></div>';
+      html += '<div class="info-row"><span class="info-label">Code</span><span class="info-value" style="font-family:monospace;">' + claim.code + '</span></div>';
+    } else {
+      html += '<div class="status-icon valid"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>';
+      html += '<div class="status-text">Valid discount</div>';
+      html += '<div class="venue-name">' + claim.restaurant_name + '</div>';
+      html += '<div class="discount-text"><strong>' + claim.discount_pct + '% off</strong>' + (claim.min_spend ? ' when you spend $' + claim.min_spend + '+' : '') + '</div>';
+
+      html += '<div class="claim-code-box">';
+      html += '<div class="claim-code-label">CLAIM CODE</div>';
+      html += '<div class="claim-code-value">' + claim.code + '</div>';
+      html += '</div>';
+
+      html += '<div class="info-row"><span class="info-label">Customer</span><span class="info-value">' + (claim.sharer_name || '&mdash;') + '</span></div>';
+      html += '<div class="info-row"><span class="info-label">Unlocked</span><span class="info-value">' + formatDate(claim.created_at) + '</span></div>';
+
+      html += '<button class="redeem-btn" onclick="redeemClaim(\'' + claim.code + '\')">Mark as redeemed</button>';
+      html += '<p class="staff-note">Staff: tap the button above to apply the discount. Once redeemed, this code cannot be used again.</p>';
+    }
+
+    html += '</div>';
+    document.getElementById('page').innerHTML = html;
+  }
+
+  function redeemClaim(code) {
+    var btn = document.querySelector('.redeem-btn');
+    btn.textContent = 'Redeeming...';
+    btn.disabled = true;
+
+    fetch('/api/claim/' + code + '/redeem', { method: 'POST' })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (!data.ok) throw new Error();
+        loadClaim(code);
+      })
+      .catch(function() {
+        btn.textContent = 'Try again';
+        btn.disabled = false;
+      });
+  }
+
+  function showInvalid(msg) {
+    document.getElementById('page').innerHTML =
+      '<div class="claim-card invalid">' +
+        '<div class="status-icon invalid">&times;</div>' +
+        '<div class="status-text">Invalid code</div>' +
+        '<p style="font-size:14px;color:var(--ink-2);margin-top:12px;">' + msg + '</p>' +
+      '</div>';
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '&mdash;';
+    var d = new Date(iso.replace(' ', 'T') + 'Z');
+    return d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  }
+</script>
+</body>
+</html>

@@ -104,7 +104,7 @@ router.get('/attribution/:restaurantId', (req, res) => {
 
 // ─── Verify a referral click (friend submits name/email) ─────────────────────
 // POST /api/verify-referral
-router.post('/verify-referral', (req, res) => {
+router.post('/verify-referral', async (req, res) => {
   const { clickId, visitorName, visitorEmail } = req.body;
   if (!clickId || !visitorName) {
     return res.status(400).json({ error: 'clickId and visitorName required' });
@@ -123,13 +123,88 @@ router.post('/verify-referral', (req, res) => {
   db.prepare('UPDATE customer_shares SET verified_clicks = verified_clicks + 1 WHERE id = ?')
     .run(click.share_id);
 
+  // Check if this share just hit the threshold → generate claim code
+  const share = db.prepare(`
+    SELECT cs.id, cs.verified_clicks, cs.sharer_name, cs.sharer_email, cs.restaurant_id,
+           r.name as restaurant_name, r.slug, r.min_verified_referrals, r.discount_pct, r.min_spend
+    FROM customer_shares cs
+    JOIN restaurants r ON r.id = cs.restaurant_id
+    WHERE cs.id = ?
+  `).get(click.share_id);
+
+  const threshold = share.min_verified_referrals || 5;
+  const existing = db.prepare('SELECT id FROM claim_codes WHERE share_id = ?').get(click.share_id);
+
+  if (!existing && share.verified_clicks >= threshold) {
+    // Generate claim code: e.g. RAOS-A3F9
+    const prefix = share.restaurant_name.replace(/[^A-Za-z]/g, '').slice(0, 4).toUpperCase();
+    const suffix = crypto.randomBytes(2).toString('hex').toUpperCase();
+    const claimCode = `${prefix}-${suffix}`;
+
+    db.prepare(`INSERT INTO claim_codes (code, share_id, restaurant_id) VALUES (?, ?, ?)`)
+      .run(claimCode, click.share_id, share.restaurant_id);
+
+    // Send email to the sharer if we have their email
+    if (share.sharer_email) {
+      try {
+        const { sendClaimCodeEmail } = require('../jobs/claimCodeEmail');
+        await sendClaimCodeEmail({
+          to: share.sharer_email,
+          sharerName: share.sharer_name,
+          restaurantName: share.restaurant_name,
+          discountPct: share.discount_pct,
+          minSpend: share.min_spend,
+          claimCode,
+          claimUrl: `${process.env.BASE_URL || 'https://loopref.com'}/claim/${claimCode}`
+        });
+      } catch (err) {
+        console.error('[verify-referral] failed to send claim email:', err.message);
+      }
+    }
+
+    return res.json({ ok: true, unlocked: true, claimCode });
+  }
+
+  res.json({ ok: true, verified: share.verified_clicks, needed: threshold });
+});
+
+// ─── Get claim code status (used by /claim/:code page) ───────────────────────
+// GET /api/claim/:code
+router.get('/claim/:code', (req, res) => {
+  const db = getDb();
+  const claim = db.prepare(`
+    SELECT cc.code, cc.status, cc.created_at, cc.redeemed_at,
+           r.id as restaurant_id, r.name as restaurant_name, r.slug,
+           r.discount_pct, r.min_spend,
+           cs.sharer_name
+    FROM claim_codes cc
+    JOIN restaurants r ON r.id = cc.restaurant_id
+    JOIN customer_shares cs ON cs.id = cc.share_id
+    WHERE cc.code = ?
+  `).get(req.params.code.toUpperCase());
+
+  if (!claim) return res.status(404).json({ error: 'Claim code not found' });
+  res.json(claim);
+});
+
+// ─── Mark claim code as redeemed (staff taps button) ─────────────────────────
+// POST /api/claim/:code/redeem
+router.post('/claim/:code/redeem', (req, res) => {
+  const db = getDb();
+  const code = req.params.code.toUpperCase();
+  const existing = db.prepare('SELECT status FROM claim_codes WHERE code = ?').get(code);
+
+  if (!existing) return res.status(404).json({ error: 'Claim code not found' });
+  if (existing.status === 'redeemed') return res.json({ ok: true, already: true });
+
+  db.prepare(`UPDATE claim_codes SET status = 'redeemed', redeemed_at = datetime('now') WHERE code = ?`).run(code);
   res.json({ ok: true });
 });
 
 // ─── Generate a share link ───────────────────────────────────────────────────
 // POST /api/share
 router.post('/share', (req, res) => {
-  const { restaurantId, sharerName, channel } = req.body;
+  const { restaurantId, sharerName, sharerEmail, sharerPhone, channel } = req.body;
   if (!restaurantId) return res.status(400).json({ error: 'restaurantId required' });
 
   const db = getDb();
@@ -137,12 +212,12 @@ router.post('/share', (req, res) => {
   if (!r) return res.status(404).json({ error: 'Restaurant not found' });
 
   const shareCode = crypto.randomBytes(4).toString('hex'); // 8 hex chars
-  db.prepare(`INSERT INTO customer_shares (restaurant_id, share_code, sharer_name, channel)
-    VALUES (?, ?, ?, ?)`
-  ).run(restaurantId, shareCode, sharerName || null, channel || null);
+  const result = db.prepare(`INSERT INTO customer_shares (restaurant_id, share_code, sharer_name, sharer_email, sharer_phone, channel)
+    VALUES (?, ?, ?, ?, ?, ?)`
+  ).run(restaurantId, shareCode, sharerName || null, sharerEmail || null, sharerPhone || null, channel || null);
 
   const BASE = process.env.BASE_URL || 'https://loopref.com';
-  res.json({ ok: true, shareCode, shareUrl: `${BASE}/r/${shareCode}` });
+  res.json({ ok: true, shareId: result.lastInsertRowid, shareCode, shareUrl: `${BASE}/r/${shareCode}` });
 });
 
 // ─── Share stats for a restaurant (used by monthly report) ──────────────────

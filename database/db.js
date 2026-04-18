@@ -35,6 +35,7 @@ function initDb() {
       tagline         TEXT,
       min_spend       INTEGER DEFAULT 50,
       discount_pct    INTEGER DEFAULT 20,
+      min_verified_referrals INTEGER DEFAULT 5,
       instagram_handle TEXT,
       tiktok_handle   TEXT,
       website         TEXT,
@@ -172,6 +173,8 @@ function initDb() {
       restaurant_id INTEGER NOT NULL,
       share_code    TEXT UNIQUE NOT NULL,
       sharer_name   TEXT,
+      sharer_email  TEXT,
+      sharer_phone  TEXT,
       channel       TEXT,
       clicks        INTEGER DEFAULT 0,
       verified_clicks INTEGER DEFAULT 0,
@@ -200,6 +203,21 @@ function initDb() {
       ON referral_clicks(share_id);
     CREATE INDEX IF NOT EXISTS idx_referral_clicks_restaurant
       ON referral_clicks(restaurant_id);
+
+    -- Claim codes (generated when verified_clicks threshold hit)
+    CREATE TABLE IF NOT EXISTS claim_codes (
+      id            INTEGER PRIMARY KEY AUTOINCREMENT,
+      code          TEXT UNIQUE NOT NULL,
+      share_id      INTEGER NOT NULL,
+      restaurant_id INTEGER NOT NULL,
+      status        TEXT DEFAULT 'unclaimed',
+      created_at    DATETIME DEFAULT CURRENT_TIMESTAMP,
+      redeemed_at   DATETIME,
+      FOREIGN KEY (share_id) REFERENCES customer_shares(id) ON DELETE CASCADE,
+      FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE
+    );
+    CREATE INDEX IF NOT EXISTS idx_claim_codes_code ON claim_codes(code);
+    CREATE INDEX IF NOT EXISTS idx_claim_codes_restaurant ON claim_codes(restaurant_id);
 
     -- View: per-restaurant Pinterest summary (used by admin and weekly reports)
     CREATE VIEW IF NOT EXISTS v_restaurant_pinterest_summary AS
@@ -306,6 +324,11 @@ function runMigrations(db) {
 
   // customer_shares
   add('customer_shares', 'verified_clicks', 'INTEGER DEFAULT 0');
+  add('customer_shares', 'sharer_email',    'TEXT');
+  add('customer_shares', 'sharer_phone',    'TEXT');
+
+  // restaurants: per-venue threshold
+  add('restaurants', 'min_verified_referrals', 'INTEGER DEFAULT 5');
 }
 
 module.exports = { getDb, initDb };

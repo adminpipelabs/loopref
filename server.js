@@ -50,6 +50,11 @@ app.use('/auth', pinterestRoutes);
 app.use('/api', trackingRoutes);
 app.use('/api', venueRoutes);
 
+// Claim code pages: /claim/ANYCODE serves the claim page (JS reads code from URL)
+app.get('/claim/:code', (req, res) => {
+  res.sendFile(path.join(__dirname, 'claim', 'index.html'));
+});
+
 // Serve static site from root
 app.use(express.static(path.join(__dirname)));
 
