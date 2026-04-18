@@ -36,7 +36,7 @@ router.post('/restaurants', (req, res) => {
   const {
     venue_name, cuisine_type, city, country, google_maps_url,
     first_name, contact_email, phone, min_spend, discount_pct,
-    instagram_handle, tiktok_handle, website, rep_code
+    min_verified_referrals, instagram_handle, tiktok_handle, website, rep_code
   } = req.body;
 
   if (!venue_name || !contact_email) {
@@ -48,13 +48,14 @@ router.post('/restaurants', (req, res) => {
   const result = db.prepare(`
     INSERT INTO restaurants
       (name, slug, cuisine, city, country, google_maps_url, contact_name, contact_email,
-       phone, min_spend, discount_pct, instagram_handle, tiktok_handle, website, rep_code,
-       source, status)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'signup', 'active')
+       phone, min_spend, discount_pct, min_verified_referrals, instagram_handle, tiktok_handle,
+       website, rep_code, source, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'signup', 'active')
   `).run(
     venue_name, slug, cuisine_type || null, city || null, country || 'US',
     google_maps_url || null, first_name || null, contact_email,
     phone || null, parseInt(min_spend) || 50, parseInt(discount_pct) || 20,
+    parseInt(min_verified_referrals) || 5,
     instagram_handle || null, tiktok_handle || null, website || null, rep_code || null
   );
 
@@ -145,8 +146,8 @@ router.get('/places', (req, res) => {
 router.get('/places/:slug', (req, res) => {
   const venue = getDb().prepare(`
     SELECT id, name, slug, cuisine, city, state, address, phone, tagline,
-           website, min_spend, discount_pct, instagram_handle, tiktok_handle,
-           source, status, google_maps_url
+           website, min_spend, discount_pct, min_verified_referrals,
+           instagram_handle, tiktok_handle, source, status, google_maps_url
     FROM restaurants WHERE slug = ? AND status IN ('active', 'imported')
   `).get(req.params.slug);
 

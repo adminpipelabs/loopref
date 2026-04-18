@@ -102,7 +102,8 @@
     .share-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;margin-bottom:40px;}
     .share-card h2{font-family:'Fraunces',serif;font-size:24px;font-weight:700;margin-bottom:8px;letter-spacing:-0.5px;}
     .share-card p{font-size:13px;color:var(--ink-2);margin-bottom:20px;line-height:1.6;}
-    .share-form{display:flex;gap:10px;margin-bottom:0;}
+    .share-form{display:flex;flex-direction:column;gap:10px;margin-bottom:0;}
+    .share-form-row{display:flex;gap:10px;}
     .share-form input{flex:1;padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);outline:none;}
     .share-form input:focus{border-color:var(--accent);}
     .share-form button{padding:11px 22px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap;transition:background .15s;}
@@ -129,7 +130,6 @@
       .photo-strip .side{display:none;}
       .info-grid{grid-template-columns:1fr;}
       .steps-grid{grid-template-columns:1fr;}
-      .share-form{flex-direction:column;}
       .share-channels{flex-direction:column;}
     }
   </style>
@@ -252,10 +252,13 @@
       '</div>' +
 
       '<div class="share-card" id="share-card">' +
-        '<h2>Share <em>' + v.name + '</em></h2>' +
-        '<p>Enjoyed your visit? Share with friends and help them discover this place.</p>' +
+        '<h2>Share &amp; unlock <em>' + (v.discount_pct || 15) + '% off</em></h2>' +
+        (v.status === 'active'
+          ? '<p>Share with friends. When <strong>' + (v.min_verified_referrals || 5) + ' real people</strong> confirm they received your referral, you unlock your discount code &mdash; emailed to you automatically.</p>'
+          : '<p>Share with friends and help them discover this place.</p>') +
         '<div class="share-form" id="share-form">' +
-          '<input type="text" id="sharer-name" placeholder="Your first name (optional)">' +
+          '<input type="text" id="sharer-name" placeholder="Your first name">' +
+          '<input type="email" id="sharer-email" placeholder="Your email (for claim code)">' +
           '<button onclick="generateShareLink(' + v.id + ')">Get your share link</button>' +
         '</div>' +
         '<div class="share-result" id="share-result">' +
@@ -264,7 +267,7 @@
             '<button onclick="copyShareLink()">Copy</button>' +
           '</div>' +
           '<div class="share-channels" id="share-channels"></div>' +
-          '<div class="share-hint">Share with 5+ friends to spread the word!</div>' +
+          '<div class="share-hint" id="share-progress">Share this link &mdash; when ' + (v.min_verified_referrals || 5) + ' friends confirm, you unlock your claim code.</div>' +
         '</div>' +
       '</div>' +
 
@@ -307,8 +310,14 @@
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (!data.ok) throw new Error();
+      var msg = 'Thanks ' + name + '! Your referral is confirmed.';
+      if (data.unlocked) {
+        msg = 'Thanks ' + name + '! You were the final verified referral &mdash; the original sharer just unlocked their discount code.';
+      } else if (data.needed && data.verified) {
+        msg = 'Thanks ' + name + '! Referral confirmed (' + data.verified + '/' + data.needed + ').';
+      }
       document.getElementById('ref-form').innerHTML =
-        '<div class="ref-done"><svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Thanks ' + name + '! Your referral is confirmed.</div>';
+        '<div class="ref-done"><svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' + msg + '</div>';
     })
     .catch(function() {
       btn.textContent = 'Confirm';
@@ -322,6 +331,7 @@
 
   function generateShareLink(restaurantId) {
     var name = document.getElementById('sharer-name').value.trim();
+    var email = document.getElementById('sharer-email').value.trim();
     var btn = document.querySelector('#share-form button');
     btn.textContent = 'Generating...';
     btn.disabled = true;
@@ -329,7 +339,7 @@
     fetch('/api/share', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ restaurantId: restaurantId, sharerName: name || null })
+      body: JSON.stringify({ restaurantId: restaurantId, sharerName: name || null, sharerEmail: email || null })
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {

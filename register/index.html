@@ -440,6 +440,17 @@ footer{padding:24px 48px;border-top:1px solid var(--border);display:flex;align-i
       </div>
 
       <div class="field">
+        <label>Verified referrals needed to unlock discount <span class="req">*</span></label>
+        <select id="min-verified">
+          <option value="3">3 verified friends</option>
+          <option value="5" selected>5 verified friends</option>
+          <option value="10">10 verified friends</option>
+          <option value="15">15 verified friends</option>
+        </select>
+        <div class="field-hint">How many real people must be referred before a customer unlocks the discount code. Each verified referral costs $1.</div>
+      </div>
+
+      <div class="field">
         <label>Platforms customers should post on <span class="req">*</span></label>
         <div style="display:flex;flex-direction:column;gap:8px;margin-top:2px;" id="platforms-wrap">
           <label style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-2);cursor:pointer;letter-spacing:0;margin:0;">
@@ -831,6 +842,7 @@ function submitForm() {
     country: val('country'),
     min_spend: val('min-spend'),
     discount_pct: val('discount').replace('%', '').replace('off', '').trim(),
+    min_verified_referrals: val('min-verified'),
     platforms: plats.join(', '),
     tagline: val('tagline'),
     terms_note: val('terms-note'),
