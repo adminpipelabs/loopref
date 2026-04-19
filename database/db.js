@@ -329,6 +329,24 @@ function runMigrations(db) {
 
   // restaurants: per-venue threshold
   add('restaurants', 'min_verified_referrals', 'INTEGER DEFAULT 5');
+
+  // Set min_verified_referrals=5 for any rows where it is NULL or 0
+  try {
+    db.prepare(
+      `UPDATE restaurants SET min_verified_referrals = 5 WHERE min_verified_referrals IS NULL OR min_verified_referrals = 0`
+    ).run();
+  } catch {
+    // Safe no-op if something goes wrong
+  }
+
+  // Promote imported venues with a discount configured to active (Basic tier)
+  try {
+    db.prepare(
+      `UPDATE restaurants SET status = 'active' WHERE status = 'imported' AND discount_pct > 0`
+    ).run();
+  } catch {
+    // Safe no-op if something goes wrong
+  }
 }
 
 module.exports = { getDb, initDb };

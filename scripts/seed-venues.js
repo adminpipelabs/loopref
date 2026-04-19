@@ -2,8 +2,8 @@
  * Seed LoopRef with venue directory — no API keys required.
  * Run: node scripts/seed-venues.js
  *
- * This inserts venues as 'imported' status with default 20% discount / $50 min spend.
- * Once a venue owner signs up, their record gets upgraded to 'active'.
+ * This inserts venues as 'active' status with default 20% discount / $50 min spend /
+ * min_verified_referrals=5. Basic tier venues are active by default — no registration needed.
  */
 require('dotenv').config();
 const { getDb, initDb } = require('../database/db');
@@ -109,8 +109,8 @@ function seedVenue(db, venue) {
   const r = db.prepare(`
     INSERT INTO restaurants
       (name, slug, cuisine, city, state, country, min_spend, discount_pct,
-       source, status, contact_email)
-    VALUES (?, ?, ?, ?, ?, 'US', 50, 20, 'imported', 'imported', ?)
+       min_verified_referrals, source, status, contact_email)
+    VALUES (?, ?, ?, ?, ?, 'US', 50, 20, 5, 'seed', 'active', ?)
   `).run(
     venue.name, slug, venue.cuisine, venue.city, venue.state,
     `imported+${slug}@loopref.com`
