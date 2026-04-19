@@ -128,7 +128,8 @@ router.get('/places', (req, res) => {
 
   let sql = `
     SELECT id, name, slug, cuisine, city, state, address, phone, tagline,
-           website, min_spend, discount_pct, instagram_handle, tiktok_handle, source, status
+           website, min_spend, discount_pct, discount_enabled, min_verified_referrals,
+           instagram_handle, tiktok_handle, source, status
     FROM restaurants
     WHERE status IN ('active', 'imported')
   `;
@@ -146,7 +147,7 @@ router.get('/places', (req, res) => {
 router.get('/places/:slug', (req, res) => {
   const venue = getDb().prepare(`
     SELECT id, name, slug, cuisine, city, state, address, phone, tagline,
-           website, min_spend, discount_pct, min_verified_referrals,
+           website, min_spend, discount_pct, discount_enabled, min_verified_referrals,
            instagram_handle, tiktok_handle, source, status, google_maps_url
     FROM restaurants WHERE slug = ? AND status IN ('active', 'imported')
   `).get(req.params.slug);
