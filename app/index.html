@@ -376,6 +376,30 @@ body{
 .claim-loading{font-size:14px;color:var(--ink-3);text-align:center;}
 .claim-error{font-size:14px;color:#c0392b;text-align:center;}
 
+/* ─── VERIFY BANNER (friend landing from share link) ────────────────── */
+.verify-banner{
+  margin:0 16px 12px;
+  background:#fff8f0;border:1.5px solid #ff6b3540;border-radius:10px;
+  padding:14px;
+}
+.verify-banner-title{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:4px;}
+.verify-banner-sub{font-size:12px;color:var(--ink-2);margin-bottom:10px;line-height:1.5;}
+.verify-form{display:flex;flex-direction:column;gap:8px;}
+.verify-form input{
+  width:100%;padding:10px 13px;
+  border:1.5px solid var(--border);border-radius:8px;
+  font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;
+  background:var(--surface);color:var(--ink);outline:none;
+  transition:border-color .15s;
+}
+.verify-form input:focus{border-color:var(--accent);}
+.verify-done{
+  display:flex;align-items:center;gap:8px;
+  font-size:13px;color:var(--green);font-weight:600;
+  background:#00875a10;border-radius:8px;padding:10px 12px;
+}
+.verify-done svg{width:18px;height:18px;stroke:var(--green);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+
 /* ─── UTILITY ────────────────────────────────────────────────────────── */
 .divider{height:1px;background:var(--border);margin:8px 0;}
 .spinner{
@@ -775,6 +799,11 @@ function renderVenueDetail(v) {
   }
 
   document.getElementById('venue-content').innerHTML = html;
+
+  // If friend landed from a share link, inject the verify banner
+  if (_pendingVerify) {
+    injectVerifyBanner(_pendingVerify.ref, _pendingVerify.cid);
+  }
 }
 
 /** Build the share section HTML (form or existing result). */
@@ -1111,20 +1140,98 @@ function escHtml(str) {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
+   VERIFY REFERRAL (friend landing from share link)
+═══════════════════════════════════════════════════════════════════════ */
+var _pendingVerify = null; // { ref, cid } set on boot if landing from share link
+
+/** Inject the verify banner into the venue screen after render. */
+function injectVerifyBanner(ref, cid) {
+  // Wait for venue-content to be populated
+  var content = document.getElementById('venue-content');
+  if (!content || content.querySelector('.verify-banner')) return;
+
+  var banner = document.createElement('div');
+  banner.className = 'verify-banner';
+  banner.id = 'verify-banner';
+  banner.innerHTML =
+    '<div class="verify-banner-title">👋 A friend shared this venue with you</div>' +
+    '<div class="verify-banner-sub">Confirm your name so they can unlock their discount.</div>' +
+    '<div class="verify-form" id="verify-form">' +
+      '<input type="text" id="verify-name" placeholder="Your first name" autocomplete="given-name">' +
+      '<input type="email" id="verify-email" placeholder="Your email (optional)" autocomplete="email">' +
+      '<button class="btn-primary" id="verify-btn" onclick="submitVerify(' + cid + ')">' +
+        'Confirm my visit →' +
+      '</button>' +
+      '<div id="verify-msg" style="font-size:12px;color:#c0392b;min-height:14px;"></div>' +
+    '</div>';
+
+  // Insert after the offer banner (or at top of venue-content)
+  var hero = content.querySelector('.venue-hero');
+  if (hero && hero.nextSibling) {
+    content.insertBefore(banner, hero.nextSibling);
+  } else {
+    content.prepend(banner);
+  }
+}
+
+function submitVerify(cid) {
+  var name = (document.getElementById('verify-name').value || '').trim();
+  var email = (document.getElementById('verify-email').value || '').trim();
+  var msg = document.getElementById('verify-msg');
+  var btn = document.getElementById('verify-btn');
+
+  if (!name) { msg.textContent = 'Please enter your name.'; return; }
+
+  msg.textContent = '';
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Confirming…';
+
+  fetch('/api/verify-referral', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ clickId: cid, visitorName: name, visitorEmail: email || null })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (!data.ok) throw new Error(data.error || 'failed');
+    var form = document.getElementById('verify-form');
+    var txt = data.unlocked
+      ? '🎉 You were the final verify — your friend just unlocked their discount!'
+      : 'Thanks ' + escHtml(name) + '! Your visit is confirmed' + (data.verified && data.needed ? ' (' + data.verified + '/' + data.needed + ')' : '') + '.';
+    form.innerHTML =
+      '<div class="verify-done">' +
+        '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>' +
+        txt +
+      '</div>';
+    _pendingVerify = null;
+    // Clean URL so refreshing doesn't re-trigger
+    history.replaceState(null, '', '/app/?venue=' + (_currentVenueSlug || ''));
+  })
+  .catch(function(err) {
+    btn.disabled = false;
+    btn.textContent = 'Confirm my visit →';
+    msg.textContent = err.message || 'Could not confirm. Please try again.';
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
    BOOT — read hash and route
 ═══════════════════════════════════════════════════════════════════════ */
 (function() {
-  // Support /app/?venue=slug as entry point (e.g. from QR codes)
   var urlParams = new URLSearchParams(window.location.search);
   var venueParam = urlParams.get('venue');
-  if (venueParam && !window.location.hash) {
+  var refParam   = urlParams.get('ref');
+  var cidParam   = urlParams.get('cid');
+
+  // Friend landing from share link — store pending verify, load venue
+  if (venueParam && cidParam) {
+    _pendingVerify = { ref: refParam, cid: parseInt(cidParam, 10) };
+    navigate('#venue?slug=' + venueParam);
+  } else if (venueParam && !window.location.hash) {
     navigate('#venue?slug=' + venueParam);
   } else {
     applyRoute(window.location.hash || '#discover');
   }
-
-  // After initial render, trigger status polling for venue screen if share exists
-  // (handled inside renderVenueDetail via checkRefStatus)
 })();
 
 /* After DOM updates, auto-poll status on venue screen if a share link was shown */
