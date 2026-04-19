@@ -102,12 +102,13 @@ body{
   background:rgba(255,253,249,0.97);
   backdrop-filter:blur(10px);
   border-bottom:1px solid var(--border);
-  padding:12px 16px 10px;
+  padding:10px 16px 8px;
 }
+.top-bar-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
 .top-bar-logo{
   font-size:18px;font-weight:800;letter-spacing:-0.4px;
-  color:var(--ink);
-  margin-bottom:10px;
+  color:var(--ink);cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
 }
 .top-bar-logo span{color:var(--accent);}
 .search-wrap{position:relative;}
@@ -125,12 +126,12 @@ body{
 }
 #search-input:focus{border-color:var(--accent);}
 .city-pills{
-  display:flex;gap:6px;overflow-x:auto;padding-top:10px;
+  display:flex;gap:6px;overflow-x:auto;padding-top:8px;
   scrollbar-width:none;
 }
 .city-pills::-webkit-scrollbar{display:none;}
 .pill{
-  flex-shrink:0;padding:5px 12px;border-radius:20px;
+  flex-shrink:0;padding:4px 11px;border-radius:20px;
   font-size:11px;font-weight:700;
   border:1.5px solid var(--border);
   background:var(--surface);color:var(--ink-2);
@@ -140,39 +141,40 @@ body{
 .pill.active{background:var(--accent);color:#fff;border-color:var(--accent);}
 
 /* ─── DISCOVER SCREEN BODY ───────────────────────────────────────────── */
-.screen-body{flex:1;padding:16px;}
+.screen-body{flex:1;padding:12px 16px;}
 .screen-h1{
-  font-size:13px;font-weight:700;color:var(--ink-3);
+  font-size:11px;font-weight:700;color:var(--ink-3);
   text-transform:uppercase;letter-spacing:.08em;
-  margin-bottom:12px;
+  margin-bottom:10px;
 }
-.venue-list{display:flex;flex-direction:column;gap:10px;}
+.venue-list{display:flex;flex-direction:column;gap:8px;}
 
-/* Venue card */
+/* Venue card — compact single row */
 .venue-card{
-  background:var(--surface);border:1px solid var(--border);border-radius:12px;
-  display:flex;align-items:center;gap:12px;padding:14px;
-  cursor:pointer;transition:border-color .15s,box-shadow .15s;
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  display:flex;align-items:center;gap:10px;padding:12px 14px;
+  cursor:pointer;transition:border-color .15s;
   -webkit-tap-highlight-color:transparent;
 }
-.venue-card:active{box-shadow:0 1px 6px rgba(0,0,0,.08);}
+.venue-card:active{border-color:var(--accent);}
 .venue-card-info{flex:1;min-width:0;}
-.venue-card-name{font-size:14px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.venue-card-meta{display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap;}
+.venue-card-name{font-size:14px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;}
+.venue-card-meta{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;overflow:hidden;}
 .cuisine-chip{
-  display:inline-block;padding:2px 8px;border-radius:4px;
+  flex-shrink:0;padding:2px 7px;border-radius:4px;
   font-size:10px;font-weight:700;
   background:var(--surface-2);color:var(--ink-2);
 }
-.city-label{font-size:11px;color:var(--ink-3);}
+.city-label{font-size:11px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+/* discount inline — no extra row */
 .discount-badge{
-  display:inline-block;padding:3px 9px;border-radius:6px;
-  font-size:11px;font-weight:700;margin-top:5px;
+  flex-shrink:0;padding:2px 7px;border-radius:4px;
+  font-size:10px;font-weight:700;
 }
-.discount-badge.active{background:#00875a18;color:var(--green);border:1px solid #00875a25;}
-.discount-badge.soon{background:var(--surface-2);color:var(--ink-3);border:1px solid var(--border);}
+.discount-badge.active{background:#00875a14;color:var(--green);}
+.discount-badge.soon{background:var(--surface-2);color:var(--ink-3);}
 .venue-card-arrow{color:var(--ink-3);flex-shrink:0;}
-.venue-card-arrow svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
+.venue-card-arrow svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
 
 /* Empty state */
 .empty-state{
@@ -187,8 +189,8 @@ body{
   background:rgba(255,253,249,0.97);
   backdrop-filter:blur(10px);
   border-bottom:1px solid var(--border);
-  padding:12px 16px;
-  display:flex;align-items:center;gap:10px;
+  padding:10px 16px;
+  display:flex;align-items:center;justify-content:space-between;
 }
 .back-btn{
   display:flex;align-items:center;gap:5px;
@@ -198,44 +200,46 @@ body{
   -webkit-tap-highlight-color:transparent;
 }
 .back-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
+.back-bar-logo{font-size:15px;font-weight:800;letter-spacing:-0.3px;color:var(--ink-3);cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.back-bar-logo span{color:var(--accent);}
 
 /* ─── VENUE SCREEN ───────────────────────────────────────────────────── */
-#screen-venue .venue-hero{padding:20px 16px 0;}
+#screen-venue .venue-hero{padding:14px 16px 0;}
 .venue-title{
   font-family:'Fraunces',serif;
-  font-size:26px;font-weight:700;letter-spacing:-0.5px;
-  color:var(--ink);line-height:1.15;margin-bottom:8px;
+  font-size:24px;font-weight:700;letter-spacing:-0.5px;
+  color:var(--ink);line-height:1.15;margin-bottom:6px;
 }
-.venue-meta-chips{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.venue-meta-chips{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
 .venue-city-chip{font-size:12px;color:var(--ink-3);display:flex;align-items:center;gap:4px;}
 .venue-city-chip svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;}
 
 /* Offer banner */
 .offer-banner{
-  background:#00875a10;border:1px solid #00875a25;border-radius:10px;
-  padding:12px 16px;margin:0 16px 16px;
-  display:flex;align-items:center;gap:10px;
+  background:#00875a10;border:1px solid #00875a25;border-radius:8px;
+  padding:10px 14px;margin:0 16px 12px;
+  display:flex;align-items:center;gap:8px;
 }
-.offer-banner-icon{font-size:20px;}
+.offer-banner-icon{font-size:16px;}
 .offer-banner-text{font-size:13px;color:var(--green);font-weight:600;line-height:1.4;}
 
 /* How it works steps */
-.hiw-section{padding:0 16px 16px;}
-.hiw-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);margin-bottom:12px;}
-.hiw-steps{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;}
+.hiw-section{padding:0 16px 12px;}
+.hiw-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);margin-bottom:8px;}
+.hiw-steps{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
 .hiw-steps::-webkit-scrollbar{display:none;}
 .hiw-step{
-  flex-shrink:0;width:130px;
-  background:var(--surface);border:1px solid var(--border);border-radius:10px;
-  padding:12px;
+  flex-shrink:0;width:120px;
+  background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  padding:10px;
 }
-.hiw-step-num{font-size:10px;font-weight:700;color:var(--accent);margin-bottom:6px;}
-.hiw-step-label{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px;}
-.hiw-step-desc{font-size:11px;color:var(--ink-3);line-height:1.5;}
+.hiw-step-num{font-size:10px;font-weight:700;color:var(--accent);margin-bottom:4px;}
+.hiw-step-label{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:2px;}
+.hiw-step-desc{font-size:11px;color:var(--ink-3);line-height:1.45;}
 
 /* Share section */
 .share-section{padding:0 16px 16px;}
-.share-section-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:12px;}
+.share-section-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px;}
 .share-form{display:flex;flex-direction:column;gap:10px;}
 .share-form input{
   width:100%;padding:11px 14px;
@@ -393,7 +397,9 @@ body{
 <div class="screen active" id="screen-discover">
   <!-- Sticky top bar with search -->
   <div class="top-bar">
-    <div class="top-bar-logo">loop<span>ref</span></div>
+    <div class="top-bar-row">
+      <div class="top-bar-logo" onclick="navigate('#discover');document.getElementById('search-input').value='';filterVenues();">loop<span>ref</span></div>
+    </div>
     <div class="search-wrap">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
       <input type="search" id="search-input" placeholder="Search venues, cities…" autocomplete="off" oninput="filterVenues()">
@@ -425,6 +431,7 @@ body{
       <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
       Back
     </button>
+    <div class="back-bar-logo" onclick="navigate('#discover');document.getElementById('search-input').value='';filterVenues();">loop<span>ref</span></div>
   </div>
 
   <!-- Dynamic content injected by loadVenue() -->
@@ -653,8 +660,8 @@ function renderVenueCards(venues) {
 
   container.innerHTML = venues.map(function(v) {
     var badge = v.discount_enabled
-      ? '<div class="discount-badge active">' + escHtml(v.discount_pct) + '% off</div>'
-      : '<div class="discount-badge soon">Coming soon</div>';
+      ? '<span class="discount-badge active">' + escHtml(v.discount_pct) + '% off</span>'
+      : '<span class="discount-badge soon">Soon</span>';
 
     return '<div class="venue-card" onclick="navigate(\'#venue?slug=' + escHtml(v.slug) + '\')">' +
       '<div class="venue-card-info">' +
@@ -662,8 +669,8 @@ function renderVenueCards(venues) {
         '<div class="venue-card-meta">' +
           (v.cuisine ? '<span class="cuisine-chip">' + escHtml(v.cuisine) + '</span>' : '') +
           (v.city ? '<span class="city-label">' + escHtml(v.city) + (v.state ? ', ' + escHtml(v.state) : '') + '</span>' : '') +
+          badge +
         '</div>' +
-        badge +
       '</div>' +
       '<div class="venue-card-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>' +
     '</div>';
@@ -872,7 +879,7 @@ function doSharePost(venueSlug, venueId, name, email, btn, msgEl) {
   fetch('/api/share', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ restaurant_id: venueId, name: name, email: email })
+    body: JSON.stringify({ restaurantId: venueId, sharerName: name, sharerEmail: email })
   })
   .then(function(r) { return r.json().then(function(d) { return { status: r.status, data: d }; }); })
   .then(function(res) {
