@@ -233,7 +233,7 @@
         (v.cuisine ? '<span class="venue-cuisine">' + v.cuisine + '</span>' : '') +
         '<h1 class="venue-name">' + v.name + '</h1>' +
         (v.tagline ? '<p class="venue-tagline">' + v.tagline + '</p>' : '') +
-        (v.status === 'active' ? '<div class="venue-offer"><span class="venue-offer-pct">' + (v.discount_pct || 20) + '% off</span> when you spend $' + (v.min_spend || 50) + '+ and share with friends</div>' : '') +
+        '<div class="venue-offer"><span class="venue-offer-pct">' + (v.discount_pct || 20) + '% off</span> when you spend $' + (v.min_spend || 50) + '+ and share with friends</div>' +
         '<div class="venue-meta">' +
           (v.city ? '<span>&#128205; ' + v.city + (v.state ? ', ' + v.state : '') + '</span>' : '') +
           (v.address ? '<span>' + v.address + '</span>' : '') +
@@ -246,20 +246,17 @@
         '<h2>How <em>LoopRef</em> works</h2>' +
         '<div class="steps-grid">' +
           '<div class="step"><div class="step-num">1</div><h3>Visit &amp; enjoy</h3><p>Head to ' + v.name + ' and enjoy your meal or experience.</p></div>' +
-          '<div class="step"><div class="step-num">2</div><h3>Share with friends</h3><p>Get your share link below and send it to ' + (v.status === 'active' ? (v.min_verified_referrals || 5) + '+ friends' : 'friends') + ' via WhatsApp, text, or social media.</p></div>' +
+          '<div class="step"><div class="step-num">2</div><h3>Share with friends</h3><p>Get your share link below and send it to ' + (v.min_verified_referrals || 5) + '+ friends via WhatsApp, text, or social media.</p></div>' +
           '<div class="step"><div class="step-num">3</div><h3>Friends discover</h3><p>Your friends click your link, discover ' + v.name + ', and visit too.</p></div>' +
         '</div>' +
       '</div>' +
 
       '<div class="share-card" id="share-card">' +
-        (v.status === 'active'
-          ? '<h2>Share &amp; unlock <em>' + v.discount_pct + '% off</em></h2>' +
-            '<p>Share with friends. When <strong>' + (v.min_verified_referrals || 5) + ' real people</strong> confirm they received your referral, you unlock your discount code &mdash; emailed to you automatically.</p>'
-          : '<h2>Share <em>' + v.name + '</em></h2>' +
-            '<p>Enjoyed your visit? Share with friends and help them discover this place.</p>') +
+        '<h2>Share &amp; unlock <em>' + (v.discount_pct || 20) + '% off</em></h2>' +
+        '<p>Share with friends. When <strong>' + (v.min_verified_referrals || 5) + ' real people</strong> confirm they received your referral, you unlock your discount code &mdash; emailed to you automatically.</p>' +
         '<div class="share-form" id="share-form">' +
           '<input type="text" id="sharer-name" placeholder="Your first name">' +
-          '<input type="email" id="sharer-email" placeholder="' + (v.status === 'active' ? 'Your email (for claim code)' : 'Your email (optional)') + '">' +
+          '<input type="email" id="sharer-email" placeholder="Your email (for claim code)">' +
           '<button onclick="generateShareLink(' + v.id + ')">Get your share link</button>' +
         '</div>' +
         '<div class="share-result" id="share-result">' +
@@ -269,9 +266,7 @@
           '</div>' +
           '<div class="share-channels" id="share-channels"></div>' +
           '<div class="share-hint" id="share-progress">' +
-            (v.status === 'active'
-              ? 'Share this link &mdash; when ' + (v.min_verified_referrals || 5) + ' friends confirm, you unlock your claim code.'
-              : 'Share with friends to spread the word!') +
+            'Share this link &mdash; when ' + (v.min_verified_referrals || 5) + ' friends confirm, you unlock your claim code.' +
           '</div>' +
         '</div>' +
       '</div>' +

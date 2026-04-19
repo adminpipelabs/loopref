@@ -237,6 +237,44 @@ router.post('/places/import', async (req, res) => {
   res.json({ ok: true, restaurantId, slug });
 });
 
+// ─── Admin: configure venue without registration ──────────────────────────────
+// POST /api/admin/venue-setup
+router.post('/admin/venue-setup', (req, res) => {
+  const adminKey = req.headers['x-admin-key'];
+  if (!process.env.ADMIN_KEY || adminKey !== process.env.ADMIN_KEY) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const { slug, discount_pct, min_verified_referrals, min_spend, contact_email } = req.body;
+  if (!slug) return res.status(400).json({ error: 'slug required' });
+
+  const db = getDb();
+  const venue = db.prepare('SELECT * FROM restaurants WHERE slug = ?').get(slug);
+  if (!venue) return res.status(404).json({ error: 'Venue not found' });
+
+  db.prepare(`
+    UPDATE restaurants SET
+      discount_pct = COALESCE(?, discount_pct),
+      min_verified_referrals = COALESCE(?, min_verified_referrals),
+      min_spend = COALESCE(?, min_spend),
+      contact_email = COALESCE(?, contact_email),
+      status = CASE WHEN status = 'imported' THEN 'active' ELSE status END
+    WHERE slug = ?
+  `).run(
+    discount_pct != null ? parseInt(discount_pct) : null,
+    min_verified_referrals != null ? parseInt(min_verified_referrals) : null,
+    min_spend != null ? parseInt(min_spend) : null,
+    contact_email || null,
+    slug
+  );
+
+  const updated = db.prepare(
+    'SELECT id, name, slug, status, discount_pct, min_verified_referrals FROM restaurants WHERE slug = ?'
+  ).get(slug);
+
+  res.json({ ok: true, venue: updated });
+});
+
 // ─── Dashboard report ─────────────────────────────────────────────────────────
 // GET /api/dashboard/:restaurantId
 router.get('/dashboard/:restaurantId', (req, res) => {
