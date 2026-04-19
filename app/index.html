@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>LoopRef — Find venues, share, earn discounts</title>
+<meta name="description" content="Find venues near you, share with friends, and earn real discounts.">
+
+<!-- PWA meta -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="LoopRef">
+<meta name="theme-color" content="#ff6b35">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+
+<style>
+/* ─── DESIGN TOKENS ──────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#fffdf9;
+  --surface:#fff;
+  --surface-2:#f5f0e8;
+  --ink:#1a1208;
+  --ink-2:#5a4f40;
+  --ink-3:#9a8a78;
+  --accent:#ff6b35;
+  --accent-mid:#e55a24;
+  --green:#00875a;
+  --border:#e8e0d0;
+  --nav-h:56px;
+  --topbar-h:52px;
+}
+
+html,body{
+  height:100%;
+  overflow:hidden; /* body itself doesn't scroll; screens do */
+}
+body{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  line-height:1.6;
+  max-width:480px;
+  margin:0 auto;
+  position:relative;
+}
+
+/* ─── BOTTOM NAV ─────────────────────────────────────────────────────── */
+#bottom-nav{
+  position:fixed;
+  bottom:0;left:50%;
+  transform:translateX(-50%);
+  width:100%;max-width:480px;
+  height:var(--nav-h);
+  background:var(--surface);
+  border-top:1px solid var(--border);
+  display:flex;
+  z-index:200;
+  /* safe area inset for notched phones */
+  padding-bottom:env(safe-area-inset-bottom,0);
+}
+.nav-tab{
+  flex:1;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;
+  font-size:10px;font-weight:700;
+  color:var(--ink-3);
+  cursor:pointer;
+  border:none;background:transparent;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  transition:color .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.nav-tab svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.nav-tab.active{color:var(--accent);}
+
+/* ─── SCREENS ────────────────────────────────────────────────────────── */
+.screen{
+  display:none;
+  position:fixed;
+  top:0;left:50%;
+  transform:translateX(-50%);
+  width:100%;max-width:480px;
+  /* full height minus bottom nav */
+  height:calc(100% - var(--nav-h) - env(safe-area-inset-bottom,0px));
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  background:var(--bg);
+  flex-direction:column;
+}
+.screen.active{display:flex;}
+
+/* ─── TOP BAR (Discover) ─────────────────────────────────────────────── */
+.top-bar{
+  position:sticky;top:0;z-index:100;
+  background:rgba(255,253,249,0.97);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+  padding:12px 16px 10px;
+}
+.top-bar-logo{
+  font-size:18px;font-weight:800;letter-spacing:-0.4px;
+  color:var(--ink);
+  margin-bottom:10px;
+}
+.top-bar-logo span{color:var(--accent);}
+.search-wrap{position:relative;}
+.search-wrap svg{
+  position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  width:16px;height:16px;stroke:var(--ink-3);fill:none;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round;pointer-events:none;
+}
+#search-input{
+  width:100%;padding:10px 12px 10px 36px;
+  border:1.5px solid var(--border);border-radius:9px;
+  font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;
+  background:var(--surface);color:var(--ink);outline:none;
+  transition:border-color .15s;
+}
+#search-input:focus{border-color:var(--accent);}
+.city-pills{
+  display:flex;gap:6px;overflow-x:auto;padding-top:10px;
+  scrollbar-width:none;
+}
+.city-pills::-webkit-scrollbar{display:none;}
+.pill{
+  flex-shrink:0;padding:5px 12px;border-radius:20px;
+  font-size:11px;font-weight:700;
+  border:1.5px solid var(--border);
+  background:var(--surface);color:var(--ink-2);
+  cursor:pointer;transition:all .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.pill.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+/* ─── DISCOVER SCREEN BODY ───────────────────────────────────────────── */
+.screen-body{flex:1;padding:16px;}
+.screen-h1{
+  font-size:13px;font-weight:700;color:var(--ink-3);
+  text-transform:uppercase;letter-spacing:.08em;
+  margin-bottom:12px;
+}
+.venue-list{display:flex;flex-direction:column;gap:10px;}
+
+/* Venue card */
+.venue-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  display:flex;align-items:center;gap:12px;padding:14px;
+  cursor:pointer;transition:border-color .15s,box-shadow .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.venue-card:active{box-shadow:0 1px 6px rgba(0,0,0,.08);}
+.venue-card-info{flex:1;min-width:0;}
+.venue-card-name{font-size:14px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.venue-card-meta{display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap;}
+.cuisine-chip{
+  display:inline-block;padding:2px 8px;border-radius:4px;
+  font-size:10px;font-weight:700;
+  background:var(--surface-2);color:var(--ink-2);
+}
+.city-label{font-size:11px;color:var(--ink-3);}
+.discount-badge{
+  display:inline-block;padding:3px 9px;border-radius:6px;
+  font-size:11px;font-weight:700;margin-top:5px;
+}
+.discount-badge.active{background:#00875a18;color:var(--green);border:1px solid #00875a25;}
+.discount-badge.soon{background:var(--surface-2);color:var(--ink-3);border:1px solid var(--border);}
+.venue-card-arrow{color:var(--ink-3);flex-shrink:0;}
+.venue-card-arrow svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
+
+/* Empty state */
+.empty-state{
+  text-align:center;padding:48px 24px;
+  color:var(--ink-3);font-size:14px;
+}
+.empty-state svg{width:40px;height:40px;stroke:var(--border);stroke-width:1.5;fill:none;margin-bottom:12px;}
+
+/* ─── BACK BAR (venue / claim) ────────────────────────────────────────── */
+.back-bar{
+  position:sticky;top:0;z-index:100;
+  background:rgba(255,253,249,0.97);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+  padding:12px 16px;
+  display:flex;align-items:center;gap:10px;
+}
+.back-btn{
+  display:flex;align-items:center;gap:5px;
+  font-size:13px;font-weight:700;color:var(--accent);
+  cursor:pointer;border:none;background:transparent;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  -webkit-tap-highlight-color:transparent;
+}
+.back-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
+
+/* ─── VENUE SCREEN ───────────────────────────────────────────────────── */
+#screen-venue .venue-hero{padding:20px 16px 0;}
+.venue-title{
+  font-family:'Fraunces',serif;
+  font-size:26px;font-weight:700;letter-spacing:-0.5px;
+  color:var(--ink);line-height:1.15;margin-bottom:8px;
+}
+.venue-meta-chips{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.venue-city-chip{font-size:12px;color:var(--ink-3);display:flex;align-items:center;gap:4px;}
+.venue-city-chip svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;}
+
+/* Offer banner */
+.offer-banner{
+  background:#00875a10;border:1px solid #00875a25;border-radius:10px;
+  padding:12px 16px;margin:0 16px 16px;
+  display:flex;align-items:center;gap:10px;
+}
+.offer-banner-icon{font-size:20px;}
+.offer-banner-text{font-size:13px;color:var(--green);font-weight:600;line-height:1.4;}
+
+/* How it works steps */
+.hiw-section{padding:0 16px 16px;}
+.hiw-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);margin-bottom:12px;}
+.hiw-steps{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;}
+.hiw-steps::-webkit-scrollbar{display:none;}
+.hiw-step{
+  flex-shrink:0;width:130px;
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:12px;
+}
+.hiw-step-num{font-size:10px;font-weight:700;color:var(--accent);margin-bottom:6px;}
+.hiw-step-label{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px;}
+.hiw-step-desc{font-size:11px;color:var(--ink-3);line-height:1.5;}
+
+/* Share section */
+.share-section{padding:0 16px 16px;}
+.share-section-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:12px;}
+.share-form{display:flex;flex-direction:column;gap:10px;}
+.share-form input{
+  width:100%;padding:11px 14px;
+  border:1.5px solid var(--border);border-radius:9px;
+  font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;
+  background:var(--surface);color:var(--ink);outline:none;
+  transition:border-color .15s;
+}
+.share-form input:focus{border-color:var(--accent);}
+.btn-primary{
+  padding:13px 20px;background:var(--accent);color:#fff;
+  border:none;border-radius:9px;
+  font-size:14px;font-weight:700;
+  cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;
+  transition:background .15s;display:flex;align-items:center;justify-content:center;gap:6px;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn-primary:hover{background:var(--accent-mid);}
+.btn-primary:disabled{background:var(--ink-3);cursor:not-allowed;}
+
+/* Share result block */
+.share-result{
+  background:var(--surface-2);border:1px solid var(--border);border-radius:10px;
+  padding:14px;
+}
+.share-result-link{
+  font-size:13px;color:var(--ink-2);
+  word-break:break-all;margin-bottom:10px;line-height:1.5;
+}
+.share-result-link strong{color:var(--ink);font-size:14px;}
+.share-progress{font-size:12px;color:var(--ink-3);margin-bottom:12px;}
+.share-progress strong{color:var(--green);}
+
+/* Social share buttons */
+.social-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.social-btn{
+  flex:1;min-width:calc(50% - 4px);
+  padding:10px 8px;border-radius:9px;
+  font-size:12px;font-weight:700;
+  border:1.5px solid var(--border);
+  background:var(--surface);color:var(--ink-2);
+  cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  transition:all .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.social-btn:hover{border-color:var(--accent);color:var(--accent);}
+.social-btn svg{width:16px;height:16px;fill:currentColor;}
+
+/* Copy toast */
+.copy-toast{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+  background:var(--ink);color:#fff;
+  padding:8px 18px;border-radius:20px;
+  font-size:13px;font-weight:600;
+  opacity:0;transition:opacity .2s;
+  pointer-events:none;z-index:500;
+  white-space:nowrap;
+}
+.copy-toast.show{opacity:1;}
+
+/* External links */
+.venue-links{padding:0 16px 24px;display:flex;gap:8px;flex-wrap:wrap;}
+.venue-ext-link{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:8px 14px;border-radius:8px;
+  border:1.5px solid var(--border);
+  font-size:12px;font-weight:700;color:var(--ink-2);
+  text-decoration:none;transition:all .15s;
+}
+.venue-ext-link:hover{border-color:var(--accent);color:var(--accent);}
+.venue-ext-link svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;}
+
+/* ─── REFS SCREEN ────────────────────────────────────────────────────── */
+.refs-header{padding:20px 16px 0;}
+.refs-title{
+  font-family:'Fraunces',serif;
+  font-size:24px;font-weight:700;letter-spacing:-0.4px;
+  color:var(--ink);margin-bottom:4px;
+}
+.refs-sub{font-size:13px;color:var(--ink-3);margin-bottom:16px;}
+.ref-list{display:flex;flex-direction:column;gap:10px;padding:0 16px 24px;}
+.ref-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:14px;
+}
+.ref-card-venue{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.ref-card-date{font-size:11px;color:var(--ink-3);margin-bottom:10px;}
+.ref-card-status{font-size:12px;color:var(--ink-2);margin-bottom:10px;}
+.ref-card-status strong{color:var(--green);}
+.ref-card-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.btn-sm{
+  padding:8px 14px;border-radius:7px;
+  font-size:12px;font-weight:700;
+  cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;
+  border:1.5px solid var(--border);background:var(--surface);color:var(--ink-2);
+  transition:all .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn-sm:hover{border-color:var(--accent);color:var(--accent);}
+.btn-sm-green{
+  padding:8px 14px;border-radius:7px;
+  font-size:12px;font-weight:700;
+  cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;
+  border:none;background:var(--green);color:#fff;
+  transition:background .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn-sm-green:hover{background:#007050;}
+.refs-empty{
+  text-align:center;padding:48px 24px;
+  color:var(--ink-3);font-size:14px;
+}
+.refs-empty svg{width:40px;height:40px;stroke:var(--border);stroke-width:1.5;fill:none;margin-bottom:12px;display:block;margin-left:auto;margin-right:auto;}
+.refs-empty p{margin-bottom:16px;}
+
+/* ─── CLAIM SCREEN ───────────────────────────────────────────────────── */
+.claim-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;}
+.claim-icon{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:20px;}
+.claim-icon.valid{background:#00875a18;}
+.claim-icon.redeemed{background:var(--surface-2);}
+.claim-icon svg{width:32px;height:32px;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
+.claim-venue{font-size:13px;color:var(--ink-3);margin-bottom:4px;text-align:center;}
+.claim-offer{font-size:32px;font-weight:800;color:var(--green);letter-spacing:-1px;margin-bottom:4px;text-align:center;}
+.claim-offer.redeemed{color:var(--ink-3);}
+.claim-code-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);margin-bottom:8px;text-align:center;}
+.claim-code{
+  font-family:'Fraunces',serif;font-size:36px;font-weight:700;letter-spacing:4px;
+  color:var(--ink);background:var(--surface-2);border:1px solid var(--border);
+  border-radius:12px;padding:14px 24px;margin-bottom:24px;text-align:center;width:100%;
+}
+.claim-code.redeemed{color:var(--ink-3);}
+.claim-redeemed-msg{font-size:13px;color:var(--ink-3);text-align:center;margin-bottom:16px;}
+.claim-loading{font-size:14px;color:var(--ink-3);text-align:center;}
+.claim-error{font-size:14px;color:#c0392b;text-align:center;}
+
+/* ─── UTILITY ────────────────────────────────────────────────────────── */
+.divider{height:1px;background:var(--border);margin:8px 0;}
+.spinner{
+  display:inline-block;width:18px;height:18px;
+  border:2px solid rgba(255,255,255,.4);border-top-color:#fff;
+  border-radius:50%;animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- ─── COPY TOAST ─────────────────────────────────────────────────────── -->
+<div class="copy-toast" id="copy-toast">Copied!</div>
+
+<!-- ════════════════════════════════════════════════════════════════════
+     SCREEN 1: DISCOVER
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="screen active" id="screen-discover">
+  <!-- Sticky top bar with search -->
+  <div class="top-bar">
+    <div class="top-bar-logo">loop<span>ref</span></div>
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="search" id="search-input" placeholder="Search venues, cities…" autocomplete="off" oninput="filterVenues()">
+    </div>
+    <div class="city-pills" id="city-pills">
+      <div class="pill active" data-city="all" onclick="selectCity(this)">All cities</div>
+    </div>
+  </div>
+
+  <!-- Venue list -->
+  <div class="screen-body">
+    <div class="screen-h1">Find venues near you</div>
+    <div class="venue-list" id="venue-list">
+      <!-- Skeleton / loading state -->
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+        Loading venues…
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════
+     SCREEN 2: VENUE DETAIL
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-venue">
+  <div class="back-bar">
+    <button class="back-btn" onclick="navigate('#discover')">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Back
+    </button>
+  </div>
+
+  <!-- Dynamic content injected by loadVenue() -->
+  <div id="venue-content">
+    <div class="screen-body">
+      <div class="empty-state">Loading venue…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════
+     SCREEN 3: MY REFS
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-refs">
+  <div class="refs-header">
+    <div class="refs-title">My Referrals</div>
+    <div class="refs-sub">Your active share links and their status.</div>
+  </div>
+  <div id="refs-list" class="ref-list">
+    <!-- Rendered by loadRefs() -->
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════
+     SCREEN 4: CLAIM
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-claim">
+  <div class="back-bar">
+    <button class="back-btn" onclick="history.back()">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Back
+    </button>
+  </div>
+  <div id="claim-content" class="claim-body">
+    <div class="claim-loading">Loading claim code…</div>
+  </div>
+</div>
+
+<!-- ─── BOTTOM NAV ─────────────────────────────────────────────────────── -->
+<nav id="bottom-nav">
+  <button class="nav-tab active" id="tab-discover" onclick="navigate('#discover')">
+    <!-- search icon -->
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+    Discover
+  </button>
+  <button class="nav-tab" id="tab-refs" onclick="navigate('#refs')">
+    <!-- share/network icon -->
+    <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51 15.42 17.49M15.41 6.51 8.59 10.49"/></svg>
+    My Refs
+  </button>
+</nav>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════════════════ */
+var _allVenues = [];         // full venue list from API
+var _filteredVenues = [];    // currently displayed
+var _activeCity = 'all';     // city filter
+var _currentVenueSlug = null; // slug loaded in venue screen
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LOCALSTORAGE HELPERS
+═══════════════════════════════════════════════════════════════════════ */
+/**
+ * Get all saved share records from localStorage.
+ * Schema: [{ shareCode, shareId, venueSlug, venueName, email, created }]
+ */
+function getShares() {
+  try { return JSON.parse(localStorage.getItem('loopref_shares') || '[]'); }
+  catch(e) { return []; }
+}
+
+/** Persist share records. */
+function saveShares(arr) {
+  localStorage.setItem('loopref_shares', JSON.stringify(arr));
+}
+
+/** Find a share record for a given venueSlug. */
+function getShareForVenue(slug) {
+  return getShares().find(function(s) { return s.venueSlug === slug; }) || null;
+}
+
+/** Get / save remembered user (name + email). */
+function getSavedUser() {
+  try { return JSON.parse(localStorage.getItem('loopref_user') || 'null'); }
+  catch(e) { return null; }
+}
+function saveUser(name, email) {
+  localStorage.setItem('loopref_user', JSON.stringify({ name: name, email: email }));
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ROUTING
+═══════════════════════════════════════════════════════════════════════ */
+/** Show the screen matching `hash`, call its onMount. */
+function navigate(hash) {
+  // Persist navigation in browser history
+  if (window.location.hash !== hash) {
+    history.pushState(null, '', hash);
+  }
+  applyRoute(hash);
+}
+
+function applyRoute(hash) {
+  var parts = hash.split('?');
+  var screen = parts[0].replace('#', '') || 'discover';
+  var params = parseQuery(parts[1] || '');
+
+  // Hide all screens, deactivate all tabs
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  document.querySelectorAll('.nav-tab').forEach(function(t) { t.classList.remove('active'); });
+
+  if (screen === 'discover') {
+    document.getElementById('screen-discover').classList.add('active');
+    document.getElementById('tab-discover').classList.add('active');
+    // Only load if not already populated
+    if (!_allVenues.length) loadDiscover();
+  } else if (screen === 'venue') {
+    document.getElementById('screen-venue').classList.add('active');
+    document.getElementById('tab-discover').classList.add('active');
+    loadVenue(params.slug || params.venue || '');
+  } else if (screen === 'refs') {
+    document.getElementById('screen-refs').classList.add('active');
+    document.getElementById('tab-refs').classList.add('active');
+    loadRefs();
+  } else if (screen === 'claim') {
+    document.getElementById('screen-claim').classList.add('active');
+    loadClaim(params.code || '');
+  } else {
+    // Fallback to discover
+    document.getElementById('screen-discover').classList.add('active');
+    document.getElementById('tab-discover').classList.add('active');
+    if (!_allVenues.length) loadDiscover();
+  }
+}
+
+/** Parse query string like "slug=foo&bar=baz" into an object. */
+function parseQuery(str) {
+  var out = {};
+  if (!str) return out;
+  str.split('&').forEach(function(pair) {
+    var kv = pair.split('=');
+    out[decodeURIComponent(kv[0])] = decodeURIComponent(kv[1] || '');
+  });
+  return out;
+}
+
+// Handle browser back/forward
+window.addEventListener('popstate', function() {
+  applyRoute(window.location.hash || '#discover');
+});
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DISCOVER SCREEN
+═══════════════════════════════════════════════════════════════════════ */
+/** Fetch all venues and render cards + city pills. */
+function loadDiscover() {
+  fetch('/api/places?limit=500')
+    .then(function(r) { return r.json(); })
+    .then(function(venues) {
+      _allVenues = venues || [];
+      buildCityPills(_allVenues);
+      filterVenues(); // renders cards with current filter
+    })
+    .catch(function() {
+      document.getElementById('venue-list').innerHTML =
+        '<div class="empty-state"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>Could not load venues. Please try again.</div>';
+    });
+}
+
+/** Build city filter pills from unique cities in venue list. */
+function buildCityPills(venues) {
+  // Collect unique cities (non-empty)
+  var cities = [];
+  venues.forEach(function(v) {
+    if (v.city && cities.indexOf(v.city) === -1) cities.push(v.city);
+  });
+  cities.sort();
+
+  var container = document.getElementById('city-pills');
+  // Keep "All cities" pill, add one per unique city
+  container.innerHTML = '<div class="pill active" data-city="all" onclick="selectCity(this)">All cities</div>';
+  cities.forEach(function(city) {
+    var pill = document.createElement('div');
+    pill.className = 'pill';
+    pill.setAttribute('data-city', city);
+    pill.setAttribute('onclick', 'selectCity(this)');
+    pill.textContent = city;
+    container.appendChild(pill);
+  });
+}
+
+/** City pill click handler. */
+function selectCity(el) {
+  _activeCity = el.getAttribute('data-city');
+  document.querySelectorAll('#city-pills .pill').forEach(function(p) { p.classList.remove('active'); });
+  el.classList.add('active');
+  filterVenues();
+}
+
+/** Filter venues by search text + city, then render. */
+function filterVenues() {
+  var q = (document.getElementById('search-input').value || '').toLowerCase().trim();
+
+  _filteredVenues = _allVenues.filter(function(v) {
+    var matchCity = _activeCity === 'all' || v.city === _activeCity;
+    if (!matchCity) return false;
+    if (!q) return true;
+    return (v.name || '').toLowerCase().includes(q) ||
+           (v.city || '').toLowerCase().includes(q) ||
+           (v.cuisine || '').toLowerCase().includes(q) ||
+           (v.state || '').toLowerCase().includes(q);
+  });
+
+  renderVenueCards(_filteredVenues);
+}
+
+/** Render venue cards from array. */
+function renderVenueCards(venues) {
+  var container = document.getElementById('venue-list');
+  if (!venues.length) {
+    container.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>No venues found</div>';
+    return;
+  }
+
+  container.innerHTML = venues.map(function(v) {
+    var badge = v.discount_enabled
+      ? '<div class="discount-badge active">' + escHtml(v.discount_pct) + '% off</div>'
+      : '<div class="discount-badge soon">Coming soon</div>';
+
+    return '<div class="venue-card" onclick="navigate(\'#venue?slug=' + escHtml(v.slug) + '\')">' +
+      '<div class="venue-card-info">' +
+        '<div class="venue-card-name">' + escHtml(v.name) + '</div>' +
+        '<div class="venue-card-meta">' +
+          (v.cuisine ? '<span class="cuisine-chip">' + escHtml(v.cuisine) + '</span>' : '') +
+          (v.city ? '<span class="city-label">' + escHtml(v.city) + (v.state ? ', ' + escHtml(v.state) : '') + '</span>' : '') +
+        '</div>' +
+        badge +
+      '</div>' +
+      '<div class="venue-card-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>' +
+    '</div>';
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   VENUE SCREEN
+═══════════════════════════════════════════════════════════════════════ */
+/** Load a venue by slug and render the venue detail screen. */
+function loadVenue(slug) {
+  if (!slug) {
+    document.getElementById('venue-content').innerHTML =
+      '<div class="screen-body"><div class="empty-state">Venue not found.</div></div>';
+    return;
+  }
+
+  _currentVenueSlug = slug;
+
+  // Show loading state
+  document.getElementById('venue-content').innerHTML =
+    '<div class="screen-body"><div class="empty-state">Loading…</div></div>';
+
+  fetch('/api/places/' + encodeURIComponent(slug))
+    .then(function(r) {
+      if (!r.ok) throw new Error('not found');
+      return r.json();
+    })
+    .then(function(v) {
+      renderVenueDetail(v);
+    })
+    .catch(function() {
+      document.getElementById('venue-content').innerHTML =
+        '<div class="screen-body"><div class="empty-state">Could not load this venue.</div></div>';
+    });
+}
+
+/** Render all venue detail content. */
+function renderVenueDetail(v) {
+  var existingShare = getShareForVenue(v.slug);
+
+  // Offer banner
+  var offerBanner = '';
+  if (v.discount_enabled && v.discount_pct) {
+    var spend = v.min_spend ? ' when you spend $' + v.min_spend + '+' : '';
+    offerBanner =
+      '<div class="offer-banner">' +
+        '<div class="offer-banner-icon">🎁</div>' +
+        '<div class="offer-banner-text">' + escHtml(v.discount_pct) + '% off' + escHtml(spend) + ' and share with friends</div>' +
+      '</div>';
+  }
+
+  // How it works steps
+  var hiwSteps = [
+    { num:'01', label:'Visit', desc:'Head to ' + escHtml(v.name) + ' and enjoy your experience.' },
+    { num:'02', label:'Share', desc:'Get your unique link and share it with friends.' },
+    { num:'03', label:'Claim', desc:'Once ' + (v.min_verified_referrals || 5) + ' friends verify, unlock your discount.' }
+  ];
+  var hiwHtml = hiwSteps.map(function(s) {
+    return '<div class="hiw-step">' +
+      '<div class="hiw-step-num">Step ' + s.num + '</div>' +
+      '<div class="hiw-step-label">' + s.label + '</div>' +
+      '<div class="hiw-step-desc">' + s.desc + '</div>' +
+    '</div>';
+  }).join('');
+
+  // Share section: existing link OR form
+  var shareSection = renderShareSection(v, existingShare);
+
+  // External links
+  var extLinks = '';
+  if (v.google_maps_url) {
+    extLinks += '<a class="venue-ext-link" href="' + escHtml(v.google_maps_url) + '" target="_blank" rel="noopener">' +
+      '<svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' +
+      'Google Maps</a>';
+  }
+  // Social handles
+  ['instagram_handle','tiktok_handle','twitter_handle'].forEach(function(field) {
+    if (v[field]) {
+      extLinks += '<a class="venue-ext-link" href="https://instagram.com/' + escHtml(v[field]) + '" target="_blank" rel="noopener">@' + escHtml(v[field]) + '</a>';
+    }
+  });
+
+  var html =
+    '<div class="venue-hero">' +
+      '<div class="venue-title">' + escHtml(v.name) + '</div>' +
+      '<div class="venue-meta-chips">' +
+        (v.cuisine ? '<span class="cuisine-chip">' + escHtml(v.cuisine) + '</span>' : '') +
+        (v.city ? '<span class="venue-city-chip"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' + escHtml(v.city) + (v.state ? ', ' + escHtml(v.state) : '') + '</span>' : '') +
+      '</div>' +
+    '</div>' +
+    offerBanner +
+    '<div class="hiw-section">' +
+      '<div class="hiw-title">How it works</div>' +
+      '<div class="hiw-steps">' + hiwHtml + '</div>' +
+    '</div>' +
+    '<div class="divider" style="margin:0 16px 16px;"></div>' +
+    shareSection;
+
+  if (extLinks) {
+    html += '<div class="venue-links">' + extLinks + '</div>';
+  }
+
+  document.getElementById('venue-content').innerHTML = html;
+}
+
+/** Build the share section HTML (form or existing result). */
+function renderShareSection(v, existingShare) {
+  var savedUser = getSavedUser();
+
+  if (existingShare) {
+    // Already have a share link — show it with progress
+    var shareUrl = window.location.origin + '/r/' + existingShare.shareCode;
+    return '<div class="share-section">' +
+      '<div class="share-section-title">Your share link</div>' +
+      '<div class="share-result" id="share-result-' + escHtml(v.slug) + '">' +
+        '<div class="share-result-link"><strong>' + escHtml(shareUrl) + '</strong></div>' +
+        '<div class="share-progress" id="share-progress-' + escHtml(v.slug) + '">Checking status…</div>' +
+        renderSocialButtons(shareUrl, v.name) +
+      '</div>' +
+    '</div>';
+    // Kick off status poll after render
+  } else {
+    // Show form to generate a share link
+    var nameVal = savedUser ? escHtml(savedUser.name) : '';
+    var emailVal = savedUser ? escHtml(savedUser.email) : '';
+    return '<div class="share-section">' +
+      '<div class="share-section-title">Get your share link</div>' +
+      '<div id="share-form-wrap-' + escHtml(v.slug) + '">' +
+        '<div class="share-form" id="share-form-' + escHtml(v.slug) + '">' +
+          '<input type="text" id="share-name-' + escHtml(v.slug) + '" placeholder="Your name" value="' + nameVal + '" autocomplete="name">' +
+          '<input type="email" id="share-email-' + escHtml(v.slug) + '" placeholder="Your email" value="' + emailVal + '" autocomplete="email">' +
+          '<button class="btn-primary" id="share-btn-' + escHtml(v.slug) + '" onclick="generateShare(\'' + escHtml(v.slug) + '\', ' + (v.id || 'null') + ')">' +
+            'Get my share link →' +
+          '</button>' +
+          '<div id="share-form-msg-' + escHtml(v.slug) + '" style="font-size:12px;color:#c0392b;min-height:16px;"></div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+}
+
+/** Social share buttons HTML. */
+function renderSocialButtons(url, venueName) {
+  var text = encodeURIComponent('Check out ' + venueName + ' on LoopRef — visit, share, earn discounts! ' + url);
+  var waUrl = 'https://wa.me/?text=' + text;
+  var smsUrl = 'sms:?body=' + text;
+
+  return '<div class="social-btns">' +
+    '<button class="social-btn" onclick="window.open(\'' + waUrl + '\',\'_blank\')">' +
+      '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>' +
+      'WhatsApp' +
+    '</button>' +
+    '<button class="social-btn" onclick="copyShareLink(\'' + url + '\')">' +
+      '<svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" style="fill:none;stroke:currentColor;stroke-width:2"/></svg>' +
+      'Copy link' +
+    '</button>' +
+    '<button class="social-btn" onclick="copyShareLink(\'' + url + '\')">' +
+      '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="20" height="20" rx="5" style="fill:none;stroke:currentColor;stroke-width:2"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" style="fill:none;stroke:currentColor;stroke-width:2"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" style="stroke:currentColor;stroke-width:2"/></svg>' +
+      'Instagram' +
+    '</button>' +
+    '<button class="social-btn" onclick="window.location.href=\'' + smsUrl + '\'">' +
+      '<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"/></svg>' +
+      'SMS' +
+    '</button>' +
+  '</div>';
+}
+
+/** POST /api/share — generate a share link and save to localStorage. */
+function generateShare(venueSlug, venueId) {
+  var nameEl = document.getElementById('share-name-' + venueSlug);
+  var emailEl = document.getElementById('share-email-' + venueSlug);
+  var msgEl = document.getElementById('share-form-msg-' + venueSlug);
+  var btn = document.getElementById('share-btn-' + venueSlug);
+
+  var name = (nameEl ? nameEl.value.trim() : '');
+  var email = (emailEl ? emailEl.value.trim() : '');
+
+  if (!name) { msgEl.textContent = 'Please enter your name.'; return; }
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { msgEl.textContent = 'Please enter a valid email.'; return; }
+
+  msgEl.textContent = '';
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Generating…';
+
+  // Resolve venue ID if not provided
+  var venueRecord = _allVenues.find(function(v) { return v.slug === venueSlug; });
+  var resolvedId = venueId || (venueRecord ? venueRecord.id : null);
+
+  if (!resolvedId) {
+    // Fetch venue to get id
+    fetch('/api/places/' + encodeURIComponent(venueSlug))
+      .then(function(r) { return r.json(); })
+      .then(function(v) { doSharePost(venueSlug, v.id, name, email, btn, msgEl); })
+      .catch(function() {
+        btn.disabled = false;
+        btn.textContent = 'Get my share link →';
+        msgEl.textContent = 'Could not find venue. Try again.';
+      });
+  } else {
+    doSharePost(venueSlug, resolvedId, name, email, btn, msgEl);
+  }
+}
+
+function doSharePost(venueSlug, venueId, name, email, btn, msgEl) {
+  fetch('/api/share', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ restaurant_id: venueId, name: name, email: email })
+  })
+  .then(function(r) { return r.json().then(function(d) { return { status: r.status, data: d }; }); })
+  .then(function(res) {
+    btn.disabled = false;
+    btn.textContent = 'Get my share link →';
+
+    if (res.status !== 200 && res.status !== 201) {
+      msgEl.textContent = res.data.error || 'Something went wrong. Please try again.';
+      return;
+    }
+
+    var shareCode = res.data.shareCode || res.data.share_code;
+    var shareId = res.data.id || res.data.shareId;
+    var venueName = (document.getElementById('venue-content').querySelector('.venue-title') || {}).textContent || venueSlug;
+
+    // Save user prefs for next time
+    saveUser(name, email);
+
+    // Persist share record
+    var shares = getShares();
+    shares.push({
+      shareCode: shareCode,
+      shareId: shareId,
+      venueSlug: venueSlug,
+      venueName: venueName,
+      email: email,
+      created: new Date().toISOString()
+    });
+    saveShares(shares);
+
+    // Re-render venue screen with the new link showing
+    loadVenue(venueSlug);
+  })
+  .catch(function() {
+    btn.disabled = false;
+    btn.textContent = 'Get my share link →';
+    msgEl.textContent = 'Network error. Please try again.';
+  });
+}
+
+/** Poll /api/share-stats/:shareId and update the progress text. */
+function checkRefStatus(shareId, progressElId, venueSlug) {
+  fetch('/api/share-stats/' + encodeURIComponent(shareId))
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var el = document.getElementById(progressElId);
+      if (!el) return;
+
+      var verified = data.verified_referrals || data.verified || 0;
+      var needed = data.min_verified_referrals || data.needed || 5;
+      var claimCode = data.claim_code || data.claimCode;
+
+      if (claimCode) {
+        el.innerHTML = '<strong style="color:var(--green)">Discount unlocked!</strong> ' +
+          '<a href="#claim?code=' + encodeURIComponent(claimCode) + '" onclick="navigate(\'#claim?code=' + encodeURIComponent(claimCode) + '\')" style="color:var(--accent);font-weight:700;">' +
+          'View claim code →</a>';
+      } else {
+        el.innerHTML = '<strong>' + verified + '</strong>/' + needed + ' friends verified';
+      }
+    })
+    .catch(function() {
+      /* silently ignore polling errors */
+    });
+}
+
+/** Copy text to clipboard and show toast. */
+function copyShareLink(url) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(function() { showCopyToast(); });
+  } else {
+    // Fallback for older browsers
+    var ta = document.createElement('textarea');
+    ta.value = url;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showCopyToast();
+  }
+}
+
+function showCopyToast() {
+  var t = document.getElementById('copy-toast');
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 2000);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   REFS SCREEN
+═══════════════════════════════════════════════════════════════════════ */
+/** Render all saved referral records. */
+function loadRefs() {
+  var shares = getShares();
+  var container = document.getElementById('refs-list');
+
+  if (!shares.length) {
+    container.innerHTML =
+      '<div class="refs-empty">' +
+        '<svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51 15.42 17.49M15.41 6.51 8.59 10.49"/></svg>' +
+        '<p>No active referrals yet — find a venue to share</p>' +
+        '<button class="btn-primary" onclick="navigate(\'#discover\')" style="margin:0 auto;max-width:200px;">Find a venue →</button>' +
+      '</div>';
+    return;
+  }
+
+  container.innerHTML = shares.map(function(s, idx) {
+    var dateStr = s.created ? new Date(s.created).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : '';
+    return '<div class="ref-card">' +
+      '<div class="ref-card-venue">' + escHtml(s.venueName || s.venueSlug) + '</div>' +
+      '<div class="ref-card-date">' + (dateStr ? 'Created ' + dateStr : '') + (s.email ? ' &middot; ' + escHtml(s.email) : '') + '</div>' +
+      '<div class="ref-card-status" id="ref-status-' + idx + '">Loading status…</div>' +
+      '<div class="ref-card-actions">' +
+        '<button class="btn-sm" onclick="checkRefStatus(\'' + escHtml(s.shareId) + '\', \'ref-status-' + idx + '\', \'' + escHtml(s.venueSlug) + '\')">Check status</button>' +
+        '<button class="btn-sm" onclick="copyShareLink(\'' + window.location.origin + '/r/' + escHtml(s.shareCode) + '\')">Copy link</button>' +
+        '<button class="btn-sm" onclick="navigate(\'#venue?slug=' + escHtml(s.venueSlug) + '\')">View venue</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  // Auto-check status for all shares
+  shares.forEach(function(s, idx) {
+    checkRefStatus(s.shareId, 'ref-status-' + idx, s.venueSlug);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   CLAIM SCREEN
+═══════════════════════════════════════════════════════════════════════ */
+/** Load a claim code from the API and render the claim screen. */
+function loadClaim(code) {
+  if (!code) {
+    document.getElementById('claim-content').innerHTML =
+      '<div class="claim-error">No claim code provided.</div>';
+    return;
+  }
+
+  document.getElementById('claim-content').innerHTML =
+    '<div class="claim-loading">Loading claim code…</div>';
+
+  fetch('/api/claim/' + encodeURIComponent(code))
+    .then(function(r) { return r.json().then(function(d) { return { status: r.status, data: d }; }); })
+    .then(function(res) {
+      if (res.status === 404 || res.data.error) {
+        document.getElementById('claim-content').innerHTML =
+          '<div class="claim-error">Claim code not found or already expired.</div>';
+        return;
+      }
+      renderClaimDetail(res.data, code);
+    })
+    .catch(function() {
+      document.getElementById('claim-content').innerHTML =
+        '<div class="claim-error">Could not load claim code. Please try again.</div>';
+    });
+}
+
+/** Render claim detail. */
+function renderClaimDetail(data, code) {
+  var isRedeemed = !!(data.redeemed || data.redeemed_at);
+  var discountPct = data.discount_pct || data.discountPct || '';
+  var venueName = data.venue_name || data.venueName || '';
+  var redeemedDate = '';
+  if (isRedeemed && (data.redeemed_at || data.redeemed)) {
+    try { redeemedDate = new Date(data.redeemed_at || data.redeemed).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }); }
+    catch(e) { redeemedDate = 'unknown date'; }
+  }
+
+  var iconColor = isRedeemed ? 'redeemed' : 'valid';
+  var iconSvg = isRedeemed
+    ? '<svg viewBox="0 0 24 24" stroke="var(--ink-3)" fill="none"><polyline points="20 6 9 17 4 12"/></svg>'
+    : '<svg viewBox="0 0 24 24" stroke="var(--green)" fill="none"><polyline points="20 6 9 17 4 12"/></svg>';
+
+  var redeemBtn = '';
+  if (!isRedeemed) {
+    redeemBtn =
+      '<button class="btn-primary" id="redeem-btn" onclick="redeemClaim(\'' + escHtml(code) + '\')" style="width:100%;max-width:300px;">' +
+        'Mark as redeemed' +
+      '</button>' +
+      '<p style="font-size:11px;color:var(--ink-3);text-align:center;margin-top:8px;">Confirm with venue staff to redeem.</p>';
+  }
+
+  document.getElementById('claim-content').innerHTML =
+    '<div class="claim-icon ' + iconColor + '">' + iconSvg + '</div>' +
+    (venueName ? '<div class="claim-venue">' + escHtml(venueName) + '</div>' : '') +
+    '<div class="claim-offer' + (isRedeemed ? ' redeemed' : '') + '">' + (discountPct ? escHtml(String(discountPct)) + '% off' : 'Discount') + '</div>' +
+    '<div class="claim-code-label">Your claim code</div>' +
+    '<div class="claim-code' + (isRedeemed ? ' redeemed' : '') + '">' + escHtml(code) + '</div>' +
+    (isRedeemed
+      ? '<div class="claim-redeemed-msg">Already redeemed' + (redeemedDate ? ' on ' + redeemedDate : '') + '</div>'
+      : redeemBtn
+    );
+}
+
+/** POST /api/claim/:code/redeem */
+function redeemClaim(code) {
+  var btn = document.getElementById('redeem-btn');
+  if (!btn) return;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Redeeming…';
+
+  fetch('/api/claim/' + encodeURIComponent(code) + '/redeem', { method: 'POST' })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.ok || data.success) {
+        // Re-load to show redeemed state
+        loadClaim(code);
+      } else {
+        btn.disabled = false;
+        btn.textContent = 'Mark as redeemed';
+        alert(data.error || 'Could not redeem. Please try again.');
+      }
+    })
+    .catch(function() {
+      btn.disabled = false;
+      btn.textContent = 'Mark as redeemed';
+      alert('Network error. Please try again.');
+    });
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════════════════════════════ */
+function escHtml(str) {
+  return String(str == null ? '' : str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   BOOT — read hash and route
+═══════════════════════════════════════════════════════════════════════ */
+(function() {
+  // Support /app/?venue=slug as entry point (e.g. from QR codes)
+  var urlParams = new URLSearchParams(window.location.search);
+  var venueParam = urlParams.get('venue');
+  if (venueParam && !window.location.hash) {
+    navigate('#venue?slug=' + venueParam);
+  } else {
+    applyRoute(window.location.hash || '#discover');
+  }
+
+  // After initial render, trigger status polling for venue screen if share exists
+  // (handled inside renderVenueDetail via checkRefStatus)
+})();
+
+/* After DOM updates, auto-poll status on venue screen if a share link was shown */
+var _venueScreenObserver = new MutationObserver(function(mutations) {
+  mutations.forEach(function(m) {
+    m.addedNodes.forEach(function(node) {
+      if (node.nodeType === 1) {
+        // Look for share progress elements to poll
+        node.querySelectorAll && node.querySelectorAll('[id^="share-progress-"]').forEach(function(el) {
+          var slug = el.id.replace('share-progress-', '');
+          var share = getShareForVenue(slug);
+          if (share && share.shareId) {
+            checkRefStatus(share.shareId, el.id, slug);
+          }
+        });
+      }
+    });
+  });
+});
+_venueScreenObserver.observe(document.getElementById('venue-content'), { childList: true, subtree: true });
+</script>
+</body>
+</html>
