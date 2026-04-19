@@ -23,7 +23,14 @@ function requireAdmin(req, res, next) {
 // ─── LoopRef system Pinterest OAuth ──────────────────────────────────────────
 
 // Step 1: Initiate OAuth for LoopRef's own Pinterest account (admin only)
-router.get('/loopref-pinterest', requireAdmin, (req, res) => {
+// Accepts key via ?key= query param so it works directly in a browser
+router.get('/loopref-pinterest', (req, res, next) => {
+  const key = process.env.ADMIN_KEY;
+  const provided = req.headers['x-admin-key'] || req.query.key;
+  if (!key) return res.status(503).json({ error: 'ADMIN_KEY not configured' });
+  if (provided !== key) return res.status(401).send('Unauthorized');
+  next();
+}, (req, res) => {
   const url = new URL('https://www.pinterest.com/oauth/');
   url.searchParams.set('client_id', PINTEREST_CLIENT_ID);
   url.searchParams.set('redirect_uri', LOOPREF_REDIRECT_URI);
