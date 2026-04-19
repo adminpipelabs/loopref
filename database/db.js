@@ -36,7 +36,6 @@ function initDb() {
       min_spend       INTEGER DEFAULT 50,
       discount_pct    INTEGER DEFAULT 20,
       min_verified_referrals INTEGER DEFAULT 5,
-      discount_enabled INTEGER DEFAULT 0,
       instagram_handle TEXT,
       tiktok_handle   TEXT,
       website         TEXT,
@@ -337,7 +336,6 @@ function runMigrations(db) {
 
   // restaurants: per-venue threshold
   add('restaurants', 'min_verified_referrals', 'INTEGER DEFAULT 5');
-  add('restaurants', 'discount_enabled',        'INTEGER DEFAULT 0');
 
   // Set min_verified_referrals=5 for any rows where it is NULL or 0
   try {

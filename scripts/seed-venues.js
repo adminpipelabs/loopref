@@ -109,8 +109,8 @@ function seedVenue(db, venue) {
   const r = db.prepare(`
     INSERT INTO restaurants
       (name, slug, cuisine, city, state, country, min_spend, discount_pct,
-       min_verified_referrals, discount_enabled, source, status, contact_email)
-    VALUES (?, ?, ?, ?, ?, 'US', 50, 20, 5, 0, 'seed', 'active', ?)
+       min_verified_referrals, source, status, contact_email)
+    VALUES (?, ?, ?, ?, ?, 'US', 50, 20, 5, 'seed', 'active', ?)
   `).run(
     venue.name, slug, venue.cuisine, venue.city, venue.state,
     `imported+${slug}@loopref.com`
