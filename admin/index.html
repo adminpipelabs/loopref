@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — LoopRef</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --bg:#fffdf9;--surface:#fff;--surface-2:#f5f0e8;--surface-3:#ede5d8;
+      --ink:#1a1208;--ink-2:#5a4f40;--ink-3:#9a8a78;
+      --accent:#ff6b35;--accent-mid:#e55a24;--accent-dim:#ff6b3512;
+      --green:#00875a;--green-dim:#00875a12;
+      --border:#e8e0d0;--border-2:#d0c4b0;
+      --red:#c0392b;--red-dim:#c0392b12;
+    }
+    html{scroll-behavior:smooth;}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;min-height:100vh;}
+
+    /* ─── LOGIN ─────────────────────────────────────────────────────── */
+    #login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
+    .login-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:48px 40px;width:100%;max-width:400px;text-align:center;}
+    .login-logo{font-family:'Fraunces',serif;font-size:32px;font-weight:700;letter-spacing:-1px;margin-bottom:6px;}
+    .login-logo span{color:var(--accent);}
+    .login-sub{font-size:13px;color:var(--ink-3);margin-bottom:32px;}
+    .login-card label{display:block;text-align:left;font-size:12px;font-weight:700;color:var(--ink-2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+    .login-card input[type="password"]{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);outline:none;margin-bottom:16px;}
+    .login-card input[type="password"]:focus{border-color:var(--accent);}
+    .login-card .btn-primary{width:100%;padding:13px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:background .15s;}
+    .login-card .btn-primary:hover{background:var(--accent-mid);}
+    .login-error{background:var(--red-dim);border:1px solid #c0392b25;border-radius:8px;padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:16px;display:none;}
+
+    /* ─── DASHBOARD ─────────────────────────────────────────────────── */
+    #dashboard{display:none;}
+
+    /* NAV */
+    .admin-nav{padding:0 40px;height:58px;display:flex;align-items:center;justify-content:space-between;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
+    .admin-nav-logo{font-size:16px;font-weight:800;color:var(--ink);letter-spacing:-0.3px;}
+    .admin-nav-logo span{color:var(--accent);}
+    .admin-nav-right{display:flex;align-items:center;gap:16px;}
+    .admin-nav-right span{font-size:12px;color:var(--ink-3);}
+    .btn-ghost{padding:7px 16px;background:transparent;border:1.5px solid var(--border);border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink-2);transition:all .15s;}
+    .btn-ghost:hover{border-color:var(--border-2);color:var(--ink);}
+
+    /* MAIN */
+    .admin-main{max-width:1200px;margin:0 auto;padding:32px 40px 80px;}
+
+    /* STATS BAR */
+    .stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px;}
+    .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;}
+    .stat-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin-bottom:6px;}
+    .stat-value{font-size:28px;font-weight:800;color:var(--ink);letter-spacing:-1px;}
+    .stat-sub{font-size:12px;color:var(--ink-3);margin-top:2px;}
+
+    /* SECTION HEADING */
+    .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+    .section-head h2{font-family:'Fraunces',serif;font-size:22px;font-weight:700;letter-spacing:-0.5px;}
+
+    /* TABLE */
+    .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:40px;}
+    table{width:100%;border-collapse:collapse;}
+    thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);background:var(--surface-2);border-bottom:1px solid var(--border);}
+    tbody tr{border-bottom:1px solid var(--border);}
+    tbody tr:last-child{border-bottom:none;}
+    tbody tr:hover{background:var(--surface-2);}
+    td{padding:12px 16px;font-size:13px;color:var(--ink-2);vertical-align:top;}
+    td.name-cell{font-weight:700;color:var(--ink);}
+
+    /* BADGES */
+    .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+    .badge-green{background:var(--green-dim);color:var(--green);border:1px solid #00875a20;}
+    .badge-grey{background:var(--surface-2);color:var(--ink-3);border:1px solid var(--border);}
+    .badge-orange{background:var(--accent-dim);color:var(--accent);border:1px solid #ff6b3520;}
+
+    /* ACTION BUTTON */
+    .btn-sm{padding:6px 12px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:background .15s;white-space:nowrap;}
+    .btn-sm:hover{background:var(--accent-mid);}
+    .btn-sm-ghost{padding:6px 12px;background:transparent;border:1.5px solid var(--border);color:var(--ink-2);border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .15s;white-space:nowrap;}
+    .btn-sm-ghost:hover{border-color:var(--accent);color:var(--accent);}
+
+    /* INLINE CONFIG FORM */
+    .config-row td{padding:0;}
+    .config-form{padding:20px 24px;background:var(--surface-2);border-top:1px solid var(--border);}
+    .config-form-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:16px;}
+    .config-form-grid{display:grid;grid-template-columns:repeat(4,1fr) 2fr auto;gap:12px;align-items:end;}
+    .config-form-field label{display:block;font-size:11px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;}
+    .config-form-field input{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;background:var(--surface);color:var(--ink);outline:none;}
+    .config-form-field input:focus{border-color:var(--accent);}
+    .config-save-btn{padding:9px 18px;background:var(--green);color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:background .15s;align-self:end;}
+    .config-save-btn:hover{background:#007050;}
+    .config-save-btn:disabled{background:var(--ink-3);cursor:not-allowed;}
+    .config-msg{font-size:12px;margin-top:10px;}
+    .config-msg.ok{color:var(--green);}
+    .config-msg.err{color:var(--red);}
+
+    /* PINTEREST SECTION */
+    .pinterest-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;}
+    .pinterest-section h2{font-family:'Fraunces',serif;font-size:22px;font-weight:700;letter-spacing:-0.5px;margin-bottom:6px;}
+    .pinterest-section p{font-size:13px;color:var(--ink-2);margin-bottom:24px;line-height:1.6;}
+    .pin-controls{display:flex;flex-direction:column;gap:20px;}
+    .pin-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+    .pin-row input{flex:1;min-width:200px;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);outline:none;}
+    .pin-row input:focus{border-color:var(--accent);}
+    .pin-divider{border:none;border-top:1px solid var(--border);margin:4px 0;}
+    .pin-preview{background:var(--accent-dim);border:1px solid #ff6b3525;border-radius:8px;padding:12px 16px;font-size:13px;color:var(--ink-2);display:none;}
+    .pin-preview strong{color:var(--ink);}
+
+    /* LOADING */
+    .loading-row td{text-align:center;padding:48px;color:var(--ink-3);font-size:13px;}
+
+    @media(max-width:900px){
+      .admin-main{padding:24px 20px 60px;}
+      .admin-nav{padding:0 20px;}
+      .stats-bar{grid-template-columns:1fr;}
+      .config-form-grid{grid-template-columns:1fr 1fr;}
+      table{font-size:12px;}
+      td,thead th{padding:10px 12px;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── LOGIN SCREEN ───────────────────────────────────────────────────────── -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">loop<span>ref</span></div>
+    <div class="login-sub">Admin panel</div>
+    <div class="login-error" id="login-error">Invalid admin key. Please try again.</div>
+    <label for="admin-key-input">Admin key</label>
+    <input type="password" id="admin-key-input" placeholder="Enter admin key" autocomplete="current-password">
+    <button class="btn-primary" onclick="signIn()">Sign in</button>
+  </div>
+</div>
+
+<!-- ─── DASHBOARD ──────────────────────────────────────────────────────────── -->
+<div id="dashboard">
+  <nav class="admin-nav">
+    <div class="admin-nav-logo">loopref <span>admin</span></div>
+    <div class="admin-nav-right">
+      <span id="nav-venue-count"></span>
+      <button class="btn-ghost" onclick="signOut()">Sign out</button>
+    </div>
+  </nav>
+
+  <div class="admin-main">
+
+    <!-- Stats -->
+    <div class="stats-bar" id="stats-bar">
+      <div class="stat-card">
+        <div class="stat-label">Total venues</div>
+        <div class="stat-value" id="stat-total">—</div>
+        <div class="stat-sub">in directory</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Offer enabled</div>
+        <div class="stat-value" id="stat-enabled">—</div>
+        <div class="stat-sub">discount live</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pending config</div>
+        <div class="stat-value" id="stat-pending">—</div>
+        <div class="stat-sub">no offer yet</div>
+      </div>
+    </div>
+
+    <!-- Venue list -->
+    <div class="section-head">
+      <h2>Venues</h2>
+      <button class="btn-ghost" onclick="loadVenues()">Refresh</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>City</th>
+            <th>Cuisine</th>
+            <th>Offer</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="venue-tbody">
+          <tr class="loading-row"><td colspan="6">Loading venues...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pinterest -->
+    <div class="section-head">
+      <h2>Pinterest</h2>
+    </div>
+    <div class="pinterest-section">
+      <p>Post pins for venues directly from the admin panel. Dry-run first to preview pin count, then confirm to post.</p>
+      <div class="pin-controls">
+
+        <!-- Pin all venues -->
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px;">Pin all venues</div>
+          <div class="pin-row">
+            <button class="btn-sm" onclick="pinAllDryRun()">Preview pin count</button>
+          </div>
+          <div class="pin-preview" id="pin-all-preview"></div>
+        </div>
+
+        <hr class="pin-divider">
+
+        <!-- Pin single venue -->
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px;">Pin single venue</div>
+          <div class="pin-row">
+            <input type="text" id="single-slug" placeholder="Venue slug (e.g. raos-new-york)">
+            <button class="btn-sm" onclick="pinSingleVenue()">Pin venue</button>
+          </div>
+          <div class="pin-preview" id="pin-single-preview"></div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ─── Auth ─────────────────────────────────────────────────────────────────
+
+  function getKey() { return sessionStorage.getItem('lr_admin_key') || ''; }
+
+  function signIn() {
+    var key = document.getElementById('admin-key-input').value.trim();
+    if (!key) return;
+    // Test key against a lightweight admin endpoint
+    fetch('/api/places?limit=1')
+      .then(function(r) {
+        if (r.ok) {
+          sessionStorage.setItem('lr_admin_key', key);
+          // Validate by calling a keyed endpoint
+          return fetch('/api/admin/venue-setup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-admin-key': key },
+            body: JSON.stringify({ slug: '__ping__' })
+          });
+        }
+        throw new Error('network');
+      })
+      .then(function(r) {
+        if (r.status === 401) {
+          document.getElementById('login-error').style.display = 'block';
+          sessionStorage.removeItem('lr_admin_key');
+          return;
+        }
+        // 404 is fine — means key was accepted but slug doesn't exist
+        document.getElementById('login-error').style.display = 'none';
+        showDashboard();
+      })
+      .catch(function() {
+        document.getElementById('login-error').style.display = 'block';
+      });
+  }
+
+  document.getElementById('admin-key-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') signIn();
+  });
+
+  function signOut() {
+    sessionStorage.removeItem('lr_admin_key');
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('admin-key-input').value = '';
+  }
+
+  function showDashboard() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    loadVenues();
+  }
+
+  // Auto-restore session
+  if (getKey()) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    loadVenues();
+  }
+
+  // ─── Venue data ──────────────────────────────────────────────────────────
+
+  var _venues = [];
+  var _openSlug = null; // slug of row with config form open
+
+  function loadVenues() {
+    document.getElementById('venue-tbody').innerHTML =
+      '<tr class="loading-row"><td colspan="6">Loading venues...</td></tr>';
+
+    fetch('/api/places?limit=500')
+      .then(function(r) { return r.json(); })
+      .then(function(venues) {
+        _venues = venues;
+        renderStats(venues);
+        renderTable(venues);
+      })
+      .catch(function() {
+        document.getElementById('venue-tbody').innerHTML =
+          '<tr class="loading-row"><td colspan="6">Failed to load venues.</td></tr>';
+      });
+  }
+
+  function renderStats(venues) {
+    var total = venues.length;
+    var enabled = venues.filter(function(v) { return v.discount_enabled; }).length;
+    var pending = total - enabled;
+    document.getElementById('stat-total').textContent = total;
+    document.getElementById('stat-enabled').textContent = enabled;
+    document.getElementById('stat-pending').textContent = pending;
+    document.getElementById('nav-venue-count').textContent = total + ' venues';
+  }
+
+  function renderTable(venues) {
+    if (!venues.length) {
+      document.getElementById('venue-tbody').innerHTML =
+        '<tr class="loading-row"><td colspan="6">No venues found.</td></tr>';
+      return;
+    }
+
+    var html = '';
+    venues.forEach(function(v) {
+      var offerBadge = v.discount_enabled
+        ? '<span class="badge badge-green">&#10003; ' + v.discount_pct + '% off</span>'
+        : '<span class="badge badge-grey">Not set</span>';
+      var statusBadge = v.status === 'active'
+        ? '<span class="badge badge-green">' + v.status + '</span>'
+        : '<span class="badge badge-orange">' + v.status + '</span>';
+
+      html += '<tr id="row-' + v.slug + '">' +
+        '<td class="name-cell">' + escHtml(v.name) + '</td>' +
+        '<td>' + escHtml(v.city || '') + (v.state ? ', ' + escHtml(v.state) : '') + '</td>' +
+        '<td>' + escHtml(v.cuisine || '—') + '</td>' +
+        '<td>' + offerBadge + '</td>' +
+        '<td>' + statusBadge + '</td>' +
+        '<td><button class="btn-sm-ghost" onclick="toggleConfig(\'' + v.slug + '\')">Configure offer</button></td>' +
+        '</tr>';
+
+      // Config form row (hidden by default via display:none on the td contents wrapper)
+      html += '<tr class="config-row" id="config-row-' + v.slug + '" style="display:none;">' +
+        '<td colspan="6">' +
+          '<div class="config-form" id="config-form-' + v.slug + '">' +
+            '<div class="config-form-title">Configure offer for ' + escHtml(v.name) + '</div>' +
+            '<div class="config-form-grid">' +
+              '<div class="config-form-field">' +
+                '<label>Discount %</label>' +
+                '<input type="number" id="cfg-discount-' + v.slug + '" value="' + (v.discount_pct || 20) + '" min="1" max="100">' +
+              '</div>' +
+              '<div class="config-form-field">' +
+                '<label>Min spend $</label>' +
+                '<input type="number" id="cfg-spend-' + v.slug + '" value="' + (v.min_spend || 50) + '" min="0">' +
+              '</div>' +
+              '<div class="config-form-field">' +
+                '<label>Friends needed</label>' +
+                '<input type="number" id="cfg-refs-' + v.slug + '" value="' + (v.min_verified_referrals || 5) + '" min="1">' +
+              '</div>' +
+              '<div class="config-form-field">' +
+                '<label>Contact email</label>' +
+                '<input type="email" id="cfg-email-' + v.slug + '" value="' + escHtml(v.contact_email || '') + '" placeholder="optional">' +
+              '</div>' +
+              '<div></div>' + // spacer for grid alignment
+              '<button class="config-save-btn" id="cfg-btn-' + v.slug + '" onclick="saveConfig(\'' + v.slug + '\')">Save &amp; Enable</button>' +
+            '</div>' +
+            '<div class="config-msg" id="cfg-msg-' + v.slug + '"></div>' +
+          '</div>' +
+        '</td>' +
+        '</tr>';
+    });
+
+    document.getElementById('venue-tbody').innerHTML = html;
+  }
+
+  function toggleConfig(slug) {
+    var row = document.getElementById('config-row-' + slug);
+    if (!row) return;
+    var isOpen = row.style.display !== 'none';
+
+    // Close any previously open form
+    if (_openSlug && _openSlug !== slug) {
+      var prev = document.getElementById('config-row-' + _openSlug);
+      if (prev) prev.style.display = 'none';
+    }
+
+    row.style.display = isOpen ? 'none' : 'table-row';
+    _openSlug = isOpen ? null : slug;
+  }
+
+  function saveConfig(slug) {
+    var key = getKey();
+    var discount_pct = parseInt(document.getElementById('cfg-discount-' + slug).value) || null;
+    var min_spend = parseInt(document.getElementById('cfg-spend-' + slug).value) || null;
+    var min_verified_referrals = parseInt(document.getElementById('cfg-refs-' + slug).value) || null;
+    var contact_email = document.getElementById('cfg-email-' + slug).value.trim() || null;
+
+    var btn = document.getElementById('cfg-btn-' + slug);
+    var msg = document.getElementById('cfg-msg-' + slug);
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+    msg.textContent = '';
+    msg.className = 'config-msg';
+
+    fetch('/api/admin/venue-setup', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-key': key
+      },
+      body: JSON.stringify({ slug: slug, discount_pct: discount_pct, min_spend: min_spend, min_verified_referrals: min_verified_referrals, contact_email: contact_email })
+    })
+    .then(function(r) { return r.json().then(function(d) { return { status: r.status, data: d }; }); })
+    .then(function(result) {
+      btn.disabled = false;
+      btn.textContent = 'Save & Enable';
+      if (result.status === 200 && result.data.ok) {
+        msg.textContent = 'Saved! Offer is now enabled.';
+        msg.className = 'config-msg ok';
+        // Refresh table after a brief pause
+        setTimeout(function() {
+          document.getElementById('config-row-' + slug).style.display = 'none';
+          _openSlug = null;
+          loadVenues();
+        }, 1200);
+      } else if (result.status === 401) {
+        msg.textContent = 'Unauthorized. Check your admin key.';
+        msg.className = 'config-msg err';
+      } else {
+        msg.textContent = result.data.error || 'Error saving config.';
+        msg.className = 'config-msg err';
+      }
+    })
+    .catch(function() {
+      btn.disabled = false;
+      btn.textContent = 'Save & Enable';
+      msg.textContent = 'Network error. Please try again.';
+      msg.className = 'config-msg err';
+    });
+  }
+
+  // ─── Pinterest ────────────────────────────────────────────────────────────
+
+  var _pinAllPreviewCount = null;
+
+  function pinAllDryRun() {
+    var key = getKey();
+    var preview = document.getElementById('pin-all-preview');
+    preview.style.display = 'block';
+    preview.innerHTML = 'Running dry-run...';
+
+    fetch('/auth/admin/pin-all-venues', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': key },
+      body: JSON.stringify({ dryRun: true })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.error) {
+        preview.innerHTML = '<strong style="color:var(--red)">Error:</strong> ' + escHtml(data.error);
+        return;
+      }
+      var count = data.count || data.pins || 0;
+      _pinAllPreviewCount = count;
+      preview.innerHTML =
+        '<strong>' + count + ' pins</strong> would be posted. ' +
+        '<button class="btn-sm" style="margin-left:12px" onclick="pinAllConfirm()">Confirm &amp; post ' + count + ' pins</button>';
+    })
+    .catch(function() {
+      preview.innerHTML = '<span style="color:var(--red)">Request failed.</span>';
+    });
+  }
+
+  function pinAllConfirm() {
+    var key = getKey();
+    var preview = document.getElementById('pin-all-preview');
+    preview.innerHTML = 'Posting pins...';
+
+    fetch('/auth/admin/pin-all-venues', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': key },
+      body: JSON.stringify({ dryRun: false })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.error) {
+        preview.innerHTML = '<strong style="color:var(--red)">Error:</strong> ' + escHtml(data.error);
+        return;
+      }
+      var posted = data.posted || data.count || 0;
+      preview.innerHTML = '<strong style="color:var(--green)">Done!</strong> ' + posted + ' pins posted.';
+    })
+    .catch(function() {
+      preview.innerHTML = '<span style="color:var(--red)">Request failed.</span>';
+    });
+  }
+
+  function pinSingleVenue() {
+    var key = getKey();
+    var slug = document.getElementById('single-slug').value.trim();
+    var preview = document.getElementById('pin-single-preview');
+    if (!slug) { preview.style.display = 'block'; preview.innerHTML = 'Enter a venue slug.'; return; }
+    preview.style.display = 'block';
+    preview.innerHTML = 'Posting pin for <strong>' + escHtml(slug) + '</strong>...';
+
+    fetch('/auth/admin/pin-venue', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': key },
+      body: JSON.stringify({ slug: slug })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.error) {
+        preview.innerHTML = '<strong style="color:var(--red)">Error:</strong> ' + escHtml(data.error);
+        return;
+      }
+      preview.innerHTML = '<strong style="color:var(--green)">Done!</strong> Pin posted for ' + escHtml(slug) + '.';
+    })
+    .catch(function() {
+      preview.innerHTML = '<span style="color:var(--red)">Request failed.</span>';
+    });
+  }
+
+  // ─── Helpers ──────────────────────────────────────────────────────────────
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+</script>
+</body>
+</html>

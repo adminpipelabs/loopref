@@ -59,6 +59,9 @@ router.post('/restaurants', (req, res) => {
     instagram_handle || null, tiktok_handle || null, website || null, rep_code || null
   );
 
+  // Venues that register have agreed to an offer — enable discount immediately
+  db.prepare('UPDATE restaurants SET discount_enabled = 1 WHERE id = ?').run(result.lastInsertRowid);
+
   res.json({ ok: true, restaurantId: result.lastInsertRowid, slug });
 });
 
@@ -128,7 +131,7 @@ router.get('/places', (req, res) => {
 
   let sql = `
     SELECT id, name, slug, cuisine, city, state, address, phone, tagline,
-           website, min_spend, discount_pct, instagram_handle, tiktok_handle, source, status
+           website, min_spend, discount_pct, discount_enabled, instagram_handle, tiktok_handle, source, status
     FROM restaurants
     WHERE status IN ('active', 'imported')
   `;
@@ -146,7 +149,7 @@ router.get('/places', (req, res) => {
 router.get('/places/:slug', (req, res) => {
   const venue = getDb().prepare(`
     SELECT id, name, slug, cuisine, city, state, address, phone, tagline,
-           website, min_spend, discount_pct, min_verified_referrals,
+           website, min_spend, discount_pct, discount_enabled, min_verified_referrals,
            instagram_handle, tiktok_handle, source, status, google_maps_url
     FROM restaurants WHERE slug = ? AND status IN ('active', 'imported')
   `).get(req.params.slug);
@@ -258,6 +261,7 @@ router.post('/admin/venue-setup', (req, res) => {
       min_verified_referrals = COALESCE(?, min_verified_referrals),
       min_spend = COALESCE(?, min_spend),
       contact_email = COALESCE(?, contact_email),
+      discount_enabled = CASE WHEN ? IS NOT NULL THEN 1 ELSE discount_enabled END,
       status = CASE WHEN status = 'imported' THEN 'active' ELSE status END
     WHERE slug = ?
   `).run(
@@ -265,6 +269,7 @@ router.post('/admin/venue-setup', (req, res) => {
     min_verified_referrals != null ? parseInt(min_verified_referrals) : null,
     min_spend != null ? parseInt(min_spend) : null,
     contact_email || null,
+    discount_pct != null ? parseInt(discount_pct) : null,
     slug
   );
 
