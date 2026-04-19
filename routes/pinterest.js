@@ -1,6 +1,7 @@
 const express = require('express');
 const fetch = require('node-fetch');
 const { getDb } = require('../database/db');
+const { pinVenue, pinAllVenues, buildPinContent, setSystemConfig } = require('../jobs/looprefPins');
 
 const router = express.Router();
 
@@ -8,6 +9,110 @@ const PINTEREST_CLIENT_ID = process.env.PINTEREST_CLIENT_ID;
 const PINTEREST_CLIENT_SECRET = process.env.PINTEREST_CLIENT_SECRET;
 const BASE_URL = process.env.BASE_URL || 'https://loopref.com';
 const REDIRECT_URI = `${BASE_URL}/auth/pinterest/callback`;
+const LOOPREF_REDIRECT_URI = `${BASE_URL}/auth/loopref-pinterest/callback`;
+
+// ─── Admin key guard ─────────────────────────────────────────────────────────
+
+function requireAdmin(req, res, next) {
+  const key = process.env.ADMIN_KEY;
+  if (!key) return res.status(503).json({ error: 'ADMIN_KEY not configured' });
+  if (req.headers['x-admin-key'] !== key) return res.status(401).json({ error: 'Unauthorized' });
+  next();
+}
+
+// ─── LoopRef system Pinterest OAuth ──────────────────────────────────────────
+
+// Step 1: Initiate OAuth for LoopRef's own Pinterest account (admin only)
+router.get('/loopref-pinterest', requireAdmin, (req, res) => {
+  const url = new URL('https://www.pinterest.com/oauth/');
+  url.searchParams.set('client_id', PINTEREST_CLIENT_ID);
+  url.searchParams.set('redirect_uri', LOOPREF_REDIRECT_URI);
+  url.searchParams.set('response_type', 'code');
+  url.searchParams.set('scope', 'boards:read,boards:write,pins:read,pins:write');
+  url.searchParams.set('state', 'loopref-system');
+  res.redirect(url.toString());
+});
+
+// Step 2: Handle OAuth callback — store tokens in system_config
+router.get('/loopref-pinterest/callback', async (req, res) => {
+  const { code, error } = req.query;
+  if (error) return res.send('Pinterest access denied.');
+
+  try {
+    const credentials = Buffer.from(`${PINTEREST_CLIENT_ID}:${PINTEREST_CLIENT_SECRET}`).toString('base64');
+    const tokenRes = await fetch('https://api.pinterest.com/v5/oauth/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': `Basic ${credentials}` },
+      body: new URLSearchParams({ grant_type: 'authorization_code', code, redirect_uri: LOOPREF_REDIRECT_URI }),
+    });
+
+    const tokens = await tokenRes.json();
+    if (!tokens.access_token) throw new Error(JSON.stringify(tokens));
+
+    const expiresAt = new Date(Date.now() + tokens.expires_in * 1000).toISOString();
+    setSystemConfig('loopref_pinterest_access_token', tokens.access_token);
+    setSystemConfig('loopref_pinterest_refresh_token', tokens.refresh_token || '');
+    setSystemConfig('loopref_pinterest_token_expires_at', expiresAt);
+
+    // Get user profile to confirm identity
+    const profileRes = await fetch('https://api.pinterest.com/v5/user_account', {
+      headers: { 'Authorization': `Bearer ${tokens.access_token}` },
+    });
+    const profile = await profileRes.json();
+
+    res.send(`
+      <html><body style="font-family:sans-serif;padding:40px;max-width:500px;margin:0 auto;">
+        <h2>✅ LoopRef Pinterest connected!</h2>
+        <p>Connected as: <strong>@${profile.username || 'unknown'}</strong></p>
+        <p>Token expires: ${expiresAt}</p>
+        <p>Next step: set <code>LOOPREF_PINTEREST_BOARD_ID</code> to your board's ID, then use<br>
+           <code>POST /auth/admin/pin-all-venues</code> to create pins.</p>
+        <p><a href="https://www.pinterest.com/${profile.username}/boards/" target="_blank">View your Pinterest boards →</a></p>
+      </body></html>
+    `);
+  } catch (err) {
+    console.error('LoopRef Pinterest OAuth error:', err);
+    res.status(500).send(`OAuth failed: ${err.message}`);
+  }
+});
+
+// ─── Admin: pin management using LoopRef's account ───────────────────────────
+
+// POST /auth/admin/pin-venue — pin a single venue by slug
+router.post('/admin/pin-venue', requireAdmin, async (req, res) => {
+  const { slug, imageUrl } = req.body;
+  if (!slug) return res.status(400).json({ error: 'slug required' });
+
+  const venue = getDb().prepare('SELECT * FROM restaurants WHERE slug = ?').get(slug);
+  if (!venue) return res.status(404).json({ error: 'Venue not found' });
+
+  try {
+    const result = await pinVenue(venue, imageUrl || null);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /auth/admin/pin-all-venues — bulk-pin all venues without a pin
+// Body: { limit: 50, dryRun: false }
+router.post('/admin/pin-all-venues', requireAdmin, async (req, res) => {
+  const { limit = 50, dryRun = false } = req.body;
+  try {
+    const results = await pinAllVenues({ limit, dryRun });
+    res.json({ ok: true, count: results.length, results });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /auth/admin/pin-preview/:slug — preview what a pin would look like (no API call)
+router.get('/admin/pin-preview/:slug', requireAdmin, (req, res) => {
+  const venue = getDb().prepare('SELECT * FROM restaurants WHERE slug = ?').get(req.params.slug);
+  if (!venue) return res.status(404).json({ error: 'Venue not found' });
+  const { title, description, link } = buildPinContent(venue);
+  res.json({ title, description, link, venue: venue.name });
+});
 
 // ─── OAuth ───────────────────────────────────────────────────────────────────
 
