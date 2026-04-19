@@ -55,11 +55,7 @@ app.get('/claim/:code', (req, res) => {
   res.sendFile(path.join(__dirname, 'claim', 'index.html'));
 });
 
-// Mobile web app: /app and /app/ both serve the SPA
-app.get('/app', (req, res) => res.redirect('/app/'));
-app.get('/app/', (req, res) => res.sendFile(path.join(__dirname, 'app', 'index.html')));
-
-// Serve static site from root
+// Serve static site from root (serves /app/index.html automatically)
 app.use(express.static(path.join(__dirname)));
 
 // SPA-style fallback for clean URLs (/about, /earn, etc.)
