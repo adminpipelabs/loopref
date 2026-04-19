@@ -68,13 +68,17 @@ router.get('/loopref-pinterest/callback', async (req, res) => {
     const profile = await profileRes.json();
 
     res.send(`
-      <html><body style="font-family:sans-serif;padding:40px;max-width:500px;margin:0 auto;">
+      <html><body style="font-family:sans-serif;padding:40px;max-width:560px;margin:0 auto;">
         <h2>✅ LoopRef Pinterest connected!</h2>
         <p>Connected as: <strong>@${profile.username || 'unknown'}</strong></p>
         <p>Token expires: ${expiresAt}</p>
-        <p>Next step: set <code>LOOPREF_PINTEREST_BOARD_ID</code> to your board's ID, then use<br>
-           <code>POST /auth/admin/pin-all-venues</code> to create pins.</p>
-        <p><a href="https://www.pinterest.com/${profile.username}/boards/" target="_blank">View your Pinterest boards →</a></p>
+        <hr style="margin:24px 0;border:none;border-top:1px solid #eee;">
+        <h3>⚠️ Save this token to Railway now</h3>
+        <p>Railway resets the database on each deploy. Add this as an environment variable so it persists:</p>
+        <p><strong>Variable name:</strong> <code>LOOPREF_PINTEREST_ACCESS_TOKEN</code></p>
+        <p><strong>Value:</strong></p>
+        <textarea rows="3" style="width:100%;font-family:monospace;font-size:12px;padding:8px;border:1px solid #ccc;border-radius:4px;" onclick="this.select()">${tokens.access_token}</textarea>
+        <p style="margin-top:16px;">Copy that → Railway → Variables → add it → redeploy. You won't need to reconnect Pinterest again.</p>
       </body></html>
     `);
   } catch (err) {
