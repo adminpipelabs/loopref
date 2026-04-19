@@ -204,6 +204,13 @@ function initDb() {
     CREATE INDEX IF NOT EXISTS idx_referral_clicks_restaurant
       ON referral_clicks(restaurant_id);
 
+    -- System-level key/value config (LoopRef Pinterest tokens, etc.)
+    CREATE TABLE IF NOT EXISTS system_config (
+      key        TEXT PRIMARY KEY,
+      value      TEXT,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
     -- Claim codes (generated when verified_clicks threshold hit)
     CREATE TABLE IF NOT EXISTS claim_codes (
       id            INTEGER PRIMARY KEY AUTOINCREMENT,
