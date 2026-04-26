@@ -129,7 +129,7 @@ router.get('/places', (req, res) => {
   let sql = `
     SELECT id, name, slug, cuisine, city, state, address, phone, tagline,
            website, min_spend, discount_pct, discount_enabled, min_verified_referrals,
-           instagram_handle, tiktok_handle, source, status
+           instagram_handle, tiktok_handle, source, status, google_maps_url, lat, lng
     FROM restaurants
     WHERE status IN ('active', 'imported')
   `;

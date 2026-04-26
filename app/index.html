@@ -313,6 +313,23 @@ body{
 .venue-ext-link:hover{border-color:var(--accent);color:var(--accent);}
 .venue-ext-link svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;}
 
+/* ─── VENUE ADDRESS + ACTION BUTTONS ────────────────────────────────── */
+.venue-address-block{padding:8px 16px 12px;display:flex;flex-direction:column;gap:10px;}
+.venue-address-line{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-3);}
+.venue-address-line svg{flex-shrink:0;stroke:var(--ink-3);fill:none;stroke-width:2;stroke-linecap:round;}
+.venue-action-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.venue-action-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:10px 16px;border-radius:10px;
+  border:1.5px solid var(--border);
+  font-size:13px;font-weight:700;color:var(--ink-2);
+  text-decoration:none;transition:all .15s;flex-shrink:0;
+}
+.venue-action-btn svg{stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;}
+.venue-action-btn:hover{border-color:var(--accent);color:var(--accent);}
+.venue-action-primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+.venue-action-primary:hover{background:#e55a2b;border-color:#e55a2b;color:#fff;}
+
 /* ─── REFS SCREEN ────────────────────────────────────────────────────── */
 .refs-header{padding:20px 16px 0;}
 .refs-title{
@@ -613,13 +630,39 @@ window.addEventListener('popstate', function() {
    DISCOVER SCREEN
 ═══════════════════════════════════════════════════════════════════════ */
 /** Fetch all venues and render cards + city pills. */
+var _userLat = null, _userLng = null;
+
+function haversineKm(lat1, lng1, lat2, lng2) {
+  var R = 6371;
+  var dLat = (lat2 - lat1) * Math.PI / 180;
+  var dLng = (lng2 - lng1) * Math.PI / 180;
+  var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+          Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+          Math.sin(dLng/2) * Math.sin(dLng/2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
 function loadDiscover() {
   fetch('/api/places?limit=500')
     .then(function(r) { return r.json(); })
     .then(function(venues) {
       _allVenues = venues || [];
       buildCityPills(_allVenues);
-      filterVenues(); // renders cards with current filter
+
+      // Ask for location permission to sort by distance
+      if (navigator.geolocation && _userLat === null) {
+        navigator.geolocation.getCurrentPosition(
+          function(pos) {
+            _userLat = pos.coords.latitude;
+            _userLng = pos.coords.longitude;
+            filterVenues();
+          },
+          function() { filterVenues(); }, // denied — just show alphabetical
+          { timeout: 5000 }
+        );
+      } else {
+        filterVenues();
+      }
     })
     .catch(function() {
       document.getElementById('venue-list').innerHTML =
@@ -670,6 +713,15 @@ function filterVenues() {
            (v.cuisine || '').toLowerCase().includes(q) ||
            (v.state || '').toLowerCase().includes(q);
   });
+
+  // Sort by distance if we have user location, otherwise alphabetical
+  if (_userLat !== null && _activeCity === 'all' && !q) {
+    _filteredVenues.sort(function(a, b) {
+      var da = (a.lat && a.lng) ? haversineKm(_userLat, _userLng, a.lat, a.lng) : 99999;
+      var db2 = (b.lat && b.lng) ? haversineKm(_userLat, _userLng, b.lat, b.lng) : 99999;
+      return da - db2;
+    });
+  }
 
   renderVenueCards(_filteredVenues);
 }
@@ -764,19 +816,27 @@ function renderVenueDetail(v) {
   // Share section: existing link OR form
   var shareSection = renderShareSection(v, existingShare);
 
-  // External links
-  var extLinks = '';
-  if (v.google_maps_url) {
-    extLinks += '<a class="venue-ext-link" href="' + escHtml(v.google_maps_url) + '" target="_blank" rel="noopener">' +
-      '<svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' +
-      'Google Maps</a>';
-  }
-  // Social handles
-  ['instagram_handle','tiktok_handle','twitter_handle'].forEach(function(field) {
-    if (v[field]) {
-      extLinks += '<a class="venue-ext-link" href="https://instagram.com/' + escHtml(v[field]) + '" target="_blank" rel="noopener">@' + escHtml(v[field]) + '</a>';
-    }
-  });
+  // Address + action buttons block
+  var addressBlock = '';
+  var mapsUrl = v.google_maps_url || ('https://maps.google.com/?q=' + encodeURIComponent(v.name + ' ' + (v.city||'') + ' ' + (v.state||'')));
+  var addrLine = v.address || (v.city + (v.state ? ', ' + v.state : ''));
+  addressBlock =
+    '<div class="venue-address-block">' +
+      '<div class="venue-address-line">' +
+        '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' +
+        escHtml(addrLine) +
+      '</div>' +
+      '<div class="venue-action-btns">' +
+        '<a class="venue-action-btn venue-action-primary" href="' + escHtml(mapsUrl) + '" target="_blank" rel="noopener">' +
+          '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' +
+          'Get directions' +
+        '</a>' +
+        (v.website ? '<a class="venue-action-btn" href="' + escHtml(v.website) + '" target="_blank" rel="noopener">' +
+          '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>' +
+          'Website' +
+        '</a>' : '') +
+      '</div>' +
+    '</div>';
 
   var html =
     '<div class="venue-hero">' +
@@ -786,6 +846,7 @@ function renderVenueDetail(v) {
         (v.city ? '<span class="venue-city-chip"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' + escHtml(v.city) + (v.state ? ', ' + escHtml(v.state) : '') + '</span>' : '') +
       '</div>' +
     '</div>' +
+    addressBlock +
     offerBanner +
     '<div class="hiw-section">' +
       '<div class="hiw-title">How it works</div>' +
@@ -793,10 +854,6 @@ function renderVenueDetail(v) {
     '</div>' +
     '<div class="divider" style="margin:0 16px 16px;"></div>' +
     shareSection;
-
-  if (extLinks) {
-    html += '<div class="venue-links">' + extLinks + '</div>';
-  }
 
   document.getElementById('venue-content').innerHTML = html;
 
