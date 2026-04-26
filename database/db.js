@@ -30,6 +30,8 @@ function initDb() {
       state           TEXT,
       country         TEXT DEFAULT 'US',
       address         TEXT,
+      lat             REAL,
+      lng             REAL,
       google_maps_url TEXT,
       phone           TEXT,
       tagline         TEXT,
@@ -338,6 +340,10 @@ function runMigrations(db) {
   // restaurants: per-venue threshold + offer flag
   add('restaurants', 'min_verified_referrals', 'INTEGER DEFAULT 5');
   add('restaurants', 'discount_enabled',        'INTEGER DEFAULT 0');
+
+  // restaurants: geo-enrichment (Nominatim)
+  add('restaurants', 'lat', 'REAL');
+  add('restaurants', 'lng', 'REAL');
 
   // Set min_verified_referrals=5 for any rows where it is NULL or 0
   try {
